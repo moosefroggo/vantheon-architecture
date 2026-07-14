@@ -1,3 +1,7 @@
 # Gemini CLI runtime files
 .gemini/
 gha-creds-*.json
+
+# Local operating-system and agent process artifacts
+.DS_Store
+.agents/

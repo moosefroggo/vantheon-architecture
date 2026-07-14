@@ -1,0 +1,32 @@
+name: Documentation Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Check handbook structure and extract diagrams
+        env:
+          MERMAID_OUTPUT_DIR: /tmp/vantheon-mermaid
+        run: ruby scripts/check-docs.rb
+
+      - name: Render Mermaid diagrams
+        run: |
+          for diagram in /tmp/vantheon-mermaid/*.mmd; do
+            npx --yes @mermaid-js/mermaid-cli@11.12.0 \
+              --input "$diagram" \
+              --output "${diagram%.mmd}.svg" \
+              --puppeteerConfigFile .github/puppeteer-config.json
+          done

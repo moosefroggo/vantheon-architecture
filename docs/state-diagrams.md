@@ -289,6 +289,7 @@ stateDiagram-v2
     state "Disconnected and stale" as Disconnected
     state "Reauthorizing and reconciling" as Reconciling
     state "Provisioning or operational failure" as Failed
+    state "Finishing current run; no new runs scheduled" as Stopping
     state "Stopped" as Stopped
     state "Archived Paper evidence" as Archived
 
@@ -308,13 +309,18 @@ stateDiagram-v2
     Reconciling --> Active: snapshot and backfill converge
     Reconciling --> Paused: reconciled portfolio remains paused
     Reconciling --> Degraded: recovery incomplete
-    Active --> Stopped: stop accepted
+    Active --> Stopping: stop accepted during a run
+    Active --> Stopped: stop accepted while idle
     Paused --> Stopped: stop accepted
-    Degraded --> Stopped: stop accepted
+    Degraded --> Stopping: stop accepted during a run
+    Degraded --> Stopped: stop accepted while idle
+    Stopping --> Stopped: current run reaches terminal state
     Stopped --> Archived: archive Paper
-    Archived --> Stopped: restore to stopped history
+    Archived --> Stopped: unarchive; remain stopped
     Stopped --> [*]: close non-Paper history
 ```
+
+Paper archive is deliberately two-step: an Active or Stopping portfolio cannot transition directly to Archived. Unarchive restores discoverability and historical inspection only; a separate explicit resume action is required before any future scheduled run.
 
 ## 10. Live Emergency Controls
 

@@ -312,7 +312,9 @@ MVP behavior:
 - New strategy work targets the current Draft, not Paper V5.
 - Comparing Paper portfolios discloses unequal observation windows, schedules, assumptions, and run counts.
 - Every comparison declares a validity envelope. If P-008 thresholds are unmet, the comparison remains descriptive and is labelled `Insufficient comparable evidence`; it cannot rank or recommend a winner.
-- Users may stop future runs without deleting evidence, then archive stopped portfolios from the active selector. Archived Paper remains searchable and inspectable but does not run or retain full-resolution subscriptions.
+- Users may stop future runs without deleting evidence. A run already executing may reach a terminal state, during which the portfolio is `stopping`; no later scheduled run begins.
+- Only a stopped Paper portfolio may be archived. Archived Paper remains searchable, inspectable, and available as historical comparison context but does not run or retain full-resolution subscriptions.
+- Unarchiving returns Paper to `stopped`; it never resumes schedules or changes the pinned immutable strategy automatically.
 
 The frontend should not imply that Paper evidence guarantees Live performance.
 
@@ -505,7 +507,7 @@ Each state domain has one authoritative owner. “Client owner” below means re
 22. Restoring an older checkpoint creates a new reviewed checkpoint and never rewinds or deletes history.
 23. Paper and Live progression uses a versioned server eligibility assessment; missing hard Live criteria fail closed.
 24. Champion input is untrusted and Champion output is non-authoritative until independent validation and required human gates complete.
-25. Stopping or archiving Paper preserves its immutable strategy, runs, decisions, and comparison provenance.
+25. Stopping or archiving Paper preserves its immutable strategy, runs, decisions, and comparison provenance; archiving requires Stopped state, and unarchiving never resumes runs automatically.
 
 ## Deliberately Out of Scope
 

@@ -118,6 +118,8 @@ type ConversationContextTargetProps = {
 
 Feature code should not need to know whether this component currently renders a shadcn `Badge`, `Alert`, `Tooltip`, or a future custom visual treatment.
 
+`PaperLifecycleControls` owns the semantic presentation of `active`, `stopping`, `stopped`, and `archived` Paper states. It receives server-derived permissions and available actions; it does not infer them from button visibility or mutate portfolio state directly. Its contract preserves the separation between `stop`, `archive`, `unarchive`, and any future `resume` command. In particular, `unarchive` returns a portfolio to Stopped and must never be implemented as a resume shortcut.
+
 ### `features`
 
 Contains workflow composition, data hooks, commands, and route-specific behavior.

@@ -29,6 +29,8 @@ flowchart TB
     D --> T[Current Draft mutation target]
     P --> T
     L --> T
+    P --> PS[Active and stopped Paper selector]
+    P --> AR[Archived Paper collection]
     P --> E[Immutable portfolio evidence]
     L --> E
 ```
@@ -56,8 +58,9 @@ Champions
     │   ├── History                   checkpoints and immutable versions
     │   └── Data                      advanced
     ├── Paper
-    │   ├── Paper portfolio selector
+    │   ├── Active and stopped portfolio selector
     │   ├── Compare portfolios
+    │   ├── Archived portfolios      secondary searchable collection
     │   └── Selected Paper Vn · Running
     │       ├── Overview              default
     │       ├── Runs
@@ -159,6 +162,30 @@ Runs precede Positions and Orders in Paper navigation because learning why the s
 - Stopped Paper: `Archive Paper portfolio`; archive is reversible and deletion is not offered in the MVP.
 
 Existing Paper portfolios remain unchanged when a newer Draft is evaluated or launched to Paper. Each Paper launch creates another independently observable source of evidence.
+
+### Paper lifecycle interaction placement
+
+Lifecycle controls stay secondary to learning and iteration. They must be discoverable without competing visually with `Review latest run`, `Improve in Draft`, or comparison.
+
+| Portfolio state | Paper selector | Portfolio detail | Available lifecycle action |
+|---|---|---|---|
+| Active | Visible with `Running` status | Overview header overflow or settings area | `Stop future Paper runs` |
+| Stopping | Visible with `Stopping` status | Persistent progress/status; evidence remains usable | No duplicate stop or archive action |
+| Stopped | Visible in a `Stopped` subsection until archived | Read-only evidence with stopped time and last completed run | `Archive Paper portfolio` or explicitly resume if supported |
+| Archived | Removed from active and stopped selector groups | Opened from the Paper-level `Archived` collection | `Unarchive`; returns to Stopped and never resumes automatically |
+
+The Paper switcher ends with a secondary `Archived` entry that shows a count and opens a searchable collection. Archived portfolios do not appear alongside active comparison candidates by default, but the comparison picker may include them through an explicit `Include archived` filter.
+
+`Stop future Paper runs` opens a scoped confirmation that states:
+
+- No new scheduled runs begin after the stop is accepted.
+- A run already executing may reach a terminal state unless a separately supported cancellation action is chosen.
+- Simulated positions, immutable strategy, runs, decisions, orders, and performance evidence are preserved.
+- Stopping does not change the current Draft, Live, or another Paper portfolio.
+
+After the authoritative stop result, show `Archive Paper portfolio` in the stopped portfolio's overflow/settings area and optionally in its selector-row context menu. Archive confirmation explains that the portfolio leaves the everyday selector, loses scheduled work and full-resolution subscriptions, and remains searchable, inspectable, and available as historical comparison evidence.
+
+Archiving an Active or Stopping portfolio in one action is not offered. Unarchive is also explicit and authoritative; it returns the portfolio to Stopped so resuming scheduled runs, if supported, requires a separate action and confirmation.
 
 ### Comparison validity
 
@@ -364,6 +391,7 @@ Until these are recorded in the decision ledger, “responsive” must not be us
 | Paper Overview | Activation destination and first running evidence | Ongoing observation and improvement entry point |
 | Run decision trace | Explains initial action/rejection | Establishes precise causal source for improvement |
 | Paper comparison | Not required before first activation | Tests improvements longitudinally without replacing history |
+| Paper archive collection | Not shown in the core activation path | Bounds active Paper clutter while preserving historical evidence |
 | Live Overview/Risk | Excluded from required first-session flow | Supports separate capital decision and ongoing control |
 | Contextual conversation | Captures intent and explains evidence | Transfers immutable evidence to the current Draft |
 | Semantic change review | Makes Champion-selected changes understandable | Preserves deliberate, evidence-linked improvement |
@@ -378,6 +406,7 @@ Until these are recorded in the decision ledger, “responsive” must not be us
 - A Paper or Live observation can reach `Improve in Draft` without losing its run and rule context.
 - The composer always exposes viewed context and mutation target when they differ.
 - Paper navigation prioritizes runs and learning; Live navigation prioritizes risk and control.
+- Active Paper can be stopped from its detail context; only Stopped Paper can be archived; Archived Paper is discoverable outside the everyday selector and unarchives without resuming.
 - No-trade, stale, degraded, disconnected, unauthorized, and failed states remain understandable and actionable.
 - Emergency pause and eligible-order cancellation cannot be mistaken for strategy editing or each other.
 - Collapsed panels, deep links, and warm navigation preserve context and restore focus.

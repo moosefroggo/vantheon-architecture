@@ -324,6 +324,8 @@ Evidence includes behavior and risk, not only return:
 
 When evidence supports the change, launch the current Draft as a new immutable Paper version. Existing Paper portfolios continue unchanged.
 
+As the Paper set grows, lifecycle housekeeping remains secondary to comparison: the user may stop a portfolio that should no longer gather new evidence, wait for any current run to finish, and archive it from the stopped state. Archiving removes it from the everyday selector without deleting its strategy, runs, decisions, or comparison provenance. Unarchiving returns it to Stopped and never restarts schedules automatically.
+
 The comparison experience must support:
 
 - Common and version-specific observation windows.

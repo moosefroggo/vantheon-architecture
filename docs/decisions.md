@@ -468,11 +468,11 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Iteration can create many persistent scheduled Paper portfolios. Letting all of them run forever increases cost and makes comparison unusable.
 
-**Decision:** Users can stop future Paper runs without deleting accumulated evidence, then archive stopped Paper portfolios from the active selector. Archived portfolios remain searchable, inspectable, and eligible as historical comparison context but do not run or receive full-resolution subscriptions.
+**Decision:** Users can stop future Paper runs without deleting accumulated evidence, then archive only after the portfolio reaches Stopped. Active and Stopped Paper remain in the everyday selector; Archived Paper moves to a secondary searchable collection. Archived portfolios remain inspectable and eligible as historical comparison context but do not run or receive full-resolution subscriptions. Unarchive returns to Stopped and never resumes automatically.
 
 **Reasoning:** The product preserves provenance while bounding scheduled work and active-navigation density.
 
-**Consequences:** Stop and archive are separate audited actions. Archive is reversible; deletion is not an MVP operation. The UI recommends review when active Paper count or inactivity exceeds a product-configured threshold, which remains non-authoritative.
+**Consequences:** Stop, archive, unarchive, and any future resume are separate audited actions. A run already in progress may finish while the portfolio is Stopping, but no later scheduled run begins. Archive is reversible; deletion is not an MVP operation. The UI recommends review when active Paper count or inactivity exceeds a product-configured threshold, which remains non-authoritative.
 
 **Revisit when:** Retention, cost, or regulatory policy requires immutable cold storage or deletion.
 

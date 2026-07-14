@@ -257,6 +257,8 @@ The identity provider, cookie/token mechanism, offline-data retention policy, an
 
 Every live surface distinguishes `active`, `paused`, `degraded`, `disconnected`, `recovering`, `failed`, and `unauthorized` where applicable.
 
+Paper additionally distinguishes `stopping`, `stopped`, and `archived`. Lifecycle commands remain server-authoritative: archive is available only for Stopped Paper, and unarchive returns to Stopped without scheduling or resuming runs.
+
 - Show last confirmed update time and data freshness.
 - Preserve a last-known view during transient failure, clearly labelled as stale.
 - Disable or narrow commands whose preconditions cannot be verified.

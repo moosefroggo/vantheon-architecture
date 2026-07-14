@@ -204,43 +204,46 @@ flowchart TD
     M -->|"Yes"| I
 ```
 
-## 7. Conversation-to-Command Flow
+## 7. Correlated Champion Work and Command Flow
 
-Streamed model output is useful presentation, but the authoritative mutation occurs only through the validated command boundary.
+Conversation is one presentation of work, not its owner. The primary domain surface and activity projection remain current through authoritative events even when conversation is collapsed or unavailable.
 
 ```mermaid
 sequenceDiagram
     actor User
-    participant UI as Champion workspace
+    participant Surface as Primary domain surface
+    participant Conversation as Conversation panel
+    participant Activity as Champion activity projection
     participant Server as Authoritative server
     participant Champion as Champion runtime
     participant Query as Server-state projection
-    participant Local as Local interaction projection
     participant Recovery as IndexedDB recovery queue
 
-    User->>UI: Submit intent in viewed context
-    UI->>Server: Persist message with Draft mutation target
+    User->>Surface: Submit intent or invoke action from an object
+    Surface->>Server: Persist intent, source references, and Draft target
+    Server-->>Activity: Emit verified work phase and affected object
     Server->>Champion: Interpret intent with evidence and current Draft
-    Champion-->>UI: Stream explanation and proposed semantic parts
-    Note over UI,Champion: Streamed parts are not authoritative strategy state
+    Champion-->>Conversation: Stream explanation and typed object references
+    Note over Conversation,Champion: Streamed parts are not work status or authoritative state
     Champion->>Server: Submit typed change set against base checkpoint
     Server->>Server: Validate actor, base, commands, and domain rules
     alt Accepted
         Server->>Server: Create one checkpoint and provenance
         Server-->>Query: Emit authoritative patch and status
-        Query->>Local: Reconcile current projection
-        Local-->>UI: Paint confirmed checkpoint and semantic change
-        UI->>Recovery: Clear matching pending command
+        Query-->>Surface: Paint confirmed artifact and semantic change
+        Server-->>Activity: Mark work complete with result reference
+        Surface->>Recovery: Clear matching pending command
     else Rejected or failed
         Server-->>Query: Emit authoritative rejection or failure
-        Query-->>UI: Preserve Draft and explain result
+        Query-->>Surface: Preserve Draft and explain result
+        Server-->>Activity: Mark rejected or failed
     else Base conflict
         Server-->>Query: Emit current checkpoint and semantic conflict
-        Query-->>UI: Request safe resolution
+        Query-->>Surface: Request safe resolution
     end
 ```
 
-If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
+The conversation panel may summarize and link to the result, but the result is independently present in the primary surface and activity history. If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
 
 ## 8. Portfolio Run Lifecycle
 

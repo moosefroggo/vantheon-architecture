@@ -12,6 +12,8 @@ Accepted for the Champion workspace hierarchy and the two priority journeys.
 
 The IA is organized around user goals—Draft, Paper, and Live—not backend entities. Versions, checkpoints, commands, deployments, and runs appear where they help the user understand or act; they are not peer top-level destinations.
 
+The active domain surface—not the transcript—is the center of the workspace. Conversation is a contextual control and explanation channel correlated with the strategy, evidence, activity, and outcomes visible in that surface.
+
 ## Persistent Champion Workspace
 
 The Champion workspace persists while the selected Draft, Paper portfolio, Live surface, or detail view changes.
@@ -21,11 +23,13 @@ flowchart TB
     W[Champion workspace] --> S[Persistent shell]
     S --> I[Champion identity and status]
     S --> N[Draft / Paper / Live switcher]
-    S --> A[Activity and notifications]
-    S --> C[Contextual conversation]
-    N --> D[Draft workspace]
-    N --> P[Paper workspace]
-    N --> L[Live workspace]
+    S --> M[Primary domain surface]
+    S --> A[Correlated Champion activity]
+    S --> C[Complementary conversation]
+    M --> D[Draft workspace]
+    M --> P[Paper workspace]
+    M --> L[Live workspace]
+    N --> M
     D --> T[Current Draft mutation target]
     P --> T
     L --> T
@@ -40,12 +44,46 @@ flowchart TB
 - Champion identity, availability, and current activity.
 - Draft/Paper/Live switcher with explicit `Developing` and `Running` labels.
 - Current operational, freshness, and authorization status when material.
-- Persistent conversation whose prompt and attached context adapt to the viewed surface.
+- A primary domain surface whose identity, status, current work, and next meaningful action remain legible without conversation.
+- Complementary conversation whose prompt, references, and attached context adapt to the viewed surface.
+- Correlated Champion activity that exposes verified work phases and resulting domain objects outside prose.
 - Viewed-context and Draft-mutation-target labels adjacent to the composer.
 - Notifications and activity that can collapse during data-dense work.
 - Stable navigation and useful cached state while nested content changes.
 
 The shell must not remount the Champion, reset conversation, reconnect transports solely because of navigation, or imply that changing views changes the strategy controlling a portfolio.
+
+## Workspace Attention and Correlation Model
+
+The layout must not resemble a general-purpose chat application with an attached preview. Its attention hierarchy is:
+
+1. **Primary domain surface:** the structured Draft, Evaluation result, Paper portfolio, run/decision trace, comparison, or Live risk/control view.
+2. **Correlated work and activity:** what the Champion or system is doing, which object it affects, what completed, and what requires attention.
+3. **Conversation:** intent, clarification, explanation, and contextual requests.
+
+On wide supported viewports, conversation may remain beside the primary surface, but the primary surface receives the majority of usable workspace and first focus. When space is constrained, conversation collapses into a restorable panel or drawer before domain identity, evidence, or consequential controls are reduced. Exact dimensions remain P-001.
+
+### Bidirectional correlation
+
+Conversation and domain work remain synchronized without duplicating authority:
+
+```text
+Message or direct workspace action
+→ intent / activity
+→ proposed change, Evaluation, or analysis
+→ authoritative domain result
+→ visible artifact, evidence, or outcome
+```
+
+- A message that initiates work shows typed references to its activity, change set, Evaluation, run, or eligibility result.
+- Champion progress appears in the activity system and on the affected domain surface, not only as streaming prose.
+- A completed result materializes in its canonical surface. Chat summarizes and links to it instead of becoming the only place it can be inspected.
+- Selecting a reference in conversation opens, focuses, or highlights the corresponding object in the primary surface.
+- `Ask Champion`, `Explain`, and `Improve in Draft` actions launched from an object attach that exact object, immutable source, and data cutoff to conversation.
+- Semantic changes highlight the affected structured strategy sections and remain in History even if the originating message is not visible.
+- Collapsing, virtualizing, reconnecting, or failing conversation does not hide or cancel accepted work; authoritative status comes from domain events and queries.
+
+Chat is never a top-level route, the sole progress indicator, the only approval surface, or the only record that a change, Evaluation, run, order, or deployment occurred.
 
 ## Conceptual Navigation Hierarchy
 
@@ -105,7 +143,7 @@ The number communicates strategy generation; the state word communicates what is
 ### Default information order
 
 1. Draft identity, checkpoint, and validation state.
-2. Strategy objective and Champion explanation.
+2. Strategy objective, structured content, and correlated Champion explanation.
 3. Universe, entry/exit behavior, sizing, risk, schedule, assumptions, and exclusions.
 4. Most recent semantic change set.
 5. Immediate evaluation or backtest action.
@@ -405,6 +443,7 @@ Until these are recorded in the decision ledger, “responsive” must not be us
 - Every Paper and Live view exposes the exact immutable strategy in control and its source checkpoint.
 - A Paper or Live observation can reach `Improve in Draft` without losing its run and rule context.
 - The composer always exposes viewed context and mutation target when they differ.
+- Collapsing conversation leaves Champion activity, current work, domain results, authority, and the next meaningful action visible in the primary surface.
 - Paper navigation prioritizes runs and learning; Live navigation prioritizes risk and control.
 - Active Paper can be stopped from its detail context; only Stopped Paper can be archived; Archived Paper is discoverable outside the everyday selector and unarchives without resuming.
 - No-trade, stale, degraded, disconnected, unauthorized, and failed states remain understandable and actionable.

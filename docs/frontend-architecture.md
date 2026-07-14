@@ -18,6 +18,7 @@ The architecture therefore optimizes for a persistent Champion workspace, explic
 > Reads arrive as snapshots, queries, and ordered patches. Writes leave the client as typed commands. Only an authoritative server patch changes business truth.
 
 - The structured strategy is canonical; conversation is intent and provenance.
+- Domain surfaces and correlated activity remain complete without the conversation panel; chat never owns work status or result state.
 - Draft is mutable and revisioned. Paper and Live strategies are immutable.
 - Zustand helps render reality; it does not define financial or strategy reality.
 - A streamed model response, successful HTTP status, or optimistic animation is not proof that a command was applied.
@@ -48,20 +49,20 @@ Web Workers, SharedWorker, binary encoding, custom WebGL, CRDTs, and a second fr
 
 ```mermaid
 flowchart LR
-    UI["React surfaces and domain components"]
+    UI["Primary domain surfaces and components"]
     Q["TanStack Query read models"]
     Z["Zustand interaction and projections"]
     X["External live-data store"]
     IDB["IndexedDB recovery queue"]
     CMD["Typed command client"]
-    CHAT["Chat data stream"]
+    CHAT["Complementary conversation stream"]
     WS["Market, portfolio, and Champion WebSocket"]
     HTTP["HTTP snapshots and queries"]
 
     HTTP --> Q
     WS --> Q
     WS --> X
-    CHAT --> UI
+    CHAT -->|"presentation and typed domain references"| UI
     Q --> UI
     Z --> UI
     X --> UI
@@ -75,6 +76,20 @@ flowchart LR
 
 Transport handlers and stores live above route-level surfaces. Switching Draft, Paper, Live, or Champion must not rebuild the transport layer.
 
+## Correlated Workspace Projections
+
+Conversation, Champion activity, and the active domain surface are separate projections of connected work.
+
+- A stable correlation graph links message or direct action → intent → activity → command/change set or Evaluation → checkpoint/run/outcome.
+- The conversation stream owns provisional tokens and message presentation only. It does not own whether research is running, a command applied, an Evaluation completed, or a portfolio changed.
+- Champion activity and domain status arrive through server read models and ordered events, so they remain visible when conversation is collapsed, virtualized, disconnected, or loading history.
+- Structured message parts contain typed domain references. A reference resolver opens or focuses the canonical Draft section, Evaluation, run, Decision, comparison, eligibility assessment, or deployment review.
+- Domain actions such as `Explain`, `Ask Champion`, and `Improve in Draft` attach the selected object identity, immutable source, data cutoff, and viewed context to the composer.
+- Full semantic diffs, results, charts, positions, orders, and approvals render in domain surfaces. Conversation may show a concise preview, status, and link, but does not maintain a second authoritative copy.
+- Closing or unmounting the conversation subtree never cancels accepted server work. Cancellation uses an explicit domain command with its own status and permission.
+
+Selection and highlight state may live locally, but the referenced object and its lifecycle remain server-owned. Tests must exercise the same work with conversation expanded, collapsed, reloaded, and temporarily unavailable.
+
 ## State Ownership
 
 Every state domain has one owner. Other layers may hold derived or last-known projections but must not compete for authority.
@@ -87,6 +102,7 @@ Every state domain has one owner. Other layers may hold derived or last-known pr
 | Portfolio, deployment, Paper launch, Live promotion, and operational controls | Server portfolio and deployment domain | Query entities/indexes, mutation state, and live projections | Entity-specific commands, snapshots, and ordered patches |
 | Run, decision, order, and trade | Server execution domain, which reconciles venue or broker events | Query entities/indexes and live projections | Entity-specific commands, snapshots, and ordered patches |
 | Conversation history | Server append-only record | Paginated query/index | Append confirmed messages; reconcile streamed provisional parts |
+| Champion work and activity | Server orchestration/activity domain | Query read model plus ordered activity projection | Verified lifecycle events correlated with affected domain objects and results |
 | Market and portfolio telemetry | Live event service | External store and bounded history buffers | Sequence-aware snapshot/delta reconciliation |
 | Viewed context | Workspace router | Route-derived Champion, surface, portfolio, run, or Evaluation identity | Navigation updates the route; Zustand may project but never own it |
 | Draft mutation target | Server strategy domain | Current-Draft query reference shown by the workspace | Always resolves independently from viewed context |

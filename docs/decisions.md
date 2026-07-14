@@ -48,6 +48,7 @@ Changes to an accepted decision must update this ledger and every affected journ
 | D-029 | Give Paper portfolios explicit stop and archive lifecycles | Accepted | Product + Domain Engineering | 2026-07-14 |
 | D-030 | Compare Paper evidence only within a declared validity envelope | Accepted | Product + Data | 2026-07-14 |
 | D-031 | Phase the simulator with the product vertical slices | Accepted | Frontend + Performance | 2026-07-14 |
+| D-032 | Center domain work and evidence rather than the chat transcript | Accepted | Product + Design + Frontend | 2026-07-14 |
 
 ## Proposed Decisions
 
@@ -503,3 +504,17 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 **Consequences:** The complete scenario catalog remains the target architecture, not the initial milestone. Each vertical slice funds the smallest simulator capability needed for its correctness and responsiveness claims.
 
 **Revisit when:** Production contracts or a staging backend can replace portions of the simulator earlier.
+
+## D-032 — Center domain work and evidence rather than the chat transcript
+
+**Status:** Accepted
+
+**Context:** Conversation is a powerful way to express intent and ask for explanation, but making the transcript the dominant surface would make Vantheon resemble a general chatbot and would hide durable work, progress, evidence, and authority inside prose.
+
+**Decision:** The primary workspace is always the active domain surface: structured Draft, Evaluation, Paper evidence, run/decision trace, comparison, or Live risk and control. Conversation is a persistent, contextual collaboration channel beside that surface. Champion work materializes through structured activity and authoritative domain entities; messages reference those entities rather than becoming their only representation.
+
+**Reasoning:** Users trust financial software by seeing what exists, what changed, what is running, what evidence supports it, and what remains pending. Chat is best at intent and explanation; structured artifacts and event-linked evidence are best at comprehension, iteration, and auditability.
+
+**Consequences:** The primary surface receives spatial, focus, loading, and navigation priority. Conversation may collapse without hiding current work or stopping the Champion. Progress, semantic changes, evaluations, eligibility, runs, and outcomes remain inspectable outside the transcript. Selecting a reference in conversation opens or focuses the corresponding domain object; invoking the Champion from an object attaches that exact context. Chat is never a top-level product destination or the only work queue, status display, approval surface, or audit trail.
+
+**Revisit when:** Never for the separation between conversational presentation and authoritative domain state; layout emphasis may change after measured usability evidence.

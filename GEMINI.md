@@ -5,6 +5,7 @@ Review this repository as architecture for an agentic financial application. Pri
 ## Product invariants
 
 - A Champion develops the current Draft; strategy-changing conversation must not mutate a deployed Paper or Live strategy.
+- The primary product surface is structured domain work and evidence. Conversation is contextual and correlated; it must not become the only progress view, result surface, approval path, or audit trail.
 - Draft minor checkpoints are restorable development history. A deployed major version is an immutable snapshot of an exact checkpoint.
 - The next Draft's `Vn.0` checkpoint is an exact content clone of the checkpoint launched as the preceding immutable strategy; it is not an empty strategy.
 - Restoring an older checkpoint creates the next append-only checkpoint after review and validation; history is never rewound.

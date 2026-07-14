@@ -339,6 +339,7 @@ Build the simulator through the same vertical slices as the product (D-031), not
 - All named profiles produce correctness-oracle results as well as performance metrics.
 - Reconnect runs converge to uninterrupted state with no duplicate effects.
 - Browser tests exercise chat, editing, navigation, virtualization, and chart alternatives while streams are active.
+- Champion work and authoritative results remain visible and correct when conversation is collapsed, unmounted, reloaded, or temporarily disconnected.
 - Playwright and k6 results are reported as distinct forms of evidence.
 - Pull requests run a bounded deterministic smoke suite; broader profiles and soak tests run at appropriate CI tiers.
 - Budgets are derived from recorded representative baselines and cannot be silently re-baselined.

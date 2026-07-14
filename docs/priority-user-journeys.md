@@ -16,10 +16,11 @@ Every proposed feature must identify which journey step it improves, which measu
 ## Shared Journey Principles
 
 - The Champion is the persistent collaborator across Draft, Paper, and Live.
-- The structured strategy is the canonical artifact; conversation expresses intent and preserves provenance.
+- The structured strategy, evidence, and operational surfaces are primary; conversation expresses intent, explains, and preserves provenance.
+- Champion work remains visible as correlated activity and domain results when conversation is collapsed. No journey depends on rereading a transcript to discover what happened.
 - The next meaningful action is visible in context. Users should not need to understand the entity graph before receiving value.
 - Assumptions, data cutoffs, strategy changes, and test conditions are visible before evidence is presented as meaningful.
-- Paper and Live remain pinned to immutable strategies. New conversation-driven work targets the current Draft.
+- Paper and Live remain pinned to immutable strategies. New strategy work—whether initiated through conversation or a domain action—targets the current Draft.
 - Viewed context and mutation target are always distinguishable.
 - Inactivity, rejection, uncertainty, degradation, and failure are explained rather than hidden.
 - Deeper configuration is progressively disclosed after the user reaches the first evidence milestone.
@@ -63,8 +64,10 @@ The first Champion workspace view must answer:
 
 The default state offers both:
 
-- A conversational prompt for users who already know their intent.
+- An intent composer adjacent to the emerging structured Draft for users who already know their intent.
 - Transparent starter patterns for users who need structure.
+
+The first screen is not an empty full-page transcript. It establishes the Champion, Draft state, no-money-at-risk status, strategy structure, and next step before or alongside the first message.
 
 Starter patterns are starting points, not promises or recommended investments. Each discloses its default universe, risk posture, time horizon, data window, benchmark, and simulated capital before testing.
 
@@ -197,7 +200,7 @@ The loop optimizes learning quality as well as speed. A faster loop that loses p
 ```mermaid
 flowchart LR
     A[Observe Paper or Live outcome] --> B[Inspect run and decision trace]
-    B --> C[Ask Champion or select improvement action]
+    B --> C[Select improvement action or ask Champion]
     C --> D[Carry source context to current Draft]
     D --> E[Compare source rule with current Draft]
     E --> F{Compatible?}
@@ -225,7 +228,7 @@ Iteration can begin from:
 - A trade, order, rejection, or no-trade explanation.
 - A risk, drawdown, exposure, or performance change.
 - A Paper comparison showing meaningful divergence.
-- A direct request in persistent conversation.
+- A direct request in persistent conversation, correlated to the resulting activity and domain object.
 
 Every entry point retains the observed source as immutable context.
 

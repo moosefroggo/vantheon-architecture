@@ -81,6 +81,10 @@ Contains stable product concepts assembled from shadcn primitives and system com
 Initial domain components should include:
 
 - `ChampionWorkspaceSwitcher`
+- `ContextualChampionPanel`
+- `ChampionActivityTimeline`
+- `DomainObjectReference`
+- `WorkCorrelationStatus`
 - `DraftIdentity`
 - `CheckpointIdentity`
 - `PortfolioVersionIdentity`
@@ -222,6 +226,8 @@ Use shadcn primitives for the composer controls, menus, dialogs, scroll areas, a
 - Approval and promotion actions.
 
 Conversation rendering must not directly apply strategy mutations. It renders server-authoritative command and patch states.
+
+Conversation components render compact previews and typed references, not full duplicate implementations of Draft sections, Evaluation results, run traces, portfolio tables, or approval flows. Activating a reference focuses the canonical domain component in the primary workspace. `ContextualChampionPanel` may collapse or unmount without cancelling work; `ChampionActivityTimeline` and the affected domain component continue to expose verified progress and results independently.
 
 ## Customization Path After the Demo
 

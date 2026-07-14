@@ -14,10 +14,14 @@ flowchart TD
     C --> W["Champion workspace"]
     C --> L["Strategy lineage"]
     W --> CO["Conversation"]
+    W --> A["Champion activity"]
     W --> VC["Viewed context"]
     L --> D["Current Draft Vn"]
     D --> CP["Draft checkpoint Vn.m"]
-    CO --> CS["Change set"]
+    CO --> IN["Intent"]
+    VC --> IN
+    IN --> A
+    A --> CS["Change set"]
     CS --> CP
     CP --> E["Evaluation"]
     CP --> S["Immutable Strategy Vn"]
@@ -212,7 +216,23 @@ A message may:
 - Carry streamed presentation parts or progress.
 - Explain why no mutation occurred.
 
-Conversation must never be replayed as the sole method of reconstructing a strategy. The causal bridge is `message → interpreted intent → change set → accepted checkpoint`.
+Conversation must never be replayed as the sole method of reconstructing a strategy, discovering current work, or determining whether work completed. Messages carry typed references to the affected intent, activity, change set, checkpoint, Evaluation, run, Decision, eligibility assessment, or deployment where applicable. Those objects remain independently addressable and inspectable.
+
+The causal bridge is `message or direct action → interpreted intent → activity and proposed work → authoritative domain result`. A message may summarize that bridge, but it does not replace it.
+
+### Champion activity
+
+A structured projection of work the Champion runtime or surrounding system is performing, such as interpreting intent, researching, preparing a change set, waiting on an Evaluation, validating, or requiring user input.
+
+Activity retains:
+
+- Stable work identity and lifecycle state.
+- Originating message or direct domain action when applicable.
+- Viewed context and affected domain-object references.
+- Verified phase and timestamps emitted by the responsible server process.
+- Result, failure, cancellation, or required-user-action reference.
+
+Activity is not freeform chain-of-thought and does not expose hidden model reasoning. It reports coarse, verifiable work phases. Model-generated status text may explain a phase but cannot advance it. Completed work must resolve to an independently inspectable domain result rather than ending only in a message.
 
 ### Intent
 
@@ -472,6 +492,7 @@ Each state domain has one authoritative owner. “Client owner” below means re
 | Draft, checkpoints, Draft change sets, and Draft mutation commands | Server strategy domain | TanStack read model and mutation state; Zustand interaction projection | Server canonical; IndexedDB recovery for eligible Draft commands only |
 | Immutable strategies | Server strategy domain | TanStack Query | Entity immutable; indexes may evolve |
 | Conversation and messages | Server | Streaming chat projection and TanStack history | Append-only evidence |
+| Champion activity | Server orchestration/activity domain | TanStack read model plus ordered activity feed | Durable summary and result references; model prose cannot advance lifecycle |
 | Evaluations | Server execution service | TanStack Query and streamed progress | Immutable after terminal result |
 | Eligibility assessments | Server policy and risk domain | TanStack Query plus review UI | Versioned result; recompute when inputs become stale |
 | Portfolios, deployments, Paper launches, Live promotions, and operational controls | Server portfolio and deployment domain | TanStack Query read models and mutation state | Durable financial or simulated evidence; consequential commands are not queued offline |

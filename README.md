@@ -1,6 +1,6 @@
 # Vantheon Product and Frontend Architecture
 
-This repository is the architecture handbook for Vantheon's Champion workspace: a conversation-driven environment for creating strategies, testing them in Paper, iterating from evidence, and deliberately promoting Paper-tested strategies to Live capital.
+This repository is the architecture handbook for Vantheon's Champion workspace: an artifact- and evidence-centered environment where users direct a Champion, develop structured strategies, test them in Paper, iterate from outcomes, and deliberately promote Paper-tested strategies to Live capital. Conversation is important, but it is not the application shell or source of truth.
 
 The handbook aligns product, design, and frontend engineering. It defines user journeys, information architecture, conceptual entities, client-state ownership, lifecycle behavior, accessibility, performance validation, and the reasoning behind accepted decisions. It intentionally stops short of prescribing production database schemas or exact backend payloads.
 
@@ -23,7 +23,8 @@ See [Priority User Journeys](docs/priority-user-journeys.md) for the governing s
 
 ```mermaid
 flowchart LR
-    A["Conversation and Champion intent"] --> B["Current Draft Vn · checkpoint Vn.x"]
+    A["User intent or observed evidence"] --> CW["Champion work and structured activity"]
+    CW --> B["Current Draft Vn · checkpoint Vn.x"]
     B --> C["Evaluation evidence"]
     C --> D["Immutable Strategy Vn"]
     D --> PD["Paper deployment"]
@@ -39,6 +40,7 @@ flowchart LR
 The essential invariants are:
 
 - A **Champion** is the persistent AI agent identity; its workspace and strategy lineage are related but distinct concepts.
+- The active strategy, evidence, run, comparison, or risk surface is primary. Conversation directs and explains work but never becomes its only representation.
 - One current `Draft Vn` is mutable. Each accepted semantic Draft change set creates one restorable minor checkpoint such as V5.2, regardless of its authorized initiator.
 - Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft at checkpoint `Vn+1.0` as an exact content clone of the launched checkpoint.
 - Restoring an earlier checkpoint never rewinds history; after review and validation it creates the next checkpoint with the restored content.

@@ -29,6 +29,8 @@ A new user can describe an investment intent, receive a structured strategy, and
 
 Every material result can lead to an explanation, and every explanation can lead to a deliberate improvement proposal. Tests compare the proposal with a relevant baseline and disclose their conditions and limitations.
 
+The structured artifact and evidence remain the center of the experience. Conversation can initiate, explain, or connect work, but users can understand current progress, changes, results, and authority with the conversation panel collapsed.
+
 ### 3. Safe separation of development and deployment
 
 The current Draft remains the only strategy mutation target. In the MVP, each Paper portfolio remains pinned to the immutable strategy with which it launched; a newer Draft launches a separate Paper portfolio. Live remains pinned until an explicit promotion starts a new deployment for future operation.
@@ -48,7 +50,7 @@ Loading, stale, offline, degraded, unauthorized, failed, and recovering states r
 ## Non-Goals for the Initial Product
 
 - A terminal optimized primarily for maximum information density or tick-by-tick visual motion.
-- A chat transcript treated as the canonical strategy.
+- A chat transcript treated as the canonical strategy, primary application surface, work queue, or sole record of Champion progress.
 - Automatic Paper-to-Live promotion.
 - Multiple active Draft branches per Champion.
 - Hidden generic backtests presented as strategy validation.
@@ -86,7 +88,8 @@ Use these terms consistently in product copy, diagrams, components, analytics, a
 | **Paper portfolio** | A persistent simulated portfolio pinned to one immutable strategy in the MVP. Multiple Paper portfolios may coexist. | Display as `Paper Vn` and state clearly that no real capital is involved. |
 | **Live portfolio** | The capital-bearing destination presented in the Champion workspace. | Always expose the exact strategy controlling future operation and current operational status. |
 | **Portfolio run** | One scheduled decision and execution cycle within a portfolio. | A portfolio contains runs; a bounded user-requested test is an Evaluation, not a portfolio run. |
-| **Conversation** | Persistent human–Champion communication and provenance. | It can express intent and render progress, but it is not canonical strategy state. |
+| **Conversation** | Persistent human–Champion communication and provenance correlated with structured work. | It can express intent and explain progress, but it is not the primary artifact, work queue, status authority, or canonical strategy state. |
+| **Champion activity** | Structured, server-emitted work status correlated to its intent, affected objects, and eventual result. | Show verified phases and references outside conversation; model prose alone is not activity authority. |
 | **Intent** | A human- or Champion-originated goal that may require clarification, research, and several operations. | Intent is not an immediate mutation or authorization. |
 | **Change set** | A semantic, server-validatable proposal that may alter the current Draft. | Explain motivation, expected benefit, downside, unchanged constraints, and evidence needed. |
 | **Command** | A typed proposed domain operation with actor, target, preconditions, and idempotency identity. | Draft commands may belong to a change set; no command is authoritative until accepted and patched by its server domain. |
@@ -229,5 +232,6 @@ Before approving a feature or interaction, answer:
 6. Does failure leave Draft, Paper, Live, and capital in an understandable state?
 7. Does it introduce a concept before the user needs it?
 8. Can it be tested with semantic, accessibility, operational, and performance states?
+9. If conversation is collapsed, can the user still see what is happening, what changed, what evidence exists, and what action is required?
 
 If the answers are unclear, the work is not ready for implementation.

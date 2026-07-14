@@ -15,32 +15,58 @@ Changes to an accepted decision must update this ledger and every affected journ
 
 ## Summary
 
-| ID | Decision | Status |
-|---|---|---|
-| D-001 | Prioritize onboarding to value and rigorous iteration | Accepted |
-| D-002 | Define Champion, workspace, and strategy lineage separately | Accepted |
-| D-003 | Use major Draft generations and minor checkpoints | Accepted |
-| D-004 | Freeze immutable strategies when launching Paper | Accepted |
-| D-005 | Keep multiple Paper portfolios for longitudinal evidence | Accepted |
-| D-006 | Treat portfolios as persistent and runs as executions | Accepted |
-| D-007 | Require Paper evidence before standard Live promotion | Accepted |
-| D-008 | Keep conversation persistent but mutate only the current Draft | Accepted |
-| D-009 | Apply old evidence to the latest Draft without MVP branching | Accepted |
-| D-010 | Organize navigation around Draft, Paper, and Live | Accepted |
-| D-011 | Use server-authoritative commands and patches | Accepted |
-| D-012 | Assign one owner to each client-state domain | Accepted |
-| D-013 | Start with one Next.js application | Accepted |
-| D-014 | Keep high-frequency telemetry outside ordinary React state | Accepted |
-| D-015 | Use stock shadcn through stable semantic boundaries | Accepted |
-| D-016 | Target WCAG 2.2 AA and authoritative-state-safe motion | Accepted |
-| D-017 | Validate rendering with a deterministic backend simulator | Accepted |
-| D-018 | Derive performance budgets from representative baselines | Accepted |
-| D-019 | Treat authentication and authorization as live contracts | Accepted |
-| D-020 | Treat AI and automated review as evidence, not authority | Accepted |
-| D-021 | Require a supported-viewport contract before layout work | Accepted |
-| D-022 | Defer scale infrastructure until measured requirements exist | Deferred |
-| D-023 | Require transparent, behavior-level evaluation evidence | Accepted |
-| D-024 | Keep Live pause and open-order cancellation separate | Accepted |
+| ID | Decision | Status | Owner role | Date |
+|---|---|---|---|---|
+| D-001 | Prioritize onboarding to value and rigorous iteration | Accepted | Product | 2026-07-14 |
+| D-002 | Define Champion, workspace, and strategy lineage separately | Accepted | Product | 2026-07-14 |
+| D-003 | Use major Draft generations and minor checkpoints | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-004 | Freeze immutable strategies when launching Paper | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-005 | Keep multiple Paper portfolios for longitudinal evidence | Accepted | Product | 2026-07-14 |
+| D-006 | Treat portfolios as persistent and runs as executions | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-007 | Require Paper evidence before standard Live promotion | Accepted | Product + Risk | 2026-07-14 |
+| D-008 | Keep conversation persistent but mutate only the current Draft | Accepted | Product + Frontend | 2026-07-14 |
+| D-009 | Apply old evidence to the latest Draft without MVP branching | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-010 | Organize navigation around Draft, Paper, and Live | Accepted | Product + Design | 2026-07-14 |
+| D-011 | Use server-authoritative commands and patches | Accepted | Domain Engineering | 2026-07-14 |
+| D-012 | Assign one owner to each client-state domain | Accepted | Frontend | 2026-07-14 |
+| D-013 | Start with one Next.js application | Accepted | Frontend | 2026-07-14 |
+| D-014 | Keep high-frequency telemetry outside ordinary React state | Accepted | Frontend | 2026-07-14 |
+| D-015 | Use stock shadcn through stable semantic boundaries | Accepted | Design + Frontend | 2026-07-14 |
+| D-016 | Target WCAG 2.2 AA and authoritative-state-safe motion | Accepted | Design + Accessibility | 2026-07-14 |
+| D-017 | Validate rendering with a deterministic backend simulator | Accepted | Frontend + Performance | 2026-07-14 |
+| D-018 | Derive performance budgets from representative baselines | Accepted | Performance | 2026-07-14 |
+| D-019 | Treat authentication and authorization as live contracts | Accepted | Security + Frontend | 2026-07-14 |
+| D-020 | Treat AI and automated review as evidence, not authority | Accepted | Engineering | 2026-07-14 |
+| D-021 | Require a supported-viewport contract before layout work | Accepted | Design + Frontend | 2026-07-14 |
+| D-022 | Defer scale infrastructure until measured requirements exist | Deferred | Architecture | 2026-07-14 |
+| D-023 | Require transparent, behavior-level evaluation evidence | Accepted | Product + Risk | 2026-07-14 |
+| D-024 | Keep Live pause and open-order cancellation separate | Accepted | Product + Risk | 2026-07-14 |
+| D-025 | Seed each next Draft from the exact launched checkpoint | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-026 | Restore checkpoints by creating a new append-only checkpoint | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-027 | Make Paper and Live eligibility explicit and server-authoritative | Accepted | Product + Risk | 2026-07-14 |
+| D-028 | Treat Champion inputs and outputs as untrusted proposals | Accepted | Champion Platform + Security | 2026-07-14 |
+| D-029 | Give Paper portfolios explicit stop and archive lifecycles | Accepted | Product + Domain Engineering | 2026-07-14 |
+| D-030 | Compare Paper evidence only within a declared validity envelope | Accepted | Product + Data | 2026-07-14 |
+| D-031 | Phase the simulator with the product vertical slices | Accepted | Frontend + Performance | 2026-07-14 |
+
+## Proposed Decisions
+
+Proposed decisions are tracked here rather than scattered as anonymous `unresolved` footers. `Blocking point` states when implementation must stop for a decision; it does not imply that all proposals block the first vertical slice.
+
+| ID | Decision needed | Owner role | Blocking point | Status |
+|---|---|---|---|---|
+| P-001 | Minimum supported viewport, collapse order, and small-screen capabilities | Design + Frontend | Before workspace shell acceptance | Proposed |
+| P-002 | Identity provider, session mechanism, reconnect authentication, and offline-data retention | Security + Frontend | Before authenticated user data | Proposed |
+| P-003 | Snapshot cursor, event identity, sequence, and backfill contracts | Backend + Frontend | Before production live streams | Proposed |
+| P-004 | Which Draft interactions may use visibly optimistic presentation | Product + Frontend | Before optimistic Draft UI | Proposed |
+| P-005 | Browser, assistive-technology, forced-colors, and operating-system test matrix | Accessibility + QA | Before production Live use | Proposed |
+| P-006 | Live-region batching, critical-event taxonomy, and notification preferences | Accessibility + Product | Before production live alerts | Proposed |
+| P-007 | Versioned Live evidence-policy thresholds by strategy cadence and risk class | Product + Risk | Before Live promotion ships | Proposed |
+| P-008 | Paper comparison validity thresholds and insufficient-evidence treatment | Product + Data | Before Paper comparison claims improvement | Proposed |
+| P-009 | Champion model/provider, tool policy, model-evaluation suite, and upgrade gates | Champion Platform + Security | Before Champion commands affect a Draft | Proposed |
+| P-010 | Representative performance devices, networks, scenario scales, and CI variance | Performance | Before numeric budgets block CI | Proposed |
+| P-011 | Telemetry vendors, schemas, sampling, retention, and redaction policy | Security + Observability | Before production telemetry | Proposed |
+| P-012 | Dense-chart accessible-table granularity and virtualization fallback | Accessibility + Data Visualization | Before affected charts ship | Proposed |
 
 ---
 
@@ -246,11 +272,11 @@ Changes to an accepted decision must update this ledger and every affected journ
 
 **Context:** The demo needs speed without binding product meaning to generated primitive internals.
 
-**Decision:** Use uncustomized shadcn primitives in `components/ui`, shared semantics in `components/system`, domain components in `components/domain`, and workflows in `features`. Isolate visual tokens in one theme file.
+**Decision:** Begin with visually stock shadcn primitives in `components/ui`, shared semantics in `components/system`, domain components in `components/domain`, and workflows in `features`. Isolate visual tokens in one theme file. Accessibility corrections to tokens, focus treatment, target size, or component spacing are required when stock defaults fail the accepted WCAG target and are not considered bespoke branding.
 
 **Reasoning:** The demo gains accessible defaults while later branding can change tokens and internals without rewriting financial workflows.
 
-**Consequences:** Avoid one-to-one wrappers and hard-coded product colors. Domain props express meaning rather than visual styling.
+**Consequences:** Avoid one-to-one wrappers and hard-coded product colors. Domain props express meaning rather than visual styling. Audit stock components in the actual supported viewport before calling the demo WCAG 2.2 AA conformant.
 
 **Revisit when:** A custom design system or external component library becomes an explicit requirement.
 
@@ -379,3 +405,101 @@ Changes to an accepted decision must update this ledger and every affected journ
 **Consequences:** The interface always states the status of the other concern after either operation. Neither action mutates the strategy, neither is silently queued offline, and partial failure remains explicit.
 
 **Revisit when:** A future emergency workflow offers a combined orchestration action; the underlying operations and individual outcomes must still remain visible and auditable.
+
+## D-025 — Seed each next Draft from the exact launched checkpoint
+
+**Status:** Accepted
+
+**Context:** Launching Draft V5 at checkpoint V5.2 creates Paper V5 and Draft V6 at checkpoint V6.0. The content of V6.0 must not be ambiguous.
+
+**Decision:** Draft V6 checkpoint V6.0 is a byte-for-byte equivalent structured-strategy seed of the exact V5.2 content frozen as Strategy V5, interpreted under the same schema. It begins a new mutable generation solely to separate future work from the strategy now running in Paper.
+
+**Reasoning:** The user continues from the strategy they just launched without mutating Paper or losing work. The major number communicates deployment separation, not an immediate semantic change.
+
+**Consequences:** V6.0 is a generation-initialization checkpoint, not the result of a semantic change set. It records its parent immutable strategy and source checkpoint. The first accepted semantic change creates V6.1.
+
+**Revisit when:** The product intentionally supports starting a new generation from a template, empty strategy, or different source; that must be a separate explicit action, never Paper-launch behavior.
+
+## D-026 — Restore checkpoints by creating a new append-only checkpoint
+
+**Status:** Accepted
+
+**Context:** Users need to recover a prior Draft state without erasing intervening work or rewriting deployed strategies.
+
+**Decision:** Restoring checkpoint V8.2 while Draft V8 is at V8.4 creates a semantic restore proposal against V8.4. After review and server validation, acceptance creates checkpoint V8.5 whose strategy content matches V8.2 under the current schema. V8.3 and V8.4 remain in history.
+
+**Reasoning:** Restore behaves like every other authoritative Draft mutation and preserves a complete causal history.
+
+**Consequences:** Restore never moves the checkpoint pointer backward, deletes history, changes Paper or Live, or bypasses semantic review. Schema incompatibility opens conflict resolution instead of applying silently.
+
+**Revisit when:** Branching becomes an accepted product capability.
+
+## D-027 — Make Paper and Live eligibility explicit and server-authoritative
+
+**Status:** Accepted
+
+**Context:** “Evidence sufficient” and “eligible for Live” cannot be left to whichever screen happens to implement the action.
+
+**Decision:** Eligibility is a versioned, explainable server policy. Paper launch requires a structurally valid Draft, defined risk constraints and schedule, available data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. A zero-trade Evaluation may qualify because Paper exists to gather evidence. Live promotion additionally requires the exact Paper-tested strategy, satisfied evidence-policy thresholds, no blocking operational/data/risk failures, current authorization, a fresh impact review, and explicit human confirmation.
+
+**Reasoning:** Paper should be easy and safe to start; Live must fail closed against an auditable policy rather than UI convention.
+
+**Consequences:** The UI shows every satisfied, missing, failed, and stale criterion. The standard MVP path has no user override for a missing hard Live criterion. A zero-trade Paper may qualify only when its observation/run requirements are met and the inactivity is expected and explained; zero trades neither automatically qualifies nor disqualifies it. Numeric thresholds remain P-007 until Risk and Product approve them.
+
+**Revisit when:** Regulation, account type, strategy cadence, or risk class requires a different policy; policy version and rationale remain attached to every review.
+
+## D-028 — Treat Champion inputs and outputs as untrusted proposals
+
+**Status:** Accepted
+
+**Context:** The Champion consumes user text, market data, research, news, tool output, and runtime context that may be wrong, malicious, stale, or adversarial. Its own explanation cannot independently validate its proposal.
+
+**Decision:** Treat all model-consumed content as untrusted data and every model-produced command, explanation, citation, and semantic diff as a proposal. Server-side schema, permission, invariant, risk, and policy validation must be independent of the model. Tool access is allowlisted, scoped, audited, and separated between read, Draft mutation, Paper, and Live-capital capabilities.
+
+**Reasoning:** Prompt injection, hallucination, tool misuse, and model regression must not create a direct authority path to strategy or capital state.
+
+**Consequences:** Champion runtime/version provenance is recorded; model upgrades require regression evaluation; consequential operations retain explicit human and server gates; untrusted content cannot grant tools, change system instructions, or supply authoritative confirmation. See `docs/champion-runtime-safety.md`.
+
+**Revisit when:** Never for the untrusted-input and independent-validation principles; individual tools and evaluation gates evolve through P-009.
+
+## D-029 — Give Paper portfolios explicit stop and archive lifecycles
+
+**Status:** Accepted
+
+**Context:** Iteration can create many persistent scheduled Paper portfolios. Letting all of them run forever increases cost and makes comparison unusable.
+
+**Decision:** Users can stop future Paper runs without deleting accumulated evidence, then archive stopped Paper portfolios from the active selector. Archived portfolios remain searchable, inspectable, and eligible as historical comparison context but do not run or receive full-resolution subscriptions.
+
+**Reasoning:** The product preserves provenance while bounding scheduled work and active-navigation density.
+
+**Consequences:** Stop and archive are separate audited actions. Archive is reversible; deletion is not an MVP operation. The UI recommends review when active Paper count or inactivity exceeds a product-configured threshold, which remains non-authoritative.
+
+**Revisit when:** Retention, cost, or regulatory policy requires immutable cold storage or deletion.
+
+## D-030 — Compare Paper evidence only within a declared validity envelope
+
+**Status:** Accepted
+
+**Context:** Comparing a long-running Paper portfolio with a newly launched one can imply confidence that the evidence does not support.
+
+**Decision:** Every Paper comparison declares its evidence envelope: common observation window, market/regime overlap, strategy schedules, completed runs, trade/no-trade activity, data quality, capital assumptions, and material strategy differences. When P-008 thresholds are unmet, the UI labels the comparison `Insufficient comparable evidence` and may show descriptive differences but must not rank, recommend, or declare a winner.
+
+**Reasoning:** Disclosure alone does not make incomparable samples meaningful.
+
+**Consequences:** Common-window results are primary; full-lifetime results are secondary and clearly unequal. Champion assessments cite the envelope and cannot upgrade an insufficient comparison through prose.
+
+**Revisit when:** A reviewed statistical or experimental methodology replaces the initial validity policy.
+
+## D-031 — Phase the simulator with the product vertical slices
+
+**Status:** Accepted
+
+**Context:** The full simulator specification is valuable but would compete with the product if built before stable frontend contracts and journeys exist.
+
+**Decision:** Slice 1 implements only the production-shaped contract facade, deterministic normal profile, one delay/failure path, event-to-paint marks, and expected-state oracle needed for onboarding to first evidence. Reconnect/backfill enters with Paper learning; burst, large-history, session-change, multi-browser, k6, and soak profiles enter only with the features they protect.
+
+**Reasoning:** Performance evidence grows with the product instead of becoming a speculative parallel backend.
+
+**Consequences:** The complete scenario catalog remains the target architecture, not the initial milestone. Each vertical slice funds the smallest simulator capability needed for its correctness and responsiveness claims.
+
+**Revisit when:** Production contracts or a staging backend can replace portions of the simulator earlier.

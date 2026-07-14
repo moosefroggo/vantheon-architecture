@@ -30,7 +30,8 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
           ADDITIONAL_CONTEXT: >-
-            Follow GEMINI.md and PLAN.md. Prioritize financial safety,
+            Follow GEMINI.md, README.md, and docs/decisions.md. Treat PLAN.md as
+            historical context only. Prioritize financial safety, agentic safety,
             provenance, state ownership, lifecycle consistency, and actionable
             defects over stylistic commentary.
         with:

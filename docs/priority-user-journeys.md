@@ -120,7 +120,7 @@ The evaluation returns more than a performance number. It shows:
 - What it would have done.
 - What it rejected and why.
 - Risk and drawdown behavior.
-- Whether the result is sufficient for Paper testing or requires revision.
+- The D-027 Paper eligibility criteria and whether revision is required.
 
 Success state:
 
@@ -136,16 +136,19 @@ The Paper action explains the lifecycle before confirmation:
 Draft V1 from checkpoint V1.x
 → immutable Strategy V1
 → Paper V1 begins simulated operation
-→ Draft V2 begins independently
+→ Draft V2 checkpoint V2.0 begins independently with the exact launched strategy content
 ```
 
 The confirmation shows the exact checkpoint, key assumptions, evaluation result, schedule, and simulated capital. It explicitly states that no real capital is involved.
+
+The server eligibility assessment requires a structurally valid Draft, defined risk constraints and schedule, available data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. Zero trades do not block Paper because Paper exists to gather evidence.
 
 After launch:
 
 - The user lands in Paper V1 with the first useful next action visible.
 - Paper V1 exposes its frozen strategy and source checkpoint.
 - Draft V2 is available for continued development without changing Paper V1.
+- The first semantic change to Draft V2 creates checkpoint V2.1; V2.0 is its generation baseline rather than a claimed improvement.
 
 ### Trust gates
 
@@ -329,11 +332,13 @@ The comparison experience must support:
 - Risk, performance, activity, and inactivity.
 - Champion assessment with evidence links.
 
-Avoid declaring a winner solely from short-term return.
+It also declares a validity envelope covering the common window, regime overlap, schedules, completed runs, activity, data quality, and capital assumptions. Until P-008 thresholds are met, label the result `Insufficient comparable evidence`; do not rank, recommend, or declare a winner.
 
 ### Stage 7: Review for Live
 
 Live promotion is a separate capital decision, not the automatic final step of iteration.
+
+Before the review can proceed, the versioned D-027 server policy must confirm the exact Paper-tested strategy satisfies all hard evidence, operational, data, risk, freshness, and authorization criteria. The UI shows each criterion and blocks missing hard requirements; the Champion cannot override the assessment.
 
 The review shows:
 

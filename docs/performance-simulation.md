@@ -255,7 +255,7 @@ The goal is to measure real journey interaction while streams are active, not an
 - Record whether the run used headless or headed mode and hardware acceleration.
 - Do not ship high-volume diagnostic hooks enabled in production by default.
 
-The exact telemetry schema and sampling strategy are **unresolved** and must be versioned when implemented.
+The telemetry schema, correlation, sampling, redaction, and retention policy are tracked by P-011 and must be versioned when implemented.
 
 ## Playwright and k6 Roles
 
@@ -312,15 +312,15 @@ Budgets should cover at least usable-view latency, receipt-to-paint, command-to-
 
 ## Implementation Sequence
 
-1. Define the versioned frontend contract facade and simulator scenario schema.
-2. Implement a deterministic normal profile with expected-state oracle.
-3. Add browser timing marks and Playwright coverage for onboarding to first evidence.
-4. Add Paper run, contextual improvement, command delay, and version-conflict scenarios.
-5. Add market-open, volatility, cold/warm switching, and reconnect/backfill profiles.
-6. Add session-change, large-history, and accessibility-under-load checks.
-7. Add k6 protocol pressure and scheduled browser regression runs.
-8. Measure representative baselines, record reviewed budgets, then enable performance gates.
-9. Add soak tests and production-like staging only after the state and transport contracts stabilize.
+Build the simulator through the same vertical slices as the product (D-031), not as a complete backend substitute before the first journey works.
+
+1. **Onboarding slice:** define the minimum versioned contract facade and deterministic scenario required for intent → Draft → evaluation → Paper, with an expected-state oracle and browser timing marks.
+2. **Iteration slice:** add Paper runs, contextual improvement, command delay, comparison validity, and version-conflict scenarios.
+3. **Live-safety slice:** add eligibility, authorization/session changes, risk review, pending commands, and emergency-control scenarios before any Live-capital implementation.
+4. **Scale slice:** add market-open, volatility, cold/warm switching, reconnect/backfill, large-history, and accessibility-under-load profiles.
+5. Add k6 protocol pressure and scheduled browser regression runs.
+6. Measure representative baselines, record reviewed budgets, then enable performance gates.
+7. Add soak tests and production-like staging only after the state and transport contracts stabilize.
 
 ## Security and Data Handling
 
@@ -344,13 +344,10 @@ Budgets should cover at least usable-view latency, receipt-to-paint, command-to-
 - Budgets are derived from recorded representative baselines and cannot be silently re-baselined.
 - No performance artifact requires or exposes production customer or brokerage data.
 
-## Unresolved Decisions
+## Proposed Decisions
 
-- Representative device/browser/network matrix and controlled CI worker specification.
-- Concrete scenario scale values and production-like data distributions.
-- Cross-clock synchronization method for server-emission latency.
-- Event-to-commit correlation and high-rate sampling policy.
-- Heap and memory measurement technique reliable enough for CI gating.
-- Trace, metric, and heap-artifact retention.
-- Final absolute budgets, variance model, warning thresholds, and blocking thresholds.
-- Whether the simulator runs in-process, as a local service, or both.
+- P-003: event cursor, logical sequencing, reconnect, and backfill contract.
+- P-010: representative devices, browsers, networks, scenario scales, controlled workers, synchronization, measurement methods, budgets, and variance.
+- P-011: telemetry correlation, sampling, redaction, and artifact retention.
+
+Whether the simulator runs in-process, as a local service, or both is an implementation choice unless it changes a frontend contract or accepted performance methodology.

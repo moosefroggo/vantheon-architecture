@@ -39,9 +39,9 @@ flowchart TD
 
 The diagram is intentionally conceptual. It does not prescribe whether a relationship is embedded, joined, streamed, or materialized by a backend.
 
-## Identity and Terminology
+## Entity Distinctions
 
-These terms are related but not interchangeable.
+The canonical product glossary lives in [Product Foundations](./product-foundations.md#canonical-terminology). This table adds domain distinctions needed for implementation; it does not redefine the product terms.
 
 | Term | Meaning | Not the same as |
 |---|---|---|
@@ -70,6 +70,7 @@ The product may display concise labels such as `Paper V5` and `Live V5`. Those a
 `Vn.m` identifies a user-visible, restorable state within Draft Vn.
 
 - `V5.0` is the initial checkpoint of Draft V5.
+- A generation-initialization checkpoint `Vn.0` clones the exact structured strategy frozen from the prior launched checkpoint. It records lineage but is not produced by a semantic change set.
 - One accepted semantic Draft change set produces one next checkpoint, such as `V5.1 → V5.2`, regardless of its authorized initiator.
 - A change set may contain several related domain commands; those commands still produce one checkpoint when accepted together.
 - Explanation, research, questions, and other non-mutating conversation do not increment the checkpoint.
@@ -83,6 +84,8 @@ Launching Draft V5 from checkpoint V5.2 to Paper has three authoritative results
 1. Freeze exact checkpoint V5.2 as immutable Strategy V5.
 2. Start Paper V5 using that immutable strategy.
 3. Begin Draft V6 at checkpoint V6.0 for future work.
+
+Draft V6 checkpoint V6.0 contains the same structured strategy content as Draft V5 checkpoint V5.2 and immutable Strategy V5. The new generation exists to separate future development from Paper V5; it does not imply that strategy behavior has already changed. The first accepted semantic change creates checkpoint V6.1.
 
 The transition must not expose a state in which Paper V5 appears active while Draft V5 remains the mutation target. If provisioning fails, no active Paper is presented and Draft V5 at checkpoint V5.2 remains unchanged. A prepared immutable candidate may be retained for safe retry, but it does not advance the Draft generation by itself.
 
@@ -123,6 +126,8 @@ Frontend contract must make available:
 - Provenance identity for Champion-authored messages and proposed changes.
 
 A Champion may be implemented using changing models, tools, or runtime configurations. Those runtime details do not replace the stable Champion identity and must be captured separately when required for reproducibility.
+
+All Champion inputs are untrusted data and all Champion outputs are proposals. The runtime does not own Draft, Paper, Live, order, or authorization state. Independent validation, scoped tools, human gates, runtime provenance, and model-regression requirements are defined in [Champion Runtime Safety](./champion-runtime-safety.md).
 
 ### Champion workspace
 
@@ -179,7 +184,7 @@ Each checkpoint must retain conceptual references to:
 - Actor and time provenance.
 - Reproducibility context needed to interpret or replay it.
 
-Checkpoints are restorable history, but restoring one still happens through a validated change against the current Draft. It does not rewrite deployed strategies or erase intervening provenance.
+Checkpoints are restorable history, but restoring one still happens through a validated semantic change against the current Draft. Restoring V8.2 while current checkpoint V8.4 creates a restore proposal against V8.4; acceptance produces V8.5 with V8.2's strategy content under the current schema. It does not move the checkpoint pointer backward, rewrite deployed strategies, or erase V8.3/V8.4 provenance. Incompatible schema or protected-constraint changes enter conflict resolution.
 
 ### Immutable strategy
 
@@ -265,6 +270,21 @@ Frontend contract must make available:
 
 An evaluation may share execution infrastructure with portfolio runs, but it is not part of a persistent portfolio's scheduled history.
 
+### Eligibility assessment
+
+A server-authoritative, versioned policy result that determines whether a specific Draft checkpoint may launch to Paper or a specific Paper-tested strategy may enter Live promotion review.
+
+Frontend contract must make available:
+
+- Policy identity and version.
+- Exact Draft checkpoint or immutable strategy assessed.
+- Every satisfied, missing, failed, stale, and warning criterion.
+- Assessment time and data cutoff.
+- Whether the result blocks progression or is advisory.
+- Required remediation or additional evidence.
+
+Paper eligibility checks structural validity, risk constraints, schedule, data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. Live eligibility additionally applies the approved evidence thresholds, operational/data/risk health, authorization, and freshness required by D-027. Eligibility never substitutes for explicit human confirmation.
+
 ### Portfolio
 
 A persistent container of simulated or real capital, positions, orders, trades, performance, and run history.
@@ -291,6 +311,8 @@ MVP behavior:
 - Existing Paper portfolios remain active or retained independently.
 - New strategy work targets the current Draft, not Paper V5.
 - Comparing Paper portfolios discloses unequal observation windows, schedules, assumptions, and run counts.
+- Every comparison declares a validity envelope. If P-008 thresholds are unmet, the comparison remains descriptive and is labelled `Insufficient comparable evidence`; it cannot rank or recommend a winner.
+- Users may stop future runs without deleting evidence, then archive stopped portfolios from the active selector. Archived Paper remains searchable and inspectable but does not run or retain full-resolution subscriptions.
 
 The frontend should not imply that Paper evidence guarantees Live performance.
 
@@ -449,8 +471,9 @@ Each state domain has one authoritative owner. “Client owner” below means re
 | Immutable strategies | Server strategy domain | TanStack Query | Entity immutable; indexes may evolve |
 | Conversation and messages | Server | Streaming chat projection and TanStack history | Append-only evidence |
 | Evaluations | Server execution service | TanStack Query and streamed progress | Immutable after terminal result |
+| Eligibility assessments | Server policy and risk domain | TanStack Query plus review UI | Versioned result; recompute when inputs become stale |
 | Portfolios, deployments, Paper launches, Live promotions, and operational controls | Server portfolio and deployment domain | TanStack Query read models and mutation state | Durable financial or simulated evidence; consequential commands are not queued offline |
-| Runs, decisions, orders, and trades | Server execution domain, reconciling venue or broker events | TanStack Query plus pushed reconciliation | Durable; append or transition by authority |
+| Runs, decisions, orders, and trades | Server execution domain, which reconciles venue or broker events | TanStack Query plus pushed reconciliation | Durable; append or transition by authority |
 | High-frequency market telemetry | Market or server stream | External subscription store and chart bindings | Ephemeral plus bounded history |
 | Panel, selection, focus, and compare state | Browser | Zustand or local React state | Disposable unless UX requires restoration |
 | Pending recoverable Draft commands | Browser until submitted; server strategy domain after acceptance | Dexie and recovery coordinator | Recovery buffer, never Draft authority; excludes Paper, Live, order, and operational commands |
@@ -460,7 +483,7 @@ Each state domain has one authoritative owner. “Client owner” below means re
 
 1. Each Champion has exactly one active Draft lineage in the MVP.
 2. Only the current Draft accepts strategy mutations.
-3. Each accepted semantic Draft change set creates one new checkpoint; non-mutating, rejected, or autosave-only work does not.
+3. Each accepted semantic Draft change set creates one new checkpoint; non-mutating, rejected, or autosave-only work does not. A `Vn.0` checkpoint is the explicit generation-initialization exception.
 4. Every command is safe to retry by identity and validates entity-appropriate preconditions; Draft mutations additionally validate an explicit base checkpoint.
 5. A local projection, streamed tool call, cached entity, or IndexedDB snapshot never becomes authoritative by presentation alone.
 6. An immutable strategy never changes after creation.
@@ -478,6 +501,11 @@ Each state domain has one authoritative owner. “Client owner” below means re
 18. Sequence and revision establish event order; timestamps measure latency and freshness.
 19. Reconnect reconciliation is idempotent and must converge to the same authoritative state as uninterrupted replay.
 20. Every portfolio outcome can be traced to a run and exact immutable strategy, while market attribution remains distinct from Champion causation.
+21. A new generation's `Vn.0` content matches the exact checkpoint frozen for the preceding Paper launch unless the user performs a separate explicit start-from action.
+22. Restoring an older checkpoint creates a new reviewed checkpoint and never rewinds or deletes history.
+23. Paper and Live progression uses a versioned server eligibility assessment; missing hard Live criteria fail closed.
+24. Champion input is untrusted and Champion output is non-authoritative until independent validation and required human gates complete.
+25. Stopping or archiving Paper preserves its immutable strategy, runs, decisions, and comparison provenance.
 
 ## Deliberately Out of Scope
 

@@ -73,9 +73,13 @@ stateDiagram-v2
     state "Failed without mutation" as Failed
     state "Base checkpoint conflict" as Conflict
     state "User or Champion resolves conflict" as Resolving
+    state "Review restore as semantic change" as RestoreReview
 
     [*] --> Editing
     Editing --> Proposed: strategy change requested
+    Editing --> RestoreReview: select prior checkpoint
+    RestoreReview --> Validating: accept restore proposal against current base
+    RestoreReview --> Editing: cancel restore
     Proposed --> Validating: submit with base checkpoint
     Proposed --> Offline: transport unavailable
     Offline --> Recovering: connection restored
@@ -94,7 +98,7 @@ stateDiagram-v2
     Resolving --> Editing: cancel and preserve current Draft
 ```
 
-Non-mutating conversation remains in `Editing` and does not increment the checkpoint.
+Non-mutating conversation remains in `Editing` and does not increment the checkpoint. Restoring V8.2 from current V8.4 follows `RestoreReview → Validating → Checkpointed` and creates V8.5 containing the restored content; it never rewinds the current pointer or deletes V8.3/V8.4.
 
 ## 3. Paper Launch
 
@@ -102,13 +106,14 @@ The authoritative launch commit exposes Strategy V5, active Paper V5, and Draft 
 
 ```mermaid
 flowchart TD
-    A["Draft V5 · checkpoint V5.2 is current"] --> B["Request Paper launch"]
-    B --> C["Review source checkpoint, assumptions, evidence, schedule, and simulated capital"]
-    C --> D["Validate Draft V5 · checkpoint V5.2 and current authority"]
-    D --> E{"Valid?"}
-    E -->|"No"| F["Reject launch and explain"]
+    A["Draft V5 · checkpoint V5.2 is current"] --> B["Assess versioned Paper eligibility policy"]
+    B --> C{"Eligible?"}
+    C -->|"No"| F["Block launch and show missing criteria"]
     F --> A
-    E -->|"Yes"| G["Prepare immutable Strategy V5 candidate"]
+    C -->|"Yes"| D["Review source checkpoint, assumptions, evaluation, schedule, and simulated capital"]
+    D --> E{"Human confirms Paper launch?"}
+    E -->|"No"| A
+    E -->|"Yes"| G["Revalidate eligibility and prepare immutable Strategy V5 candidate"]
     G --> H["Provision Paper portfolio resources"]
     H --> I{"Provisioned?"}
     I -->|"No"| J["No active Paper; preserve retry target"]
@@ -127,9 +132,9 @@ Live promotion uses the exact Paper-tested strategy. The prior Live deployment r
 
 ```mermaid
 flowchart TD
-    A["Paper V5 with immutable Strategy V5"] --> B["Assess Paper evidence eligibility"]
-    B --> C{"Eligible?"}
-    C -->|"No"| D["Continue Paper and explain missing evidence"]
+    A["Paper V5 with immutable Strategy V5"] --> B["Assess versioned Live eligibility policy"]
+    B --> C{"All hard criteria satisfied?"}
+    C -->|"No"| D["Continue Paper and show missing, failed, or stale criteria"]
     C -->|"Yes"| E["Compare Strategy V5 with current Live strategy"]
     E --> F["Review capital, positions, orders, exposure, risk, and limitations"]
     F --> G{"Human confirms exact destination and capital?"}
@@ -285,6 +290,7 @@ stateDiagram-v2
     state "Reauthorizing and reconciling" as Reconciling
     state "Provisioning or operational failure" as Failed
     state "Stopped" as Stopped
+    state "Archived Paper evidence" as Archived
 
     [*] --> Provisioning
     Provisioning --> Active: ready
@@ -305,7 +311,9 @@ stateDiagram-v2
     Active --> Stopped: stop accepted
     Paused --> Stopped: stop accepted
     Degraded --> Stopped: stop accepted
-    Stopped --> [*]
+    Stopped --> Archived: archive Paper
+    Archived --> Stopped: restore to stopped history
+    Stopped --> [*]: close non-Paper history
 ```
 
 ## 10. Live Emergency Controls

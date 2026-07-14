@@ -4,7 +4,7 @@
 
 Accepted for the Champion workspace hierarchy and the two priority journeys.
 
-**Viewport support remains proposed and unresolved.** The layout behavior in this document is the proposed desktop-first policy; exact supported widths and any mobile capability must be decided before layout implementation is accepted.
+**Viewport support remains Proposed under P-001.** The layout behavior in this document is the proposed desktop-first policy; exact supported widths and any mobile capability must be decided before layout implementation is accepted.
 
 ## IA Objective
 
@@ -114,14 +114,14 @@ The number communicates strategy generation; the state word communicates what is
 - Empty/new Draft: `Describe what you want` or select a transparent starter.
 - Coherent Draft without evidence: `Test Draft Vn`.
 - Changed Draft with prior evidence: `Evaluate changes`.
-- Evidence sufficient for simulated operation: `Launch Draft Vn to Paper`.
+- Paper eligibility satisfied under D-027: `Launch Draft Vn to Paper`.
 
 Strategy review and the first evaluation result remain inline on the default Strategy surface. Experiments provides history and depth; it must not be a required detour for the core loop.
 
 ### Secondary destinations
 
 - **Experiments:** quick evaluations, dry runs, backtests, assumptions, results, and comparison.
-- **History:** restorable checkpoints, immutable strategies, semantic changes, and provenance.
+- **History:** restorable checkpoints, immutable strategies, semantic changes, and provenance. Selecting `Restore checkpoint V8.2` opens a semantic restore review against the current checkpoint; acceptance creates the next checkpoint rather than rewinding history.
 - **Data:** datasets, universes, benchmarks, and advanced assumptions. Keep secondary during onboarding.
 
 ## Paper Workspace: Learn and Compare
@@ -146,6 +146,7 @@ Paper is a persistent simulated portfolio, not a run. It is optimized for unders
 - **Orders:** simulated order history and status.
 - **Strategy:** frozen read-only Strategy Vn, source Draft Vn · checkpoint Vn.x, semantic changes, and provenance.
 - **Compare:** a Paper-level action for selecting multiple persistent portfolios; it need not be repeated as a tab inside every selected portfolio.
+- **Archived:** a Paper-level collection of stopped portfolios retained for history and comparison without scheduled runs or full-resolution subscriptions.
 
 Runs precede Positions and Orders in Paper navigation because learning why the strategy acted is the primary job. A run detail defaults to its decision trace, not raw logs.
 
@@ -154,8 +155,16 @@ Runs precede Positions and Orders in Paper navigation because learning why the s
 - Portfolio overview: `Review latest run` or, when a result is selected, `Improve in Draft Vn`.
 - Run/no-trade detail: `Ask Champion about this run` and `Improve in Draft Vn`.
 - Comparison: `Continue observing` or `Evaluate learning in Draft Vn`.
+- Active Paper: `Stop future Paper runs` with explicit schedule impact and preserved evidence.
+- Stopped Paper: `Archive Paper portfolio`; archive is reversible and deletion is not offered in the MVP.
 
 Existing Paper portfolios remain unchanged when a newer Draft is evaluated or launched to Paper. Each Paper launch creates another independently observable source of evidence.
+
+### Comparison validity
+
+Paper comparison is descriptive until a declared evidence envelope is satisfied. The comparison shows the common observation window, market/regime overlap, schedules, completed runs, trade/no-trade activity, data quality, capital assumptions, and material strategy differences.
+
+When P-008 thresholds are not met, label the result `Insufficient comparable evidence`. Show differences, but do not rank portfolios, declare a winner, recommend Live, or let Champion prose imply that one strategy is superior. Full-lifetime metrics remain secondary when lifetimes differ.
 
 ## Live Workspace: Control and Risk
 
@@ -182,7 +191,7 @@ Live is optimized for capital visibility, risk, pending actions, and operational
 ### Primary and emergency actions
 
 - Normal state: `Review Live Vn` or `Prepare changes in Draft Vn`.
-- Eligible candidate: `Review Paper Vn for Live`; promotion remains a separate review journey.
+- Candidate satisfying the current D-027 policy: `Review Paper Vn for Live`; promotion remains a separate review journey.
 - Emergency: `Pause future Champion executions` and `Cancel eligible open orders` are separate controls with distinct consequences, confirmations, permissions, and audit results.
 
 Editing the Draft never serves as an emergency control and never alters Live directly.
@@ -268,6 +277,18 @@ When old evidence or offline work conflicts with the current Draft, show:
 
 Do not expose silent overwrite, raw JSON merge, or a second active Draft branch as an MVP choice.
 
+### Eligibility review
+
+Paper launch and Live promotion render the versioned server eligibility assessment rather than inferring readiness in the browser. Show:
+
+- Policy version and exact Draft checkpoint or Paper strategy assessed.
+- Satisfied, missing, failed, stale, and advisory criteria.
+- The evidence, data cutoff, authorization, risk, and operational input behind each criterion.
+- Whether reassessment is required before confirmation.
+- The remediation or observation still needed.
+
+Missing hard Live criteria block the standard MVP promotion path. The Champion may explain the assessment but cannot alter it or replace it with a recommendation.
+
 ## Operational, Loading, and Error States
 
 Every primary route renders one of these states without losing the persistent shell or changing financial context unexpectedly.
@@ -286,7 +307,8 @@ Every primary route renders one of these states without losing the persistent sh
 | Failed | Separate infrastructure failure from strategy outcome | Retry, preserve candidate/source, or contact support |
 | Unauthorized/session expired | Remove or obscure unauthorized projections and stop protected streams | Re-authenticate or leave workspace |
 | Recovering/reconciling | Show snapshot/backfill progress and temporary freshness limits | Wait; block conflicting consequential actions |
-| Stopped/closed | Preserve historical evidence and state that no future operation occurs | Inspect history or create a new destination |
+| Stopped/closed | Preserve historical evidence and state that no future operation occurs | Inspect history, archive Paper, or create a new destination |
+| Archived Paper | Remove from the active selector, stop schedules/subscriptions, and retain provenance | Inspect, compare descriptively, or restore to stopped history |
 
 Command, Paper-launch, and Live-promotion failures leave the previous authoritative Draft, Paper, and Live state intact. A failed Paper or Live transition must not land on a partially active success view.
 
@@ -303,7 +325,7 @@ Command, Paper-launch, and Live-promotion failures leave the previous authoritat
 
 Progressive disclosure must not hide material assumptions, warnings, capital impact, authorization, freshness, or the identity of the strategy in control.
 
-## Viewport and Panel Policy — Proposed / Unresolved
+## Viewport and Panel Policy — Proposed (P-001)
 
 ### Proposed behavior
 

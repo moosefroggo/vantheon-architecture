@@ -1,5 +1,7 @@
 # Vantheon Product & Frontend Architecture Documentation
 
+> **Status: planning history and traceability checklist.** This file is not normative. Accepted decisions in `docs/decisions.md` and the dedicated handbook documents govern implementation. New unresolved questions belong in the Proposed Decisions table rather than in this file.
+
 ## Summary
 
 Create a compact Markdown architecture handbook that aligns founders, design, and frontend engineering around one governing outcome:
@@ -18,6 +20,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 - `docs/information-architecture.md` — persistent Champion workspace, Draft/Paper/Live navigation, first-session flow, contextual actions, and trust-oriented hierarchy.
 - `docs/domain-model.md` — conceptual entity and provenance model for Champion, conversation, draft generation, checkpoint, immutable strategy, Paper/Live portfolio, run, command, and deployment.
 - `docs/frontend-architecture.md` — stack, state ownership, data flow, streaming, caching, offline recovery, navigation performance, and component boundaries.
+- `docs/champion-runtime-safety.md` — untrusted-input boundaries, capability-scoped tools, independent validation, model evaluation, and incident controls.
 - `docs/ui-component-architecture.md` — stock shadcn demo rules, primitive/domain boundaries, theme isolation, and safe customization path.
 - `docs/accessibility-and-motion.md` — WCAG 2.2 AA target, keyboard and focus model, assistive-technology behavior for live data, chart alternatives, reduced motion, and authoritative-state motion rules.
 - `docs/performance-simulation.md` — deterministic backend simulation, stress scenarios, browser instrumentation, latency budgets, and regression methodology.
@@ -29,16 +32,19 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 - A `Champion` is the persistent AI agent identity with which the user collaborates. The `Champion workspace` contains its Draft, Paper, Live, conversation, and activity; the `strategy lineage` is the sequence of Draft checkpoints and immutable strategies it develops. These terms are related but not interchangeable.
 - A Champion develops one current draft generation, displayed as `Draft Vn`.
 - Each accepted semantic Draft change set creates one restorable minor checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Non-mutating or unsuccessful work does not increment the checkpoint.
-- Launching Draft V5 from checkpoint V5.2 freezes an immutable Strategy V5 snapshot, creates Paper V5, and begins Draft V6 at checkpoint V6.0.
+- Launching Draft V5 from checkpoint V5.2 freezes an immutable Strategy V5 snapshot, creates Paper V5, and begins Draft V6 at checkpoint V6.0 with the exact structured content of V5.2. V6.0 is a generation-initialization checkpoint; the first semantic change becomes V6.1.
+- Restoring an older checkpoint never rewinds or deletes history. Restoring V8.2 while current is V8.4 creates a reviewed and validated V8.5 containing the restored content.
 - Paper navigation uses the concise label `Paper V5`; portfolio details expose `Strategy snapshot from Draft V5 · checkpoint V5.2`, the frozen strategy, semantic changes, and provenance.
 - Multiple Paper portfolios such as V5, V6, and V7 coexist, accumulate independent performance and run histories, and can be compared over time.
 - A portfolio is persistent evidence; a run is one scheduled execution inside that portfolio. A portfolio is never modeled as a run.
 - Live promotion follows the trust path `Paper → Live`. Live pins the exact Paper-tested strategy snapshot and requires explicit confirmation.
+- Paper and Live eligibility are versioned server-authoritative assessments. The Champion may explain or recommend remediation but cannot grant, bypass, or override eligibility.
 - Chat remains persistent across the workspace:
   - Draft: create, modify, explain, and test.
   - Paper: analyze outcomes and propose changes to the current Draft.
   - Live: explain, monitor risk, and prepare changes for the Draft.
 - Strategy-changing chat always targets the current Draft. Paper and Live strategies remain immutable.
+- Champion inputs and outputs are untrusted. Model-produced changes are proposals until capability-scoped commands pass independent server validation.
 - The chat composer always distinguishes the viewed context from the mutation target, for example: `Viewing Paper V5 · Changes go to Draft V8 · checkpoint V8.4`.
 - Learning from an older Paper or Live version is proposed against the latest Draft. The Champion compares the observed source rule with its current equivalent, explains incompatibilities, and requests a decision rather than silently overwriting or creating another Draft branch.
 - Paper is optimized for learning and comparison; Live is optimized for capital visibility, risk, and control.

@@ -33,7 +33,6 @@ flowchart LR
     G --> B
     E --> H["Explicit Live review"]
     H --> LD["Live deployment"]
-    D --> LD
     LD --> I["Live Vn"]
 ```
 
@@ -41,12 +40,15 @@ The essential invariants are:
 
 - A **Champion** is the persistent AI agent identity; its workspace and strategy lineage are related but distinct concepts.
 - One current `Draft Vn` is mutable. Each accepted semantic Draft change set creates one restorable minor checkpoint such as V5.2, regardless of its authorized initiator.
-- Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft generation independently.
+- Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft at checkpoint `Vn+1.0` as an exact content clone of the launched checkpoint.
+- Restoring an earlier checkpoint never rewinds history; after review and validation it creates the next checkpoint with the restored content.
 - Multiple Paper portfolios coexist so evidence can accumulate and be compared over time.
 - A portfolio is persistent; a run is one execution inside it.
 - Paper and Live strategies never change because of Draft editing or conversation.
 - Conversation may carry Paper or Live context, but strategy changes always target the current Draft and the UI states that target explicitly.
+- Paper and Live eligibility are versioned, server-authoritative assessments with visible criteria; the Champion may explain them but cannot grant or override them.
 - Live follows Paper evidence and requires an explicit capital-impact review and confirmation.
+- Champion inputs and model outputs are untrusted. Only capability-scoped commands that pass independent server validation may change business state.
 
 ## Reading order
 
@@ -58,12 +60,13 @@ Read in this order when joining the project or making a cross-cutting change:
 4. [Domain Model](docs/domain-model.md) — entities, relationships, invariants, and provenance.
 5. [State Diagrams](docs/state-diagrams.md) — lifecycle, command, promotion, reconnect, and performance flows.
 6. [Frontend Architecture](docs/frontend-architecture.md) — stack, state ownership, streaming, caching, recovery, security, and testing boundaries.
-7. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
-8. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
-9. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
-10. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
+7. [Champion Runtime Safety](docs/champion-runtime-safety.md) — untrusted-input boundaries, scoped tools, independent validation, model evaluation, and incident controls.
+8. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
+9. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
+10. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
+11. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
 
-[PLAN.md](PLAN.md) is the working documentation plan and completion checklist. It is not the canonical source when a dedicated document provides a more specific rule.
+[PLAN.md](PLAN.md) is retained as planning history and a traceability checklist. It is not a normative source.
 
 ## Decision status
 
@@ -77,7 +80,7 @@ If documents disagree, use this precedence:
 1. Accepted entry in the [Decision Ledger](docs/decisions.md).
 2. Explicit invariant in the relevant domain or journey document.
 3. More specific document over a general summary.
-4. [PLAN.md](PLAN.md) as the least specific working source.
+4. [PLAN.md](PLAN.md) only as historical planning context.
 
 Resolve contradictions by updating all affected documents in the same change.
 
@@ -103,6 +106,7 @@ This handbook covers:
 - Frontend-facing entities, provenance, and lifecycle behavior.
 - State ownership and authoritative data flow.
 - Component, streaming, caching, recovery, accessibility, motion, and security boundaries.
+- Champion runtime safety, independent validation, model evaluation, and incident boundaries.
 - Performance and correctness simulation.
 - Decision rationale and revisit conditions.
 

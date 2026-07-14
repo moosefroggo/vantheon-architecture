@@ -81,14 +81,23 @@ Use these terms consistently in product copy, diagrams, components, analytics, a
 | **Champion workspace** | The persistent product environment containing Draft, Paper, Live, conversation, activity, and notifications for one Champion. | Draft/Paper/Live navigation does not create a different Champion. |
 | **Strategy lineage** | The current Draft generation, its restorable checkpoints, and the immutable strategies created from prior Drafts. | One active Draft lineage per Champion in the MVP. |
 | **Draft Vn** | The current mutable candidate generation. | Display as `Developing`; it is the only strategy mutation target. |
-| **Checkpoint Vn.x** | A restorable Draft state created after an accepted semantic Draft change set, regardless of authorized initiator. | Non-mutating, rejected, and autosave-only work does not create a checkpoint. |
+| **Checkpoint Vn.x** | A restorable Draft state created after an accepted semantic Draft change set, regardless of authorized initiator. `Vn.0` initializes a new generation from the exact previously launched checkpoint. | Non-mutating, rejected, and autosave-only work does not create a checkpoint; restore creates a new checkpoint rather than rewinding. |
 | **Strategy Vn** | An immutable snapshot frozen from an exact Draft checkpoint. | Always retain the source checkpoint and provenance. |
 | **Paper portfolio** | A persistent simulated portfolio pinned to one immutable strategy in the MVP. Multiple Paper portfolios may coexist. | Display as `Paper Vn` and state clearly that no real capital is involved. |
 | **Live portfolio** | The capital-bearing destination presented in the Champion workspace. | Always expose the exact strategy controlling future operation and current operational status. |
 | **Portfolio run** | One scheduled decision and execution cycle within a portfolio. | A portfolio contains runs; a bounded user-requested test is an Evaluation, not a portfolio run. |
 | **Conversation** | Persistent human–Champion communication and provenance. | It can express intent and render progress, but it is not canonical strategy state. |
+| **Intent** | A human- or Champion-originated goal that may require clarification, research, and several operations. | Intent is not an immediate mutation or authorization. |
 | **Change set** | A semantic, server-validatable proposal that may alter the current Draft. | Explain motivation, expected benefit, downside, unchanged constraints, and evidence needed. |
+| **Command** | A typed proposed domain operation with actor, target, preconditions, and idempotency identity. | Draft commands may belong to a change set; no command is authoritative until accepted and patched by its server domain. |
+| **Evaluation** | A bounded quick evaluation, dry run, or backtest of a Draft checkpoint or immutable strategy under disclosed conditions. | `Experiments` is the navigation collection containing Evaluations; an Evaluation is not a portfolio run. |
 | **Evidence** | A result whose assumptions, data cutoff, conditions, behavior, risk, and limitations are visible. | A performance number without context is not sufficient evidence. |
+| **Eligibility assessment** | A versioned server-policy result stating which Paper or Live progression criteria are satisfied, missing, failed, or stale. | Eligibility is explainable and does not replace human confirmation. |
+| **Deployment** | The auditable assignment of one immutable strategy to one portfolio for a defined period. | Deployment is an underlying domain concept, not the user-facing name for every transition. |
+| **Decision** | The strategy conclusion in an Evaluation or portfolio run, including explicit inactivity or rejection. | A Decision may produce zero, one, or several Orders. |
+| **Order** | An instruction to transact with its own proposed, accepted, rejected, cancelled, partial, filled, or expired lifecycle. | An Order is not a Trade and acknowledgement is not execution. |
+| **Trade** | An executed fill or economically meaningful execution event. | A Trade is an immutable financial fact and cannot be undone by editing strategy history. |
+| **Outcome** | Observable evidence attributable to a portfolio, run, Decision, Order, Trade, or market movement. | Distinguish Champion causation from market attribution. |
 | **Paper launch** | The explicit action that freezes the current Draft checkpoint into an immutable strategy and starts a new Paper portfolio. | Use `Launch Draft Vn to Paper`; do not call this a Live deployment. |
 | **Live promotion** | The explicit action that selects an eligible Paper-tested strategy for Live. | Use `Promote Paper Vn to Live`; never imply automatic promotion or confirmation through chat alone. |
 
@@ -102,10 +111,12 @@ Running immutable Strategy V5
 Source: Draft V5 · checkpoint V5.2
 
 Draft V6 · checkpoint V6.0
-Developing independently
+Developing independently with the exact V5.2 strategy content
 ```
 
 Changes to Draft V6 can never mutate Paper V5. The same separation applies while viewing Live.
+
+Restoring checkpoint V8.2 while Draft V8 is at V8.4 creates a reviewed checkpoint V8.5 containing the restored content. It never rewinds or erases history.
 
 ## Product and UX Principles
 
@@ -144,6 +155,8 @@ The first useful Draft and evaluation do not require manual configuration of eve
 
 Champion output may propose, explain, and stream progress. Server validation and authoritative patches define accepted Draft state. Explicit user confirmation remains mandatory for Live-capital transitions.
 
+Every Champion input is treated as untrusted data, including retrieved news, research, logs, and tool output. Semantic review facts are derived from authoritative snapshots and validated commands rather than solely from the Champion's own explanation. See [Champion Runtime Safety](./champion-runtime-safety.md).
+
 ### Preserve continuity without hiding freshness
 
 Champion identity, conversation, and useful cached context persist across Draft, Paper, and Live. Every live or cached surface exposes freshness, connection, authorization, and reconciliation state when material.
@@ -179,10 +192,20 @@ Instrumentation names outcomes and failure modes before assigning targets. Basel
 ### Trust and control
 
 - Evidence details inspected before Paper and Live promotion.
+- Paper and Live eligibility criteria satisfied, missing, failed, stale, and acknowledged.
 - Live review abandonment and warning acknowledgement.
 - Frequency and completion of pause and eligible-order cancellation actions.
+- Active, stopped, and archived Paper portfolio counts and scheduled-run cost.
 - Incorrect assumptions that a Draft edit changed Paper or Live.
 - Ability to trace an outcome to its immutable strategy and run.
+
+### Champion runtime
+
+- Time to first meaningful response part and first coherent Draft or proposal.
+- Inference, tool, validation, and Evaluation portions of end-to-end wait time.
+- Tool calls, retries, cancellations, timeouts, and abandonment.
+- Input/output tokens and estimated model cost per journey stage.
+- Prompt-injection, hallucination, risk-preservation, tool-policy, and model-upgrade evaluation results.
 
 ### Reliability, accessibility, and performance
 

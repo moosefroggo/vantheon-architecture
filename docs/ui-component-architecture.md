@@ -6,7 +6,7 @@ Accepted for the demo implementation.
 
 ## Decision
 
-Use shadcn/ui with its generated, uncustomized visual defaults for the demo. Preserve shadcn's accessibility and interaction behavior, and avoid spending demo time on a bespoke visual system.
+Use shadcn/ui with its generated visual defaults for the demo. Preserve its interaction behavior and avoid bespoke branding work. Accessibility corrections required to meet the accepted WCAG 2.2 AA target—such as contrast, focus visibility, target size, or spacing—are mandatory and do not count as visual customization.
 
 This is a visual shortcut, not an architectural shortcut. Feature code must depend on stable semantic components so a later Vantheon theme or component redesign does not require rewriting product workflows.
 
@@ -92,6 +92,10 @@ Initial domain components should include:
 - `RunDecisionTrace`
 - `NoTradeExplanation`
 - `PromotionReview`
+- `EligibilityReview`
+- `ComparisonValidityNotice`
+- `ChampionRuntimeStatus`
+- `PaperLifecycleControls`
 - `LiveRiskSummary`
 - `PauseExecutionsAction`
 - `CancelOrdersAction`
@@ -129,7 +133,7 @@ Place the shadcn CSS variables in `src/styles/shadcn-theme.css` and import that 
 
 For the demo:
 
-- Keep the generated shadcn colors, type scale, spacing, radii, shadows, and motion.
+- Keep the generated shadcn colors, type scale, spacing, radii, shadows, and motion except where measured accessibility failures require a documented token or component correction.
 - Use semantic utilities such as `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, and `ring-ring`.
 - Do not add hard-coded hexadecimal colors, page-specific theme overrides, or selectors that depend on shadcn's internal DOM structure.
 - Do not use color alone to distinguish Draft, Paper, Live, risk, freshness, or operational state. Retain explicit labels and icons even before visual customization.
@@ -234,12 +238,13 @@ Avoid a broad rewrite. Each stage should be independently reviewable and covered
 - Test keyboard navigation, focus restoration, dialog labelling, screen-reader names, and reduced motion.
 - Add Playwright visual snapshots for the Draft, Paper, Live, run-detail, promotion, and emergency-control surfaces.
 - Test light and dark modes even while using stock shadcn tokens.
+- Audit actual stock token contrast, focus-obscuration behavior, and interactive target size before claiming WCAG 2.2 AA; do not assume library defaults establish conformance.
 - Verify narrow and wide layouts, including collapsed and expanded conversation panels.
 - Run the backend stress simulator while exercising domain components to ensure visual customization boundaries do not introduce broad rerenders.
 
 ## MVP Acceptance Criteria
 
-- The demo uses recognizable stock shadcn styling with no bespoke theme work.
+- The demo uses recognizable stock shadcn styling with no bespoke branding work; documented accessibility corrections are allowed and required.
 - No feature-specific financial logic exists in `components/ui`.
 - Draft, Paper, and Live remain distinguishable through words, icons, and context—not custom color alone.
 - All financially consequential actions use domain components with explicit confirmation and state feedback.

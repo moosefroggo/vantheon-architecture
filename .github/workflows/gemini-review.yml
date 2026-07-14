@@ -27,6 +27,7 @@ jobs:
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GEMINI_CLI_TRUST_WORKSPACE: "true"
           REPOSITORY: ${{ github.repository }}
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
           ADDITIONAL_CONTEXT: >-

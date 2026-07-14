@@ -37,7 +37,7 @@ The architecture therefore optimizes for a persistent Champion workspace, explic
 | Live telemetry | External subscription store | Market and portfolio values outside the general React render cycle |
 | Chat | AI SDK UI data streams | Tokens, structured message parts, progress, and tool presentation |
 | Live events | Persistent WebSocket | Market, portfolio, command-result, and Champion activity events |
-| Charts | Lightweight Charts behind a domain adapter | Financial series and imperative high-frequency updates |
+| Chart engines | Lightweight Charts plus selective Visx behind separate domain adapters | Streaming financial series use imperative Lightweight Charts; bounded analytical evidence uses declarative Visx |
 | Large collections | TanStack Table and virtualization | Runs, positions, orders, conversations, and comparison histories |
 | UI primitives | Uncustomized shadcn/ui | Generic interaction only; product semantics live in domain components |
 | Browser testing | Playwright | Critical journeys, accessibility, resilience, and event-to-paint measurement |
@@ -141,6 +141,15 @@ The exact sequence/cursor shape is a backend contract to be specified later.
 - Update chart series imperatively where practical.
 - Conflate visual updates to animation frames; retain the logical event sequence needed for correctness and audit views.
 - Display freshness and connection state independently of value direction.
+
+### Chart rendering boundary
+
+- Use Lightweight Charts for live or historical financial time series that need financial navigation and efficient incremental updates.
+- Use Visx for bounded analytical and explanatory views such as drawdown, attribution, allocation, distribution, risk, run annotations, and strategy or Paper comparison.
+- Keep both engines behind separate domain components and leaf chunks; shared chart contracts must not import either renderer.
+- Do not route raw tick feeds through Visx or ordinary React state.
+- Load only the engine required by the current surface and prefetch it from strong navigation intent.
+- Give every material chart the same-source summary, table or structured equivalent, freshness, status, and keyboard behavior defined in `docs/charting-architecture.md` and `docs/accessibility-and-motion.md`.
 
 ## Command and Patch Flow
 

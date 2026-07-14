@@ -90,6 +90,7 @@ Scenarios can vary independently:
 - Active Champions and warm/cold Champion inventory.
 - Portfolios, subscriptions, and instruments per portfolio.
 - Initial chart points and history-page sizes.
+- Chart family and engine, including separately loaded Lightweight Charts and Visx chunks.
 - Market, portfolio, Champion, risk, and order event rates.
 - Burst duration, burst size, and message size.
 - Chat tokens per second, message length, and structured parts.
@@ -194,6 +195,7 @@ Report distributions and worst meaningful windows, not averages alone:
 - Data freshness age by surface and time spent stale/degraded.
 - Input responsiveness, INP observations, long tasks, and main-thread blocking time.
 - Animation-frame misses and effective chart/display update rate.
+- Engine-chunk transfer/parse cost, chart-ready time, and draw behavior for representative Lightweight Charts and Visx surfaces.
 - React commit count, duration, and affected subtree for instrumented surfaces.
 - Store/worker queue depth and event processing time.
 - Events received, deduplicated, logically applied, visually conflated, sampled, rejected, and dropped unexpectedly.
@@ -214,6 +216,7 @@ After a scenario settles, compare normalized browser state with the simulator's 
 - Portfolio value and operational status.
 - Positions, eligible orders, runs, and deployments.
 - Chart terminal value and configured history window.
+- Same-source agreement between the visual chart, textual summary, and accessible table or structured equivalent.
 - Command terminal states.
 - Conversation messages and structured confirmed parts.
 - Freshness and connection state.

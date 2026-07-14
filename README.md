@@ -63,10 +63,11 @@ Read in this order when joining the project or making a cross-cutting change:
 5. [State Diagrams](docs/state-diagrams.md) — lifecycle, command, promotion, reconnect, and performance flows.
 6. [Frontend Architecture](docs/frontend-architecture.md) — stack, state ownership, streaming, caching, recovery, security, and testing boundaries.
 7. [Champion Runtime Safety](docs/champion-runtime-safety.md) — untrusted-input boundaries, scoped tools, independent validation, model evaluation, and incident controls.
-8. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
-9. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
-10. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
-11. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
+8. [Charting Architecture](docs/charting-architecture.md) — engine boundaries, semantic adapters, loading, accessibility, and performance contracts.
+9. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
+10. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
+11. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
+12. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
 
 [PLAN.md](PLAN.md) is retained as planning history and a traceability checklist. It is not a normative source.
 
@@ -96,7 +97,7 @@ Resolve contradictions by updating all affected documents in the same change.
 - AI data streams for conversational presentation; validated server commands and patches for authority.
 - WebSocket streams for market, portfolio, and Champion events.
 - Stock shadcn primitives behind stable system and domain component boundaries.
-- Lightweight Charts initially, with accessible textual equivalents.
+- Lightweight Charts for streaming financial series and Visx for bespoke analytical evidence, loaded separately behind semantic domain boundaries.
 - Deterministic backend simulation and real-browser event-to-paint measurement before speculative optimization.
 
 ## Scope

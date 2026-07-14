@@ -114,7 +114,7 @@ High-frequency financial data must not be placed in a live region.
 
 ## Charts and Non-Text Financial Information
 
-Canvas charts require a synchronized non-canvas equivalent.
+Canvas and SVG charts require a synchronized meaningful equivalent. Visx SVG marks are not automatically accessible, and Lightweight Charts canvas rendering does not change the product's obligation to expose the same material conclusion.
 
 Every material chart provides:
 

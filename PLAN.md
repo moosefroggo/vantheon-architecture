@@ -20,6 +20,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 - `docs/information-architecture.md` — persistent Champion workspace, Draft/Paper/Live navigation, first-session flow, contextual actions, and trust-oriented hierarchy.
 - `docs/domain-model.md` — conceptual entity and provenance model for Champion, conversation, draft generation, checkpoint, immutable strategy, Paper/Live portfolio, run, command, and deployment.
 - `docs/frontend-architecture.md` — stack, state ownership, data flow, streaming, caching, offline recovery, navigation performance, and component boundaries.
+- `docs/charting-architecture.md` — specialized chart-engine boundaries, domain adapters, bundle isolation, accessibility, and performance contracts.
 - `docs/champion-runtime-safety.md` — untrusted-input boundaries, capability-scoped tools, independent validation, model evaluation, and incident controls.
 - `docs/ui-component-architecture.md` — stock shadcn demo rules, primitive/domain boundaries, theme isolation, and safe customization path.
 - `docs/accessibility-and-motion.md` — WCAG 2.2 AA target, keyboard and focus model, assistive-technology behavior for live data, chart alternatives, reduced motion, and authoritative-state motion rules.
@@ -106,7 +107,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
   - Web Worker, binary encoding, and SharedWorker remain measured-load optimizations rather than MVP prerequisites.
 - Frontend security and session contracts must cover HTTP and WebSocket authentication, reconnect re-authentication, token handling, session expiry, authorization changes, cross-tab logout, and safe failure behavior. No client cache or stream subscription proves current authorization.
 - Rendering:
-  - Lightweight Charts for initial financial visualization. [Lightweight Charts](https://tradingview.github.io/lightweight-charts/)
+  - Lightweight Charts for streaming financial series and selective Visx packages for bespoke analytical evidence, each behind separate semantic adapters and lazy chunks. [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) · [Visx](https://airbnb.io/visx/)
   - Virtualized long conversations, runs, orders, and positions.
   - Application-level search for virtualized histories whose off-screen content is unavailable to native browser search.
   - Frame-conflated visual market updates rather than rendering every tick.

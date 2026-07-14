@@ -37,6 +37,7 @@ src/
 │   │   └── timestamp.tsx
 │   └── domain/
 │       ├── champion/
+│       ├── charts/
 │       ├── strategy/
 │       ├── paper/
 │       ├── live/
@@ -209,8 +210,11 @@ Financial values must not be formatted ad hoc inside cards or tables. Use shared
 - Use the shadcn `Table` only as presentational markup.
 - Use TanStack Table and virtualization for sorting, filtering, selection, large histories, positions, orders, and runs.
 - Keep column definitions and domain cell renderers outside `components/ui/table.tsx`.
-- Use Lightweight Charts for live financial charts rather than shadcn's general chart component.
-- Keep chart instances behind stable domain adapters so a later visual redesign does not change transport, caching, or subscription code.
+- Use Lightweight Charts for streaming financial time series and Visx for bounded analytical or explanatory charts rather than shadcn's general chart component.
+- Keep the engines in separate leaf modules behind `ChartFrame` and stable domain chart components; feature screens do not import chart libraries directly.
+- Do not force both engines through one generic chart API. Share identity, range, freshness, status, legend, summary, table, and normalized-data contracts while preserving engine-specific lifecycles.
+- Keep chart instances and renderers behind stable domain adapters so a later visual redesign does not change transport, caching, or subscription code.
+- Never import both engines through a barrel used by the persistent shell; load and prefetch engine chunks by chart family.
 - High-frequency updates must reach only subscribed cells or chart series; they must not rerender the entire workspace shell.
 
 ## Conversation Components

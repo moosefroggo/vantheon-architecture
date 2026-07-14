@@ -49,6 +49,7 @@ Changes to an accepted decision must update this ledger and every affected journ
 | D-030 | Compare Paper evidence only within a declared validity envelope | Accepted | Product + Data | 2026-07-14 |
 | D-031 | Phase the simulator with the product vertical slices | Accepted | Frontend + Performance | 2026-07-14 |
 | D-032 | Center domain work and evidence rather than the chat transcript | Accepted | Product + Design + Frontend | 2026-07-14 |
+| D-033 | Use specialized chart engines behind separate semantic boundaries | Accepted | Frontend + Data Visualization | 2026-07-14 |
 
 ## Proposed Decisions
 
@@ -518,3 +519,17 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 **Consequences:** The primary surface receives spatial, focus, loading, and navigation priority. Conversation may collapse without hiding current work or stopping the Champion. Progress, semantic changes, evaluations, eligibility, runs, and outcomes remain inspectable outside the transcript. Selecting a reference in conversation opens or focuses the corresponding domain object; invoking the Champion from an object attaches that exact context. Chat is never a top-level product destination or the only work queue, status display, approval surface, or audit trail.
 
 **Revisit when:** Never for the separation between conversational presentation and authoritative domain state; layout emphasis may change after measured usability evidence.
+
+## D-033 — Use specialized chart engines behind separate semantic boundaries
+
+**Status:** Accepted
+
+**Context:** Vantheon needs both efficient streaming financial time series and bespoke evidence visualizations. One lowest-common-denominator chart API would either make analytical views generic or force live telemetry through React/SVG rendering. Shipping two statically shared libraries would also impose avoidable route cost.
+
+**Decision:** Use Lightweight Charts for live and historical financial time series that need efficient incremental updates and financial interaction. Use Visx for bounded analytical and explanatory views such as drawdown, attribution, allocation, distribution, risk, run annotations, and strategy or Paper comparison. Place them in separate lazy leaf modules behind semantic domain components and a shared product-level chart frame; never import both through the persistent shell or one static umbrella adapter.
+
+**Reasoning:** Specialized engines preserve live-update performance and allow Vantheon-specific evidence design. Separate chunks and package-level Visx imports contain the incremental bundle cost, while domain boundaries protect feature code from either rendering implementation.
+
+**Consequences:** Feature screens do not import chart engines directly. Lightweight Charts receives imperative, animation-frame-conflated updates from the external telemetry store; Visx receives query-backed or deliberately bounded derived data. Both use the same normalized source as their textual summary and accessible equivalent. Production builds track engine-chunk cost and representative browser timing; numeric gates follow D-018 rather than package-count intuition. See `docs/charting-architecture.md`.
+
+**Revisit when:** Representative production builds show unacceptable route cost, an engine cannot satisfy a required interaction or accessibility contract, or measured rendering violates the accepted responsiveness baseline.

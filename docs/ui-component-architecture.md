@@ -126,7 +126,7 @@ Feature code should not need to know whether this component currently renders a 
 
 `PaperLifecycleControls` owns the semantic presentation of `active`, `stopping`, `stopped`, and `archived` Paper states. It receives server-derived permissions and available actions; it does not infer them from button visibility or mutate portfolio state directly. Its contract preserves the separation between `stop`, `archive`, `unarchive`, and any future `resume` command. In particular, `unarchive` returns a portfolio to Stopped and must never be implemented as a resume shortcut.
 
-`WorkspaceEnvironmentNavigationItem` receives a typed status rather than arbitrary visual props or caller-authored sub-copy. Its initial contract distinguishes Draft tested/untested state, empty Paper/Live, running portfolios, and existing-but-disconnected portfolios. The component owns canonical compact copy and the decorative dot treatment; the caller supplies domain state, identity, selection, and navigation behavior. `aria-current` represents selection, while visible sub-copy represents lifecycle and connection state.
+`WorkspaceEnvironmentNavigationItem` receives a typed status rather than arbitrary visual props or caller-authored sub-copy. Its initial contract distinguishes the active Draft's latest checkpoint and independent tested/untested evidence state, empty Paper/Live, running portfolios, and existing-but-disconnected portfolios. The component owns canonical compact copy and the decorative dot treatment; the caller supplies domain state, identity, selection, and navigation behavior. `aria-current` represents selection, while visible sub-copy represents lifecycle and connection state.
 
 ### `features`
 

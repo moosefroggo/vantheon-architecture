@@ -197,16 +197,18 @@ export function WorkspaceEvidencePanel({
                   <TableHeader>
                     <TableRow>
                       <TableHead>Checkpoint</TableHead>
-                      <TableHead>State</TableHead>
-                      <TableHead>Completed</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Evidence</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow>
                       <TableCell className="font-medium">{checkpoint}</TableCell>
-                      <TableCell>{current ? "Tested" : "Untested"}</TableCell>
-                      <TableCell>{current?.completedAt ?? "—"}</TableCell>
+                      <TableCell>Active Draft</TableCell>
+                      <TableCell>
+                        {current ? `Tested · ${current.completedAt}` : "Not tested"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button
                           type="button"
@@ -220,8 +222,8 @@ export function WorkspaceEvidencePanel({
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">{baseline.checkpoint}</TableCell>
-                      <TableCell>{baseline.label}</TableCell>
-                      <TableCell>{baseline.completedAt}</TableCell>
+                      <TableCell>History</TableCell>
+                      <TableCell>Tested · {baseline.completedAt}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           type="button"
@@ -241,7 +243,7 @@ export function WorkspaceEvidencePanel({
                       <p className="text-sm font-medium">{openedCheckpoint}</p>
                       <p className="text-xs text-muted-foreground">
                         {openedCheckpoint === checkpoint
-                          ? "Current Draft checkpoint"
+                          ? "Active Draft · latest checkpoint"
                           : "Historical checkpoint · preserved after a fork"}
                       </p>
                     </div>

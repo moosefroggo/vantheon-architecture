@@ -597,7 +597,8 @@ export function ChampionWorkspace() {
                     <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate">{draftView.title}</span>
                       <span className="truncate text-xs text-foreground">
-                        {draftLabel} · {evaluationComplete ? "Tested" : "Untested"}
+                        {draftLabel} · {checkpoint} ·{" "}
+                        {evaluationComplete ? "Tested" : "Untested"}
                       </span>
                     </span>
                   </SidebarMenuButton>

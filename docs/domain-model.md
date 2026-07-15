@@ -73,6 +73,8 @@ The product may display concise labels such as `Paper V5` and `Live V5`. Those a
 
 `Vn.m` identifies a user-visible, restorable state within Draft Vn.
 
+- The active Draft is the latest authoritative checkpoint, whether or not that checkpoint has been tested.
+- A completed Evaluation attaches evidence to its exact checkpoint; it never changes which checkpoint is active.
 - `V5.0` is the initial checkpoint of Draft V5.
 - A generation-initialization checkpoint `Vn.0` clones the exact structured strategy frozen from the prior launched checkpoint. It records lineage but is not produced by a semantic change set.
 - One accepted semantic Draft change set produces one next checkpoint, such as `V5.1 → V5.2`, regardless of its authorized initiator.

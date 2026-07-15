@@ -187,7 +187,7 @@ The switcher answers three questions without opening another view:
 
 | Item | Primary label | Required secondary state | Behavior |
 |---|---|---|---|
-| Draft | `Draft V8` | `Untested · V8.4` or `Tested · V8.4` | Opens the current mutable Draft. |
+| Draft | `Draft V8` | `V8.4 · Untested` or `V8.4 · Tested` | Opens the active Draft, which is always the latest authoritative checkpoint. |
 | Paper | `Paper` or selected `Paper V5` | `No portfolios` or an explicit count plus operational state, such as `1 portfolio · Running` | Opens the selected/recent Paper; exposes all Paper portfolios and comparison. |
 | Live | `Live` | `No live portfolio` or the existing portfolio's strategy plus risk/operational state | Opens Live overview or readiness state if Live does not exist. |
 
@@ -197,7 +197,7 @@ The number communicates strategy generation; the state words communicate what ex
 
 ### Default information order
 
-1. Loop bar: Draft/checkpoint, untested changes, permanent Test, eligibility, and optional Paper launch.
+1. Loop bar: Draft and latest active checkpoint, independent test status, permanent Test, eligibility, and optional Paper launch.
 2. Strategy objective and structured content with rule-targeted Edit affordances. Edit attaches the exact rule above the Atlas composer and focuses the dock; it never opens an isolated modal or changes the Draft by itself.
 3. Universe, entry/exit behavior, sizing, risk, schedule, assumptions, and exclusions.
 4. Rule-linked evidence from the latest matching Evaluation.

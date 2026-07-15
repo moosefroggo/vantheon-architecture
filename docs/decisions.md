@@ -111,11 +111,11 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Users need a visible next iteration and restorable work without turning every autosave or low-level command into a public version.
 
-**Decision:** Display the mutable candidate as `Draft Vn`. Each accepted semantic Draft change set creates one restorable checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Non-mutating, rejected, and autosave-only work do not increment it.
+**Decision:** Display the mutable candidate as `Draft Vn`. The active Draft is always the latest authoritative checkpoint in that generation, whether tested or untested. Each accepted semantic Draft change set creates and activates one next restorable checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Non-mutating, rejected, and autosave-only work do not increment it. Testing attaches evidence to an exact checkpoint; it does not create, advance, or select the active checkpoint.
 
 **Reasoning:** Major generations communicate deployment separation; minor checkpoints provide meaningful recovery and provenance.
 
-**Consequences:** A change set containing multiple low-level commands produces one semantic checkpoint. Checkpoint creation is server-authoritative. The Draft generation and checkpoint are displayed separately: `Draft V8 · checkpoint V8.4`.
+**Consequences:** A change set containing multiple low-level commands produces one semantic checkpoint. Checkpoint creation and the active pointer are server-authoritative. Older checkpoints are read-only history unless restored through a new accepted change. The Draft generation and active checkpoint are displayed separately: `Draft V8 · checkpoint V8.4`.
 
 **Revisit when:** Direct multi-user editing or independent branch workflows require a different user-visible history model.
 

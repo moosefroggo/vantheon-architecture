@@ -95,7 +95,7 @@ function getStatusPresentation(
   switch (status.kind) {
     case "draft":
       return {
-        copy: `${status.tested ? "Tested" : "Untested"} · ${status.checkpoint}`,
+        copy: `${status.checkpoint} · ${status.tested ? "Tested" : "Untested"}`,
         indicator: "working",
       }
     case "empty":

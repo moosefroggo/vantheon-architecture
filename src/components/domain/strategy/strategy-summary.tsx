@@ -34,7 +34,7 @@ export function StrategySummary({
     <Card>
       <CardHeader>
         <CardTitle>Strategy summary</CardTitle>
-        <CardDescription>{checkpoint}</CardDescription>
+        <CardDescription>{checkpoint} · Active Draft</CardDescription>
         <CardAction>
           <span className="text-sm text-muted-foreground">Autosaved</span>
         </CardAction>

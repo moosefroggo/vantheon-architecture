@@ -1,9 +1,6 @@
 "use client"
 
-import { ArrowLeft } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -26,18 +23,14 @@ export type DryRunTab = "summary" | "activity"
 
 type DryRunWorkspaceProps = {
   run: WorkspaceEvaluationFixture
-  draftLabel: string
   activeTab: DryRunTab
   onActiveTabChange: (tab: DryRunTab) => void
-  onBack: () => void
 }
 
 export function DryRunWorkspace({
   run,
-  draftLabel,
   activeTab,
   onActiveTabChange,
-  onBack,
 }: DryRunWorkspaceProps) {
   const eligibleDecisions = run.decisions.filter(
     (decision) => decision.outcome.toLowerCase() === "eligible"
@@ -51,41 +44,29 @@ export function DryRunWorkspace({
     run.setup.find((item) => item.label === "Data cutoff")?.value ?? "Not recorded"
 
   return (
-    <section className="flex h-full min-h-0 flex-col" aria-labelledby="dry-run-title">
+    <section
+      className="flex h-full min-h-0 flex-col"
+      aria-label={`${run.label} details`}
+    >
       <Tabs
         value={activeTab}
         onValueChange={(value) => onActiveTabChange(value as DryRunTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <header className="shrink-0 space-y-2 border-b px-5 py-3">
-          <div className="flex min-w-0 items-center justify-between gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="min-w-0"
-              onClick={onBack}
-            >
-              <ArrowLeft />
-              <span className="truncate">
-                {draftLabel} / <span id="dry-run-title">{run.label}</span>
-              </span>
-            </Button>
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-5 py-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">Completed</Badge>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground tabular-nums">
               {formatCheckpointLabel(run.checkpoint)} · {run.duration} ·{" "}
               {eligibleDecisions.length}{" "}
               {eligibleDecisions.length === 1 ? "order" : "orders"} ·{" "}
               {simulatedCapital}
             </p>
-            <TabsList aria-label={`${run.label} details`}>
-              <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="activity">Activity</TabsTrigger>
-            </TabsList>
           </div>
+          <TabsList aria-label={`${run.label} details`}>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+          </TabsList>
         </header>
 
         <ScrollArea className="min-h-0 flex-1">

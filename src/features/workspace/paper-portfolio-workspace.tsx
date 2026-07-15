@@ -1,7 +1,7 @@
 "use client"
 
 import { type ReactNode } from "react"
-import { ArrowLeft, ArrowRight, ChevronDown, LockKeyhole } from "lucide-react"
+import { ArrowRight, ChevronDown, LockKeyhole } from "lucide-react"
 
 import { PortfolioEquityChart } from "@/components/domain/charts/portfolio-equity-chart"
 import { Money } from "@/components/system/money"
@@ -162,7 +162,6 @@ export function PaperPortfolioWorkspace({
         selectedDecisionId={selectedDecision?.id ?? null}
         activeTab={runTab}
         onActiveTabChange={onRunTabChange}
-        onBack={() => onSelectedReferenceChange(null)}
       />
     )
   }
@@ -529,14 +528,12 @@ function PaperRunWorkspace({
   selectedDecisionId,
   activeTab,
   onActiveTabChange,
-  onBack,
 }: {
   paper: PaperWorkspaceFixture
   run: PaperRunFixture
   selectedDecisionId: string | null
   activeTab: PaperRunTab
   onActiveTabChange: (tab: PaperRunTab) => void
-  onBack: () => void
 }) {
   const activity =
     run.activity ??
@@ -564,11 +561,7 @@ function PaperRunWorkspace({
   return (
     <section aria-labelledby="paper-run-title" className="space-y-4">
       <header className="border-b pb-4">
-        <Button type="button" variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft />
-          {paper.label} · Runs
-        </Button>
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
               <h1 id="paper-run-title" className="text-2xl font-semibold tracking-tight">

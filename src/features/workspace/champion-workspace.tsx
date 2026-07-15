@@ -74,6 +74,7 @@ import {
   WorkspaceEvidencePanel,
   type WorkspaceEvidenceTab,
 } from "./workspace-evidence-panel"
+import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 import {
   createWorkspaceDemoAuthority,
   WorkspaceDemoAuthorityError,
@@ -534,6 +535,51 @@ export function ChampionWorkspace() {
     }))
   }
 
+  function returnToDraftWorkspace() {
+    updateChampionSession(championId, (current) => ({
+      ...current,
+      draftSelection: {
+        ...current.draftSelection,
+        dryRunId: null,
+      },
+      conversation: {
+        ...current.conversation,
+        context: null,
+      },
+    }))
+  }
+
+  function returnToPaperOverview() {
+    updateChampionSession(championId, (current) => ({
+      ...current,
+      paperSelection: {
+        ...current.paperSelection,
+        reference: null,
+        panelExpanded: false,
+      },
+      conversation: {
+        ...current.conversation,
+        context: null,
+      },
+    }))
+  }
+
+  function openPaperRuns() {
+    updateChampionSession(championId, (current) => ({
+      ...current,
+      paperSelection: {
+        ...current.paperSelection,
+        reference: null,
+        detailsTab: "runs",
+        panelExpanded: true,
+      },
+      conversation: {
+        ...current.conversation,
+        context: null,
+      },
+    }))
+  }
+
   return (
     <SidebarProvider
       className="h-svh min-h-[36rem] overflow-hidden"
@@ -665,7 +711,22 @@ export function ChampionWorkspace() {
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
         <div className="flex h-12 shrink-0 items-center gap-3 border-b px-3">
           <SidebarTrigger />
-          {activeContext === "live" ? (
+          {activeContext === "draft" && selectedDryRun ? (
+            <WorkspaceHeaderBreadcrumbs
+              items={[
+                { label: draftLabel, onSelect: returnToDraftWorkspace },
+                { label: selectedDryRun.label },
+              ]}
+            />
+          ) : activeContext === "paper" && selectedPaperRun ? (
+            <WorkspaceHeaderBreadcrumbs
+              items={[
+                { label: "Paper", onSelect: returnToPaperOverview },
+                { label: "Runs", onSelect: openPaperRuns },
+                { label: selectedPaperRun.label },
+              ]}
+            />
+          ) : activeContext === "live" ? (
             <span className="text-sm font-medium md:hidden">Live</span>
           ) : (
             <Tabs
@@ -696,7 +757,6 @@ export function ChampionWorkspace() {
                 selectedDryRun ? (
                   <DryRunWorkspace
                     run={selectedDryRun}
-                    draftLabel={draftLabel}
                     activeTab={draftSelection.dryRunTab}
                     onActiveTabChange={(dryRunTab) =>
                       updateChampionSession(championId, (current) => ({
@@ -704,19 +764,6 @@ export function ChampionWorkspace() {
                         draftSelection: {
                           ...current.draftSelection,
                           dryRunTab,
-                        },
-                        conversation: {
-                          ...current.conversation,
-                          context: null,
-                        },
-                      }))
-                    }
-                    onBack={() =>
-                      updateChampionSession(championId, (current) => ({
-                        ...current,
-                        draftSelection: {
-                          ...current.draftSelection,
-                          dryRunId: null,
                         },
                         conversation: {
                           ...current.conversation,

@@ -28,14 +28,14 @@ export const onboardingFixture = {
     initials: "MA",
     specialty: "Systematic strategy Champion",
     availability: "available" as const,
-    currentActivity: "Draft V1 is ready for a transparent evaluation",
+    currentActivity: "Drafting V1 is ready for a Dry Run",
   },
   contexts: [
     {
       id: "draft",
-      label: "Draft V1",
+      label: "Drafting V1",
       stateLabel: "Developing",
-      detail: "checkpoint V1.2",
+      detail: "Checkpoint 2",
     },
     {
       id: "paper",
@@ -51,8 +51,8 @@ export const onboardingFixture = {
     },
   ] satisfies WorkspaceContextFixture[],
   draft: {
-    label: "Draft V1",
-    checkpointLabel: "checkpoint V1.2",
+    label: "Drafting V1",
+    checkpointLabel: "Checkpoint 2",
     validationLabel: "Coherent draft",
     intent:
       "Build a lower-volatility U.S. equity strategy that favors durable momentum, limits concentration, and does not trade more than once a week.",
@@ -114,7 +114,7 @@ export const onboardingFixture = {
     ],
   },
   evaluation: {
-    label: "Quick historical evaluation",
+    label: "Dry Run",
     window: "January 2, 2019 – June 30, 2026",
     universe: "40-stock liquid large-cap universe",
     benchmark: "S&P 500 Total Return",
@@ -129,13 +129,12 @@ export const onboardingFixture = {
       risk: "8.4% maximum modeled drawdown",
       observation:
         "The volatility filter reduced concentration during two sharp market declines, but also delayed three recoveries.",
-      eligibility: "Eligible for Paper launch review",
     },
   },
   paper: {
-    label: "Paper V1",
+    label: "Paper",
     strategyLabel: "Strategy V1",
-    sourceLabel: "Draft V1 · checkpoint V1.2",
+    sourceLabel: "Drafting V1 · Checkpoint 2",
     statusLabel: "Running",
     capital: "$100,000 simulated capital",
     nextRun: "Wednesday, July 15 · 4:15 PM ET",
@@ -150,10 +149,10 @@ export const onboardingFixture = {
     },
     {
       id: "activity-draft",
-      title: "Draft V1 created",
-      detail: "Six structured sections validated at checkpoint V1.2.",
+      title: "Drafting V1 created",
+      detail: "Six structured sections saved at Checkpoint 2.",
       status: "complete",
-      objectLabel: "Draft V1",
+      objectLabel: "Drafting V1",
     },
     {
       id: "activity-evaluation",
@@ -172,7 +171,7 @@ export const onboardingFixture = {
       "What could this test miss?",
     ],
     references: [
-      { id: "draft-v1", label: "Draft V1 · checkpoint V1.2" },
+      { id: "draft-v1", label: "Drafting V1 · Checkpoint 2" },
       { id: "evaluation-setup", label: "Evaluation setup" },
     ],
   },

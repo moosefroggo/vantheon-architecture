@@ -42,7 +42,7 @@ export function PaperOnboardingSurface({
               {paper.label}: first evidence cycle
             </h1>
             <CardDescription className="mt-2 max-w-3xl">
-              Strategy V1 is frozen here. Draft V2 is separate and cannot change
+              Strategy V1 is frozen here. Drafting V2 is separate and cannot change
               this portfolio.
             </CardDescription>
           </div>
@@ -82,10 +82,10 @@ export function PaperOnboardingSurface({
 
         <CardFooter className="justify-between gap-3 border-t">
           <p className="text-xs text-muted-foreground">
-            Paper V1 continues unchanged while Draft V2 develops.
+            Paper continues unchanged while Drafting V2 develops.
           </p>
           <Button type="button" onClick={onContinueInDraft}>
-            Continue in Draft V2
+            Continue in Drafting V2
             <ArrowRight aria-hidden="true" data-icon="inline-end" />
           </Button>
         </CardFooter>

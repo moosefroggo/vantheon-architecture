@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixtures"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 type StrategySummaryProps = {
   checkpoint: string
@@ -34,7 +35,9 @@ export function StrategySummary({
     <Card>
       <CardHeader>
         <CardTitle>Strategy summary</CardTitle>
-        <CardDescription>{checkpoint} · Active Draft</CardDescription>
+        <CardDescription>
+          {formatCheckpointLabel(checkpoint)} · Active Draft
+        </CardDescription>
         <CardAction>
           <span className="text-sm text-muted-foreground">Autosaved</span>
         </CardAction>

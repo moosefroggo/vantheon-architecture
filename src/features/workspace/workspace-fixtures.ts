@@ -71,10 +71,6 @@ export type WorkspaceEvaluationFixture = {
   ruleSnapshot: readonly StrategyRuleFixture[]
   completedAt: string
   duration: string
-  eligibility: {
-    paper: "eligible" | "ineligible" | "pending"
-    label: string
-  }
   setup: readonly {
     label: string
     value: string
@@ -239,10 +235,6 @@ const maraWorkspaceFixture = {
     checkpoint: "V1.2",
     completedAt: "Jul 14, 2026 · 3:26 PM CT",
     duration: "18s",
-    eligibility: {
-      paper: "eligible" as const,
-      label: "Paper eligible",
-    },
     setup: [
       { label: "Window", value: "Jan 2019 – Jun 2026" },
       { label: "Benchmark", value: "S&P 500 Total Return" },
@@ -396,10 +388,6 @@ const irisWorkspaceFixture = {
     checkpoint: "V1.1",
     completedAt: "Jul 14, 2026 · 3:31 PM CT",
     duration: "21s",
-    eligibility: {
-      paper: "eligible" as const,
-      label: "Paper eligible",
-    },
     setup: [
       { label: "Window", value: "Jan 2014 – Jun 2026" },
       { label: "Benchmark", value: "Russell 1000 Value Total Return" },

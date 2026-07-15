@@ -188,7 +188,6 @@ export function createWorkspaceDemoAuthority({
       ruleSnapshot: rules,
       completedAt: evaluationTemplate.completedAt,
       duration: evaluationTemplate.duration,
-      eligibility: structuredClone(evaluationTemplate.eligibility),
       setup: structuredClone(evaluationTemplate.setup),
       metrics,
       baseline,

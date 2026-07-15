@@ -12,7 +12,7 @@ These diagrams specify observable product and frontend contracts. They do not pr
 - A client proposal, streamed tool output, animation, cache entry, or optimistic projection is never proof of acceptance.
 - Draft, portfolio, deployment, run, order, and connection states are independent state domains. One diagram must not be interpreted as silently changing another.
 - Paper and Live strategies are immutable. Strategy-changing actions always target the current Draft.
-- Labels such as `Paper V5` are concise presentation labels; exact source checkpoints remain available in detail views.
+- Normal UI reserves `Vn` for strategy generations: `Drafting Vn`, `Checkpoint m`, named Paper portfolios with `Running Strategy Vn`, and `Live · Running Strategy Vn`.
 - A failure path preserves the last valid authoritative state unless the diagram explicitly shows a successful transition.
 
 ## State-Domain Owners
@@ -102,29 +102,28 @@ Non-mutating conversation remains in `Editing` and does not increment the checkp
 
 ## 3. Paper Launch
 
-The authoritative launch commit exposes Strategy V5, active Paper V5, and Draft V6 at checkpoint V6.0 together. No client state should imply that the generation advanced before that commit.
+The authoritative launch commit exposes Strategy V5, the active Paper portfolio, and Drafting V6 at Checkpoint 0 together. No client state should imply that the generation advanced before that commit.
 
 ```mermaid
 flowchart TD
-    A["Draft V5 · checkpoint V5.2 is current"] --> B["Assess versioned Paper eligibility policy"]
-    B --> C{"Eligible?"}
-    C -->|"No"| F["Block launch and show missing criteria"]
-    F --> A
-    C -->|"Yes"| D["Review source checkpoint, assumptions, evaluation, schedule, and simulated capital"]
+    A["Drafting V5 · Checkpoint 2 is current"] --> D["Review source checkpoint, Dry Run evidence, schedule, and simulated capital"]
     D --> E{"Human confirms Paper launch?"}
     E -->|"No"| A
-    E -->|"Yes"| G["Revalidate eligibility and prepare immutable Strategy V5 candidate"]
-    G --> H["Provision Paper portfolio resources"]
+    E -->|"Yes"| G["Validate launch command and prepare immutable Strategy V5 candidate"]
+    G --> F{"Request valid and authorized?"}
+    F -->|"No"| O["Show validation error; keep Draft unchanged"]
+    O --> A
+    F -->|"Yes"| H["Provision Paper portfolio resources"]
     H --> I{"Provisioned?"}
     I -->|"No"| J["No active Paper; preserve retry target"]
     J --> A
     I -->|"Yes"| K["Commit authoritative Paper launch"]
-    K --> L["Immutable Strategy V5 from Draft V5 · checkpoint V5.2"]
-    K --> M["Paper V5 active with simulated capital"]
-    K --> N["Draft V6 · checkpoint V6.0 becomes mutation target"]
+    K --> L["Immutable Strategy V5 from Drafting V5 · Checkpoint 2"]
+    K --> M["Growth Test active · Running Strategy V5"]
+    K --> N["Drafting V6 · Checkpoint 0 becomes mutation target"]
 ```
 
-Existing Paper portfolios remain independent. A later Draft normally launches another Paper portfolio rather than rewriting Paper V5.
+Existing Paper portfolios remain independent. A later Draft normally launches another named Paper portfolio rather than rewriting Growth Test.
 
 ## 4. Live Promotion
 
@@ -132,7 +131,7 @@ Live promotion uses the exact Paper-tested strategy. The prior Live deployment r
 
 ```mermaid
 flowchart TD
-    A["Paper V5 with immutable Strategy V5"] --> B["Assess versioned Live eligibility policy"]
+    A["Growth Test · Running Strategy V5"] --> B["Assess versioned Live eligibility policy"]
     B --> C{"All hard criteria satisfied?"}
     C -->|"No"| D["Continue Paper and show missing, failed, or stale criteria"]
     C -->|"Yes"| E["Compare Strategy V5 with current Live strategy"]
@@ -145,7 +144,7 @@ flowchart TD
     K --> H
     J -->|"Yes"| L["Atomically activate Live deployment for Strategy V5"]
     L --> M["End prior deployment period if one exists"]
-    L --> N["Live V5 becomes current controlling strategy"]
+    L --> N["Live · Running Strategy V5"]
     N --> O["Audit confirmation and deployment provenance"]
 ```
 

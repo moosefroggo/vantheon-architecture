@@ -65,7 +65,7 @@ Tools are allowlisted and scoped by capability rather than exposed as an undiffe
 | Research | Retrieve approved external or internal sources | Source policy, input isolation, citation metadata, and bounded access |
 | Propose Draft change | Produce typed commands against the current Draft checkpoint | Server validation; semantic review; authoritative patch |
 | Run Evaluation | Request an allowed bounded test with explicit assumptions | Server validation, resource limits, and visible execution state |
-| Prepare Paper launch | Assemble evidence and review material | User confirmation and server eligibility policy |
+| Prepare Paper launch | Assemble the Draft snapshot and simulated-portfolio setup | User confirmation and server command validation; no eligibility verdict |
 | Prepare Live promotion | Explain eligibility, impact, and unresolved warnings | Champion cannot confirm or activate; explicit authorized human action required |
 | Portfolio controls | Explain state and prepare a scoped request | Champion cannot silently queue, confirm, or represent completion; fail-closed server command required |
 
@@ -80,7 +80,7 @@ The server validates Champion proposals without trusting the Champion's prose:
 - Base checkpoint or entity-specific concurrency precondition.
 - Strategy invariants and risk constraints that cannot be removed conversationally.
 - Data freshness and dependencies required to evaluate the proposal.
-- Policy eligibility for Paper launch, Live promotion, and portfolio controls.
+- Paper launch command validity, Live eligibility, and portfolio-control policy.
 - Idempotency, rate limits, resource limits, and duplicate prevention.
 
 The semantic change review is not authored solely from model prose. Its before/after facts are derived from authoritative snapshots and validated commands. The Champion may explain motivation and trade-offs, but the UI separately identifies model-authored interpretation, deterministic domain diff, validation results, and linked evidence.
@@ -90,7 +90,7 @@ If explanation and validated change disagree, the interface blocks acceptance an
 ## Human Gates
 
 - Low-risk Draft proposals may be accepted only after their target and semantic effect are visible.
-- Paper launch requires the D-027 eligibility result and explicit user confirmation.
+- Paper launch requires server validation of the exact request and explicit user confirmation; it never requires or displays a `Paper eligible` result.
 - Live promotion requires the exact Paper-tested strategy, satisfied hard criteria, fresh impact/risk review, current authorization, and explicit human confirmation.
 - Pausing future executions and cancelling eligible open orders remain separate human-confirmed operations.
 - No conversational phrase, model tool call, generated UI component, or successful acknowledgement substitutes for confirmation.
@@ -123,7 +123,7 @@ Maintain a versioned evaluation suite containing representative and adversarial 
 - Cross-version learning and stale-checkpoint conflicts.
 - No-trade explanation and appropriate abstention.
 - Tool selection, parameter bounds, duplicate calls, and failure recovery.
-- Paper/Live separation and refusal to bypass eligibility or human confirmation.
+- Paper/Live separation and refusal to bypass Live eligibility or human confirmation.
 - Privacy, secret-handling, and data-minimization cases.
 
 A model, prompt, tool, schema, or orchestration change does not become the default merely because it appears better qualitatively. It must pass the accepted safety cases, avoid material regression on journey-quality measures, and record the comparison. High-risk failures have zero tolerance; thresholds for non-critical quality and cost remain P-009.

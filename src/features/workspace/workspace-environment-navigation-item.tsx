@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 export type WorkspaceEnvironmentStatus =
   | {
@@ -95,7 +96,7 @@ function getStatusPresentation(
   switch (status.kind) {
     case "draft":
       return {
-        copy: `${status.checkpoint} · ${status.tested ? "Tested" : "Untested"}`,
+        copy: `${formatCheckpointLabel(status.checkpoint)} · ${status.tested ? "Tested" : "Untested"}`,
         indicator: "working",
       }
     case "empty":

@@ -83,7 +83,7 @@ Conversation, Champion activity, and the active domain surface are separate proj
 - A stable correlation graph links message or direct action → intent → activity → command/change set or Evaluation → checkpoint/run/outcome.
 - The conversation stream owns provisional tokens and message presentation only. It does not own whether research is running, a command applied, an Evaluation completed, or a portfolio changed.
 - Champion activity and domain status arrive through server read models and ordered events, so they remain visible while conversation history is virtualized, disconnected, or loading.
-- Structured message parts contain typed domain references. A reference resolver opens or focuses the canonical Draft section, Evaluation, run, Decision, comparison, eligibility assessment, or deployment review.
+- Structured message parts contain typed domain references. A reference resolver opens or focuses the canonical Draft section, Evaluation, run, Decision, comparison, Live eligibility assessment, or deployment review.
 - Domain actions such as `Explain`, `Ask Champion`, and `Improve in Draft` attach the selected object identity, immutable source, data cutoff, and viewed context to the composer.
 - Full semantic diffs, results, charts, positions, orders, and approvals render in domain surfaces. Conversation may show a concise preview, status, and link, but does not maintain a second authoritative copy.
 - Reloading or reconnecting the conversation stream never cancels accepted server work. Cancellation uses an explicit domain command with its own status and permission. The dock itself remains mounted and visible throughout supported workspace navigation.
@@ -98,7 +98,7 @@ Every state domain has one owner. Other layers may hold derived or last-known pr
 |---|---|---|---|
 | Draft, checkpoint, and Draft change set | Server strategy domain | Query read model plus optional Zustand editing projection | Validated Draft command followed by authoritative patch |
 | Immutable strategy | Server strategy domain | Query entity by ID | Never mutated; replace only an invalid local projection |
-| Eligibility assessment | Server policy and risk domain | Query entity plus Paper/Live review projection | Versioned assessment; refresh when inputs become stale |
+| Live eligibility assessment | Server policy and risk domain | Query entity plus Live review projection | Versioned assessment; refresh when inputs become stale |
 | Portfolio, deployment, Paper launch, Live promotion, and operational controls | Server portfolio and deployment domain | Query entities/indexes, mutation state, and live projections | Entity-specific commands, snapshots, and ordered patches |
 | Run, decision, order, and trade | Server execution domain, which reconciles venue or broker events | Query entities/indexes and live projections | Entity-specific commands, snapshots, and ordered patches |
 | Conversation history | Server append-only record | Paginated query/index | Append confirmed messages; reconcile streamed provisional parts |

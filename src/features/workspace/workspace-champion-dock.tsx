@@ -44,7 +44,7 @@ export type WorkspaceChampionDockProps = {
   focusRequest: number
   message: string
   exchanges: readonly ConversationExchange[]
-  paperLaunchAvailable?: boolean
+  paperLaunchReviewAvailable?: boolean
   onMessageChange: (message: string) => void
   onSubmit: (request: string) => void
   onClearAttachedContext?: () => void
@@ -58,7 +58,7 @@ export function WorkspaceChampionDock({
   focusRequest,
   message,
   exchanges,
-  paperLaunchAvailable = false,
+  paperLaunchReviewAvailable = false,
   onMessageChange,
   onSubmit,
   onClearAttachedContext,
@@ -177,12 +177,12 @@ export function WorkspaceChampionDock({
                 </div>
               )}
 
-              {paperLaunchAvailable && onReviewPaperLaunch ? (
+              {paperLaunchReviewAvailable && onReviewPaperLaunch ? (
                 <Card size="sm">
                   <CardHeader>
                     <CardTitle>Paper portfolio</CardTitle>
                     <CardDescription>
-                      The current Draft has sufficient evidence for Paper.
+                      Dry Run complete. Review the simulated portfolio setup.
                     </CardDescription>
                   </CardHeader>
                   <CardFooter>
@@ -258,7 +258,7 @@ export function WorkspaceChampionDock({
 function contextualPrompt(context: string) {
   const normalized = context.toLowerCase()
 
-  if (normalized.includes("· run ")) {
+  if (normalized.includes("dry run") || normalized.includes("· run ")) {
     return "Ask why a candidate passed, failed, or produced an order. I can carry anything we learn into the current Draft for review."
   }
   if (normalized.endsWith("· runs")) {
@@ -277,6 +277,7 @@ function contextualPrompt(context: string) {
 function contextualPlaceholder(context: string) {
   const normalized = context.toLowerCase()
 
+  if (normalized.includes("dry run")) return "Ask Atlas about this Dry Run…"
   if (normalized.includes("· run ")) return "Ask Atlas about this run…"
   if (normalized.endsWith("· runs")) return "Ask Atlas about completed runs…"
   if (normalized.includes("paper")) return "Ask Atlas about this Paper portfolio…"

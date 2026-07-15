@@ -37,16 +37,16 @@ export function OnboardingWorkspace() {
 
   const mainSurfaceRef = useRef<HTMLElement>(null)
 
-  const draftLabel = paperLaunched ? "Draft V2" : onboardingFixture.draft.label
+  const draftLabel = paperLaunched ? "Drafting V2" : onboardingFixture.draft.label
   const checkpointLabel = paperLaunched
-    ? "checkpoint V2.0"
+    ? "Checkpoint 0"
     : onboardingFixture.draft.checkpointLabel
 
   const contextOptions = useMemo<ChampionWorkspaceOption[]>(
     () =>
       onboardingFixture.contexts.map((option) => {
         if (option.id === "draft" && paperLaunched) {
-          return { ...option, label: "Draft V2", stateLabel: "Developing" }
+          return { ...option, label: "Drafting V2", stateLabel: "Developing" }
         }
 
         if (option.id === "paper" && paperLaunched) {
@@ -85,8 +85,8 @@ export function OnboardingWorkspace() {
   const conversationSummary = useMemo(() => {
     if (activeContext === "paper") {
       return paperLaunched
-        ? "Paper V1 runs the frozen Strategy V1. Questions can use its evidence, while any accepted change is prepared separately in Draft V2."
-        : "Paper has not started. Evaluate Draft V1 first so its behavior is inspectable before launch."
+        ? "Paper runs the frozen Strategy V1. Questions can use its evidence, while any accepted change is prepared separately in Drafting V2."
+        : "Paper has not started. Dry Run Drafting V1 first so its behavior is inspectable before launch."
     }
 
     if (activeContext === "live") {
@@ -94,7 +94,7 @@ export function OnboardingWorkspace() {
     }
 
     if (paperLaunched) {
-      return "Draft V2 starts with the same content as Strategy V1. It can evolve without changing Paper V1."
+      return "Drafting V2 starts with the same content as Strategy V1. It can evolve without changing Paper."
     }
 
     return evaluationComplete

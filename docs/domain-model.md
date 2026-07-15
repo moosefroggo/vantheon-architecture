@@ -52,8 +52,8 @@ The canonical product glossary lives in [Product Foundations](./product-foundati
 | Champion | The persistent AI agent identity with which a user collaborates | Workspace, chat thread, strategy, or model instance |
 | Champion workspace | The product shell that brings one Champion's Draft, Paper, Live, conversation, and activity together | Champion identity |
 | Strategy lineage | One Champion's current Draft generation, its restorable checkpoints, and immutable strategies created from prior Drafts | A single Draft or portfolio |
-| Draft | The only mutable strategy candidate in the MVP, displayed as `Draft Vn` | An immutable deployed strategy |
-| Draft checkpoint | A restorable, authoritative state inside the current Draft generation, displayed as `Vn.m` | A low-level autosave or every command |
+| Draft | The only mutable strategy candidate in the MVP, displayed as `Drafting Vn` | An immutable deployed strategy |
+| Draft checkpoint | A restorable, authoritative state inside the current Draft generation, displayed as `Checkpoint m`; canonical records may use `Vn.m` | A low-level autosave or every command |
 | Immutable strategy | The frozen strategy snapshot produced from an exact Draft checkpoint and identified by its major generation, such as `Strategy V5` | Draft V5 at checkpoint V5.2 while it is still evolving |
 | Paper portfolio | A persistent simulated portfolio that gathers evidence while controlled by an immutable strategy | An evaluation, run, or strategy |
 | Live portfolio | A persistent capital-bearing portfolio controlled through an explicit Live deployment | A Paper portfolio or strategy |
@@ -61,17 +61,17 @@ The canonical product glossary lives in [Product Foundations](./product-foundati
 | Portfolio run | One scheduled decision and execution cycle within a portfolio | The portfolio, a bounded user-requested Evaluation, or a strategy version |
 | Evaluation | A bounded dry run, quick evaluation, or backtest against disclosed assumptions | A scheduled portfolio run |
 
-The product may display concise labels such as `Paper V5` and `Live V5`. Those are navigation labels, not merged entity identities. Detail surfaces must expose the portfolio identity, controlling immutable strategy, exact source checkpoint, and operational state.
+Normal product UI reserves `Vn` for strategy generations. It displays active work as `Drafting Vn`, its saved state as `Checkpoint m`, Paper by stable portfolio name with `Running Strategy Vn`, and Live as `Live · Running Strategy Vn`. Canonical records may retain compound checkpoint identity `Vn.m`, but normal UI does not repeat the generation inside the checkpoint label. Detail surfaces expose portfolio identity, controlling immutable strategy, exact source checkpoint, and operational state.
 
 ## Version and Checkpoint Semantics
 
 ### Major generation
 
-`Draft Vn` names the current mutable candidate for the next immutable strategy generation. The MVP has exactly one active Draft generation per Champion.
+`Drafting Vn` names the current mutable candidate for the next immutable strategy generation. The MVP has exactly one active Draft generation per Champion.
 
 ### Minor checkpoint
 
-`Vn.m` identifies a user-visible, restorable state within Draft Vn.
+Canonical identity `Vn.m` identifies a restorable state within Drafting Vn. Normal UI displays only `Checkpoint m` because the active Draft already supplies `Vn`.
 
 - The active Draft is the latest authoritative checkpoint, whether or not that checkpoint has been tested.
 - A completed Evaluation attaches evidence to its exact checkpoint; it never changes which checkpoint is active.
@@ -88,8 +88,8 @@ The product may display concise labels such as `Paper V5` and `Live V5`. Those a
 Launching Draft V5 from checkpoint V5.2 to Paper has three authoritative results:
 
 1. Freeze exact checkpoint V5.2 as immutable Strategy V5.
-2. Start Paper V5 using that immutable strategy.
-3. Begin Draft V6 at checkpoint V6.0 for future work.
+2. Start a named Paper portfolio using that immutable strategy and display `Running Strategy V5`.
+3. Begin Drafting V6 at Checkpoint 0 for future work.
 
 Draft V6 checkpoint V6.0 contains the same structured strategy content as Draft V5 checkpoint V5.2 and immutable Strategy V5. The new generation exists to separate future development from Paper V5; it does not imply that strategy behavior has already changed. The first accepted semantic change creates checkpoint V6.1.
 
@@ -100,12 +100,12 @@ The transition must not expose a state in which Paper V5 appears active while Dr
 The major number communicates the strategy generation controlling a portfolio. The source checkpoint communicates the precise working state that was frozen.
 
 ```text
-Paper V5
+Growth Test
 Running Strategy V5
-Strategy snapshot from Draft V5 · checkpoint V5.2
+Strategy snapshot from Drafting V5 · Checkpoint 2
 ```
 
-Paper V5, Paper V6, and Paper V7 may all coexist. Promoting one Paper strategy to Live does not delete or mutate any Paper portfolio.
+Named Paper portfolios running Strategy V5, V6, and V7 may all coexist. Promoting one Paper strategy to Live does not delete or mutate any Paper portfolio.
 
 ## Canonical Concepts
 
@@ -218,7 +218,7 @@ A message may:
 - Carry streamed presentation parts or progress.
 - Explain why no mutation occurred.
 
-Conversation must never be replayed as the sole method of reconstructing a strategy, discovering current work, or determining whether work completed. Messages carry typed references to the affected intent, activity, change set, checkpoint, Evaluation, run, Decision, eligibility assessment, or deployment where applicable. Those objects remain independently addressable and inspectable.
+Conversation must never be replayed as the sole method of reconstructing a strategy, discovering current work, or determining whether work completed. Messages carry typed references to the affected intent, activity, change set, checkpoint, Evaluation, run, Decision, Live eligibility assessment, or deployment where applicable. Those objects remain independently addressable and inspectable.
 
 The causal bridge is `message or direct action → interpreted intent → activity and proposed work → authoritative domain result`. A message may summarize that bridge, but it does not replace it.
 
@@ -292,20 +292,20 @@ Frontend contract must make available:
 
 An evaluation may share execution infrastructure with portfolio runs, but it is not part of a persistent portfolio's scheduled history.
 
-### Eligibility assessment
+### Live eligibility assessment
 
-A server-authoritative, versioned policy result that determines whether a specific Draft checkpoint may launch to Paper or a specific Paper-tested strategy may enter Live promotion review.
+A server-authoritative, versioned policy result that determines whether a specific Paper-tested strategy may enter Live promotion review. Paper has no eligibility assessment; its launch command receives ordinary structural, authorization, destination, and concurrency validation.
 
 Frontend contract must make available:
 
 - Policy identity and version.
-- Exact Draft checkpoint or immutable strategy assessed.
+- Exact immutable Paper strategy assessed.
 - Every satisfied, missing, failed, stale, and warning criterion.
 - Assessment time and data cutoff.
 - Whether the result blocks progression or is advisory.
 - Required remediation or additional evidence.
 
-Paper eligibility checks structural validity, risk constraints, schedule, data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. Live eligibility additionally applies the approved evidence thresholds, operational/data/risk health, authorization, and freshness required by D-027. Eligibility never substitutes for explicit human confirmation.
+Live eligibility applies the approved evidence thresholds, operational/data/risk health, authorization, and freshness required by D-027. It never substitutes for explicit human confirmation. Paper launch review may display Dry Run evidence and setup facts, but it never converts them into an `eligible` verdict.
 
 ### Portfolio
 
@@ -496,7 +496,7 @@ Each state domain has one authoritative owner. “Client owner” below means re
 | Conversation and messages | Server | Streaming chat projection and TanStack history | Append-only evidence |
 | Champion activity | Server orchestration/activity domain | TanStack read model plus ordered activity feed | Durable summary and result references; model prose cannot advance lifecycle |
 | Evaluations | Server execution service | TanStack Query and streamed progress | Immutable after terminal result |
-| Eligibility assessments | Server policy and risk domain | TanStack Query plus review UI | Versioned result; recompute when inputs become stale |
+| Live eligibility assessments | Server policy and risk domain | TanStack Query plus Live review UI | Versioned result; recompute when inputs become stale |
 | Portfolios, deployments, Paper launches, Live promotions, and operational controls | Server portfolio and deployment domain | TanStack Query read models and mutation state | Durable financial or simulated evidence; consequential commands are not queued offline |
 | Runs, decisions, orders, and trades | Server execution domain, which reconciles venue or broker events | TanStack Query plus pushed reconciliation | Durable; append or transition by authority |
 | High-frequency market telemetry | Market or server stream | External subscription store and chart bindings | Ephemeral plus bounded history |
@@ -528,7 +528,7 @@ Each state domain has one authoritative owner. “Client owner” below means re
 20. Every portfolio outcome can be traced to a run and exact immutable strategy, while market attribution remains distinct from Champion causation.
 21. A new generation's `Vn.0` content matches the exact checkpoint frozen for the preceding Paper launch unless the user performs a separate explicit start-from action.
 22. Restoring an older checkpoint creates a new reviewed checkpoint and never rewinds or deletes history.
-23. Paper and Live progression uses a versioned server eligibility assessment; missing hard Live criteria fail closed.
+23. Paper launch uses server command validation and explicit confirmation without an eligibility state; Live progression uses a versioned server eligibility assessment and missing hard criteria fail closed.
 24. Champion input is untrusted and Champion output is non-authoritative until independent validation and required human gates complete.
 25. Stopping or archiving Paper preserves its immutable strategy, runs, decisions, and comparison provenance; archiving requires Stopped state, and unarchiving never resumes runs automatically.
 

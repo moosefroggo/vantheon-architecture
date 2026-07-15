@@ -42,4 +42,26 @@ describe("WorkspaceChampionDock context attachment", () => {
 
     expect(onClearAttachedContext).toHaveBeenCalledOnce()
   })
+
+  it("offers Paper launch review after a Dry Run without inventing eligibility", () => {
+    render(
+      <WorkspaceChampionDock
+        championId="mara"
+        viewedContext="Drafting V1 · Dry Run 1 · Summary"
+        focusRequest={0}
+        message=""
+        exchanges={[]}
+        paperLaunchReviewAvailable
+        onMessageChange={vi.fn()}
+        onSubmit={vi.fn()}
+        onReviewPaperLaunch={vi.fn()}
+      />
+    )
+
+    expect(
+      screen.getByText("Dry Run complete. Review the simulated portfolio setup.")
+    ).toBeVisible()
+    expect(screen.getByRole("button", { name: "Review launch" })).toBeVisible()
+    expect(screen.queryByText(/eligible/i)).not.toBeInTheDocument()
+  })
 })

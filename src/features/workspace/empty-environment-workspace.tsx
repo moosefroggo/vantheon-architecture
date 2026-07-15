@@ -69,9 +69,9 @@ export function EmptyEnvironmentWorkspace({
       number: 3,
       time: "2–5 mins",
       title: "Dry run the strategy",
-      description: "Test the current checkpoint and inspect every rule, decision, and rejection.",
+      description: "Run the active Draft and inspect every rule, decision, and rejection.",
       complete: evaluationComplete,
-      actionLabel: evaluationComplete ? "Review test" : `Test ${draftLabel}`,
+      actionLabel: evaluationComplete ? "Open Dry Run" : "Dry Run",
       action: evaluationComplete ? onOpenDraft : onRunDraft,
     },
     {
@@ -81,7 +81,7 @@ export function EmptyEnvironmentWorkspace({
       description: "Freeze the tested checkpoint as Strategy V1 and start simulated trading.",
       complete: paperLaunched,
       marker: "→ V1",
-      actionLabel: paperLaunched ? "Open Paper V1" : "Review Paper launch",
+      actionLabel: paperLaunched ? "Open Paper" : "Review Paper launch",
       action: paperLaunched && onOpenPaper ? onOpenPaper : onReviewPaperLaunch,
     },
     {

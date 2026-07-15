@@ -87,7 +87,7 @@ export function DraftStrategyWorkspace({
           disabled={authorityOperation !== null}
         >
           <Play />
-          {evaluationPending ? "Testing…" : "Test Draft"}
+          {evaluationPending ? "Running…" : "Dry Run"}
         </Button>
       </div>
 

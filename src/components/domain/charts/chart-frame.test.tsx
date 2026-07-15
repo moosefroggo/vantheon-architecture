@@ -50,7 +50,7 @@ describe("ChartFrame", () => {
 
     fireEvent.click(screen.getByText(/View accessible data table/));
     expect(screen.getByRole("table", {
-      name: "Portfolio equity observations for Growth Champion · Paper V5",
+      name: "Portfolio equity observations for Growth Champion · Growth Test · Strategy V5",
     })).toBeVisible();
   });
 });

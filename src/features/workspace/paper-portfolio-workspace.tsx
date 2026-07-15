@@ -189,7 +189,7 @@ export function PaperPortfolioWorkspace({
         </div>
 
         <Button type="button" onClick={onOpenDraft} className="shrink-0 self-start">
-          Open Draft V2
+          Open Draft
           <ArrowRight aria-hidden="true" data-icon="inline-end" />
         </Button>
       </header>

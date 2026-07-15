@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 import type {
   WorkspaceEvaluationBaselineFixture,
@@ -126,16 +127,16 @@ export function WorkspaceEvidencePanel({
                 <CircleCheck />
                 <AlertTitle>No blocking problems</AlertTitle>
                 <AlertDescription>
-                  {checkpoint} has completed evidence and is{" "}
-                  {current.eligibility.label.toLowerCase()}.
+                  {formatCheckpointLabel(checkpoint)} has a completed Dry Run. Review
+                  its evidence or start a Paper portfolio.
                 </AlertDescription>
               </Alert>
             ) : (
               <Alert>
                 <CircleAlert />
-                <AlertTitle>{checkpoint} needs testing</AlertTitle>
+                <AlertTitle>{formatCheckpointLabel(checkpoint)} has no Dry Run</AlertTitle>
                 <AlertDescription>
-                  Run the current Draft before using this checkpoint for a Paper portfolio.
+                  Run the active Draft to inspect its behavior before starting Paper.
                 </AlertDescription>
               </Alert>
             )}
@@ -159,8 +160,8 @@ export function WorkspaceEvidencePanel({
                       {[...evaluations].reverse().map((run) => (
                         <TableRow key={run.id}>
                           <TableCell className="font-medium">{run.label}</TableCell>
-                          <TableCell>Draft · {run.checkpoint}</TableCell>
-                          <TableCell>{run.eligibility.label}</TableCell>
+                          <TableCell>{formatCheckpointLabel(run.checkpoint)}</TableCell>
+                          <TableCell>Completed</TableCell>
                           <TableCell>{run.completedAt}</TableCell>
                           <TableCell className="text-right">
                             <Button
@@ -181,7 +182,7 @@ export function WorkspaceEvidencePanel({
                     <div>
                       <p className="text-sm font-medium">No Dry Runs yet</p>
                       <p className="text-xs text-muted-foreground">
-                        Test the current Draft to create the first run.
+                        Start a Dry Run from the active Draft.
                       </p>
                     </div>
                   </div>
@@ -204,7 +205,9 @@ export function WorkspaceEvidencePanel({
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">{checkpoint}</TableCell>
+                      <TableCell className="font-medium">
+                        {formatCheckpointLabel(checkpoint)}
+                      </TableCell>
                       <TableCell>Active Draft</TableCell>
                       <TableCell>
                         {current ? `Tested · ${current.completedAt}` : "Not tested"}
@@ -221,7 +224,9 @@ export function WorkspaceEvidencePanel({
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">{baseline.checkpoint}</TableCell>
+                      <TableCell className="font-medium">
+                        {formatCheckpointLabel(baseline.checkpoint)}
+                      </TableCell>
                       <TableCell>History</TableCell>
                       <TableCell>Tested · {baseline.completedAt}</TableCell>
                       <TableCell className="text-right">
@@ -240,11 +245,13 @@ export function WorkspaceEvidencePanel({
                 {openedCheckpoint ? (
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
                     <div>
-                      <p className="text-sm font-medium">{openedCheckpoint}</p>
+                      <p className="text-sm font-medium">
+                        {formatCheckpointLabel(openedCheckpoint)}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {openedCheckpoint === checkpoint
                           ? "Active Draft · latest checkpoint"
-                          : "Historical checkpoint · preserved after a fork"}
+                          : "Historical checkpoint · preserved after restore"}
                       </p>
                     </div>
                     <Button
@@ -255,7 +262,7 @@ export function WorkspaceEvidencePanel({
                       onClick={() => setForkCandidate(openedCheckpoint)}
                     >
                       <GitFork />
-                      Fork checkpoint
+                      Restore as latest
                     </Button>
                   </div>
                 ) : null}
@@ -296,11 +303,14 @@ export function WorkspaceEvidencePanel({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Fork {forkCandidate} into the current Draft?</DialogTitle>
+            <DialogTitle>
+              Restore {forkCandidate ? formatCheckpointLabel(forkCandidate) : "checkpoint"}?
+            </DialogTitle>
             <DialogDescription>
-              This creates {nextCheckpointLabel(checkpoint)} from {forkCandidate}. The
-              current {checkpoint} remains in history, and Paper or Live portfolios do
-              not change.
+              This creates {nextCheckpointLabel(checkpoint)} from{" "}
+              {forkCandidate ? formatCheckpointLabel(forkCandidate) : "the selected checkpoint"}.
+              The current {formatCheckpointLabel(checkpoint)} remains in history, and
+              Paper or Live portfolios do not change.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -334,5 +344,5 @@ export function WorkspaceEvidencePanel({
 function nextCheckpointLabel(checkpoint: string) {
   const match = /^V(\d+)\.(\d+)$/.exec(checkpoint)
   if (!match) return "next checkpoint"
-  return `V${match[1]}.${Number(match[2]) + 1}`
+  return `Checkpoint ${Number(match[2]) + 1}`
 }

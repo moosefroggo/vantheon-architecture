@@ -97,7 +97,7 @@ Message or direct workspace action
 → visible artifact, evidence, or outcome
 ```
 
-- A message that initiates work shows typed references to its activity, change set, Evaluation, run, or eligibility result.
+- A message that initiates work shows typed references to its activity, change set, Evaluation, run, or Live eligibility result.
 - Champion progress appears in the activity system and on the affected domain surface, not only as streaming prose.
 - A completed result materializes in its canonical surface. Chat summarizes and links to it instead of becoming the only place it can be inspected.
 - Selecting a reference in conversation opens, focuses, or highlights the corresponding object in the primary surface.
@@ -129,10 +129,10 @@ After a structured Draft exists, the Champion workspace uses an operational work
 The Draft workbench composes one permanent circuit rather than scattering workflow verbs across tabs:
 
 ```text
-checkpoint + untested changes → Test → evidence versus baseline → eligibility → optional Paper launch
+checkpoint + independent test state → Dry Run → evidence versus baseline → optional Paper launch review
 ```
 
-`Test Draft Vn` remains available in every Draft state. Eligibility and `Launch Draft Vn to Paper` appear beside it when valid; neither replaces Test. The output tray exposes a named `Dry Runs` collection rather than a generic `Tests` bucket. Its rows identify each immutable Evaluation and its exact Draft checkpoint, outcome, and completion time; selecting a row opens the Dry Run as a dedicated workbench page with `Summary` and `Activity` views. Strategy rules carry latest-evidence references; selecting a rule filters its decisions, and selecting a decision focuses the responsible rule.
+`Dry Run` remains available in every Draft state. `Review Paper launch` may appear after the onboarding Dry Run completes; it is a workflow action, not an eligibility verdict, and it never replaces Dry Run. The output tray exposes a named `Dry Runs` collection rather than a generic `Tests` bucket. Its rows identify each immutable Evaluation and its exact Draft checkpoint, outcome, and completion time; selecting a row opens the Dry Run as a dedicated workbench page with `Summary` and `Activity` views. Strategy rules carry latest-evidence references; selecting a rule filters its decisions, and selecting a decision focuses the responsible rule.
 
 The developer-workflow analogy is intentional: the navigator selects an environment or artifact, the workbench exposes its source of record, the output tray presents evidence, and the Champion helps interpret or propose a change against the current Draft.
 
@@ -172,7 +172,7 @@ One Live destination is shown per Champion in the initial IA. This does not esta
 
 ### Route identity rules
 
-- Use stable Champion, portfolio, run, and experiment identifiers for routing; display labels such as `Paper V5` are not entity identifiers.
+- Use stable Champion, portfolio, run, and experiment identifiers for routing; portfolio names and `Running Strategy V5` are display labels, not entity identifiers.
 - Champion identity is the parent route and cache namespace for Draft, Paper, Live, conversation, and nested domain references.
 - Keep Draft, Paper, and Live routes beneath the persistent Champion layout.
 - A selected Paper portfolio remains addressable so run, decision, and comparison context can be shared or restored.
@@ -187,8 +187,8 @@ The switcher answers three questions without opening another view:
 
 | Item | Primary label | Required secondary state | Behavior |
 |---|---|---|---|
-| Draft | `Draft V8` | `V8.4 · Untested` or `V8.4 · Tested` | Opens the active Draft, which is always the latest authoritative checkpoint. |
-| Paper | `Paper` or selected `Paper V5` | `No portfolios` or an explicit count plus operational state, such as `1 portfolio · Running` | Opens the selected/recent Paper; exposes all Paper portfolios and comparison. |
+| Draft | `Drafting V8` | `Checkpoint 4 · Untested` or `Checkpoint 4 · Tested` | Opens the active Draft, which is always the latest authoritative checkpoint. |
+| Paper | `Paper` or a portfolio name | `No portfolios` or `Running Strategy V5` | Opens the selected/recent Paper; exposes all Paper portfolios and comparison. |
 | Live | `Live` | `No live portfolio` or the existing portfolio's strategy plus risk/operational state | Opens Live overview or readiness state if Live does not exist. |
 
 The number communicates strategy generation; the state words communicate what exists and what is happening. A neutral/active/attention dot may reinforce that meaning, but it is decorative and never carries status alone. Selection uses structure and `aria-current`, not the status dot. `No live portfolio` is entity absence; `Disconnected` applies only to an existing portfolio whose current stream cannot be confirmed. Draft, Paper, and Live must remain distinguishable without custom color.
@@ -197,7 +197,7 @@ The number communicates strategy generation; the state words communicate what ex
 
 ### Default information order
 
-1. Loop bar: Draft and latest active checkpoint, independent test status, permanent Test, eligibility, and optional Paper launch.
+1. Loop bar: active Draft and latest checkpoint, independent Dry Run status, permanent Dry Run action, and optional Paper launch review.
 2. Strategy objective and structured content with rule-targeted Edit affordances. Edit attaches the exact rule above the Atlas composer and focuses the dock; it never opens an isolated modal or changes the Draft by itself.
 3. Universe, entry/exit behavior, sizing, risk, schedule, assumptions, and exclusions.
 4. Rule-linked evidence from the latest matching Evaluation.
@@ -208,9 +208,9 @@ The number communicates strategy generation; the state words communicate what ex
 ### Primary actions
 
 - Empty/new Draft: `Describe what you want` or select a transparent starter.
-- Coherent Draft without evidence: `Test Draft Vn`.
+- Active Draft without a completed run: `Dry Run`.
 - Changed Draft with prior evidence: `Evaluate changes`.
-- Paper eligibility satisfied under D-027: `Launch Draft Vn to Paper`.
+- Completed onboarding Dry Run: `Review Paper launch`; no `Paper eligible` state is shown.
 
 Test is permanent. `Evaluate changes` is contextual wording for the same Test capability; Paper launch is an additional action, never its replacement.
 
@@ -218,7 +218,7 @@ Strategy review and the first evaluation result remain inline on the default Str
 
 ### Secondary destinations
 
-- **Dry Runs:** always discoverable in the sticky output tray. `Test Draft` creates and opens a new immutable Dry Run; completed runs remain reopenable. Summary contains the outcome, simulated-order breakdown, near misses, data-integrity result, takeaway, and baseline comparison. Activity contains coarse verified phases, condition evaluations, observed values, sources, freshness, assumptions, and resulting orders—not hidden chain-of-thought or internal file paths.
+- **Dry Runs:** always discoverable in the sticky output tray. `Dry Run` creates and opens a new immutable run; completed runs remain reopenable. Summary contains the outcome, simulated-order breakdown, near misses, data-integrity result, takeaway, and baseline comparison. Activity contains coarse verified phases, condition evaluations, observed values, sources, freshness, assumptions, and resulting orders—not hidden chain-of-thought or internal file paths.
 - **Experiments:** the deeper collection for Dry Runs, backtests, assumptions, results, and comparison when the output tray no longer provides enough history.
 - **History:** restorable checkpoints, immutable strategies, semantic changes, and provenance. Selecting `Restore checkpoint V8.2` opens a semantic restore review against the current checkpoint; acceptance creates the next checkpoint rather than rewinding history.
 - **Data:** datasets, universes, benchmarks, and advanced assumptions. Keep secondary during onboarding.
@@ -327,7 +327,7 @@ The onboarding route keeps the core sequence on the Draft default surface until 
 |---|---|---|---|---|
 | Orientation | Empty Draft | Champion capability, no-money-at-risk state, intent prompt, transparent starters | Describe intent / choose starter | Clear Paper versus Live language |
 | Intent | Conversation + Draft shell | Material questions and declared defaults | Create Draft | No portfolio created |
-| Understand | Draft Strategy | Structured rules, risks, assumptions, exclusions, explanation | Test Draft | Current Draft/checkpoint visible |
+| Understand | Draft Strategy | Structured rules, risks, assumptions, exclusions, explanation | Dry Run | Active Draft/checkpoint visible |
 | Evidence | Inline evaluation | Actions, rejections, risk, window, benchmark, capital, cutoff, limitations | Revise or launch Paper | Infrastructure failure separated from poor performance |
 | Paper review | Paper launch review | Exact checkpoint, immutable snapshot, schedule, simulated capital | Confirm Paper launch | Explicitly no real capital |
 | Activated | Paper Overview | Running Paper V1, frozen strategy, first useful next action | Review first/latest run | Draft V2 shown separately |
@@ -400,11 +400,13 @@ When old evidence or offline work conflicts with the current Draft, show:
 
 Do not expose silent overwrite, raw JSON merge, or a second active Draft branch as an MVP choice.
 
-### Eligibility review
+### Paper launch and Live eligibility review
 
-Paper launch and Live promotion render the versioned server eligibility assessment rather than inferring readiness in the browser. Show:
+Paper launch renders a concise setup and confirmation review. It has no readiness score or eligibility result. Show the exact Draft checkpoint, immutable snapshot to be created, schedule, simulated capital, destination, validation errors, and the fact that no real capital is involved.
 
-- Policy version and exact Draft checkpoint or Paper strategy assessed.
+Live promotion renders the versioned server eligibility assessment rather than inferring readiness in the browser. Show:
+
+- Policy version and exact Paper strategy assessed.
 - Satisfied, missing, failed, stale, and advisory criteria.
 - The evidence, data cutoff, authorization, risk, and operational input behind each criterion.
 - Whether reassessment is required before confirmation.

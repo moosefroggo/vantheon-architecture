@@ -28,7 +28,7 @@ export function ContextReadinessSurface({
   const Icon = isPaper ? RadioTower : Landmark
   const title = isPaper ? "No Paper portfolio yet" : "Live is not configured"
   const description = isPaper
-    ? "Finish a transparent Draft evaluation before creating a simulated portfolio."
+    ? "Run the Draft once, then review the simulated portfolio setup."
     : "Live-capital configuration is intentionally outside the onboarding path. Nothing can move from Paper to Live automatically."
 
   return (
@@ -48,13 +48,13 @@ export function ContextReadinessSurface({
           <div className="flex min-h-64 flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center">
             <Icon aria-hidden="true" className="size-8" />
             <h2 className="mt-4 text-base font-semibold">
-              {isPaper ? "Evidence comes before simulated operation" : "Capital remains out of scope"}
+              {isPaper ? "Start with a transparent Dry Run" : "Capital remains out of scope"}
             </h2>
             <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
               {isPaper
-                ? "Draft V1 remains your only mutation target. Running an evaluation will disclose behavior, rejections, risk, assumptions, and limitations before launch review."
+                ? "Drafting V1 remains your only mutation target. A Dry Run will disclose behavior, rejections, risk, assumptions, and limitations before launch review."
                 : paperLaunched
-                  ? "Paper V1 can gather evidence, but a future Live review requires a separate server-authoritative eligibility assessment and explicit confirmation."
+                  ? "Paper can gather evidence, but a future Live review requires a separate server-authoritative eligibility assessment and explicit confirmation."
                   : "Create understandable Draft evidence and learn in Paper first. Broker setup and capital-bearing controls are not required to reach onboarding value."}
             </p>
             {!isPaper ? (

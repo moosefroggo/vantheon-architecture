@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixtures"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 type StrategyDocumentProps = {
   objective: string
@@ -32,7 +33,7 @@ export function StrategyDocument({
       <CardHeader>
         <CardTitle>Complete strategy</CardTitle>
         <CardDescription>
-          {checkpoint} · Editable working document
+          {formatCheckpointLabel(checkpoint)} · Editable working document
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

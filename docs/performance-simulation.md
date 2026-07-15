@@ -319,7 +319,7 @@ Build the simulator through the same vertical slices as the product (D-031), not
 
 1. **Onboarding slice:** define the minimum versioned contract facade and deterministic scenario required for intent → Draft → evaluation → Paper, with an expected-state oracle and browser timing marks.
 2. **Iteration slice:** add Paper runs, contextual improvement, command delay, comparison validity, and version-conflict scenarios.
-3. **Live-safety slice:** add eligibility, authorization/session changes, risk review, pending commands, and emergency-control scenarios before any Live-capital implementation.
+3. **Live-safety slice:** add Live eligibility, authorization/session changes, risk review, pending commands, and emergency-control scenarios before any Live-capital implementation.
 4. **Scale slice:** add market-open, volatility, cold/warm switching, reconnect/backfill, large-history, and accessibility-under-load profiles.
 5. Add k6 protocol pressure and scheduled browser regression runs.
 6. Measure representative baselines, record reviewed budgets, then enable performance gates.

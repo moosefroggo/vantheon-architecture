@@ -43,14 +43,14 @@ The essential invariants are:
 - Champion selection is the shell-level parent of Draft, Paper, Live, conversation, and domain context; switching restores that Champion's workspace without carrying mutation targets or references across identities.
 - The active strategy, evidence, run, comparison, or risk surface is primary. Conversation directs and explains work but never becomes its only representation.
 - After a structured Draft exists, the desktop shell uses an environment navigator, fluid workbench, contextual inspector, and test/run output tray; onboarding is an empty state rather than the permanent layout.
-- One current `Draft Vn` is mutable. Each accepted semantic Draft change set creates one restorable minor checkpoint such as V5.2, regardless of its authorized initiator.
+- One current `Drafting Vn` is mutable. Its latest saved state is displayed as `Checkpoint m`; canonical records may retain compound identity `Vn.m` for provenance.
 - Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft at checkpoint `Vn+1.0` as an exact content clone of the launched checkpoint.
 - Restoring an earlier checkpoint never rewinds history; after review and validation it creates the next checkpoint with the restored content.
 - Multiple Paper portfolios coexist so evidence can accumulate and be compared over time.
 - A portfolio is persistent; a run is one execution inside it.
 - Paper and Live strategies never change because of Draft editing or conversation.
 - Conversation may carry Paper or Live context, but strategy changes always target the current Draft and the UI states that target explicitly.
-- Paper and Live eligibility are versioned, server-authoritative assessments with visible criteria; the Champion may explain them but cannot grant or override them.
+- Paper launch uses server validation and explicit user confirmation, not an eligibility verdict. Live eligibility remains a versioned, server-authoritative assessment with visible criteria that the Champion may explain but cannot grant or override.
 - Live follows Paper evidence and requires an explicit capital-impact review and confirmation.
 - Champion inputs and model outputs are untrusted. Only capability-scoped commands that pass independent server validation may change business state.
 

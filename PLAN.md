@@ -31,15 +31,15 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 ## Canonical Product Model
 
 - A `Champion` is the persistent AI agent identity with which the user collaborates. The `Champion workspace` contains its Draft, Paper, Live, conversation, and activity; the `strategy lineage` is the sequence of Draft checkpoints and immutable strategies it develops. These terms are related but not interchangeable.
-- A Champion develops one current draft generation, displayed as `Draft Vn`.
+- A Champion develops one current draft generation, displayed as `Drafting Vn`.
 - The active Draft is always the latest authoritative checkpoint, tested or untested. Each accepted semantic Draft change set creates and activates one restorable minor checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Testing attaches evidence to a checkpoint but never advances or selects it; non-mutating or unsuccessful work does not increment it.
 - Launching Draft V5 from checkpoint V5.2 freezes an immutable Strategy V5 snapshot, creates Paper V5, and begins Draft V6 at checkpoint V6.0 with the exact structured content of V5.2. V6.0 is a generation-initialization checkpoint; the first semantic change becomes V6.1.
 - Restoring an older checkpoint never rewinds or deletes history. Restoring V8.2 while current is V8.4 creates a reviewed and validated V8.5 containing the restored content.
-- Paper navigation uses the concise label `Paper V5`; portfolio details expose `Strategy snapshot from Draft V5 · checkpoint V5.2`, the frozen strategy, semantic changes, and provenance.
-- Multiple Paper portfolios such as V5, V6, and V7 coexist, accumulate independent performance and run histories, and can be compared over time.
+- Normal UI reserves `Vn` for strategy generations: `Drafting V6`, `Checkpoint 3`, `Strategy V5`, and `Growth Test · Running Strategy V5`. It never displays compound `V6.3` checkpoint notation outside technical/audit contexts. Paper details expose the frozen strategy, source checkpoint, semantic changes, and provenance.
+- Multiple named Paper portfolios running Strategy V5, V6, V7, or later coexist, accumulate independent performance and run histories, and can be compared over time.
 - A portfolio is persistent evidence; a run is one scheduled execution inside that portfolio. A portfolio is never modeled as a run.
 - Live promotion follows the trust path `Paper → Live`. Live pins the exact Paper-tested strategy snapshot and requires explicit confirmation.
-- Paper and Live eligibility are versioned server-authoritative assessments. The Champion may explain or recommend remediation but cannot grant, bypass, or override eligibility.
+- Paper has no eligibility state. Launch uses server validation of the requested setup plus explicit user confirmation. Live eligibility is a versioned server-authoritative assessment that the Champion may explain or recommend remediation for but cannot grant, bypass, or override.
 - Chat remains persistent across the workspace:
   - Draft: create, modify, explain, and test.
   - Paper: analyze outcomes and propose changes to the current Draft.
@@ -189,7 +189,7 @@ Record the following as accepted decisions with their reasoning and revisit cond
 - Organize IA around Draft, Paper, and Live user goals rather than technical entities.
 - Use major generations for deployed strategy identity and minor checkpoints for restorable draft history.
 - Create one checkpoint per accepted semantic Draft change set, regardless of actor, not per low-level command.
-- Label portfolios as Paper V5 while exposing Draft V5 · checkpoint V5.2 as exact source provenance.
+- Give portfolios stable names, show `Running Strategy V5`, and expose `Drafting V5 · Checkpoint 2` as exact source provenance.
 - Allow multiple simultaneous Paper portfolios for longitudinal comparison.
 - Require Paper validation before Live promotion.
 - Treat evaluation as evidence only when its assumptions, data cutoff, behavior, rejections, risk, and limitations are visible; return alone is insufficient.

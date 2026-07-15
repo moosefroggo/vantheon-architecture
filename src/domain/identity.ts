@@ -28,7 +28,7 @@ export type DomainObjectKind =
   | "intent"
   | "change-set"
   | "command"
-  | "eligibility-assessment"
+  | "live-eligibility-assessment"
   | "champion-activity"
   | "conversation-message";
 
@@ -59,7 +59,7 @@ export type ConversationReferenceKind =
   | "live-portfolio"
   | "portfolio-run"
   | "decision"
-  | "eligibility-assessment"
+  | "live-eligibility-assessment"
   | "deployment";
 
 /** A message links to canonical objects; it never embeds their authoritative state. */

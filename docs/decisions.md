@@ -43,7 +43,7 @@ Changes to an accepted decision must update this ledger and every affected journ
 | D-024 | Keep Live pause and open-order cancellation separate | Accepted | Product + Risk | 2026-07-14 |
 | D-025 | Seed each next Draft from the exact launched checkpoint | Accepted | Product + Domain Engineering | 2026-07-14 |
 | D-026 | Restore checkpoints by creating a new append-only checkpoint | Accepted | Product + Domain Engineering | 2026-07-14 |
-| D-027 | Make Paper and Live eligibility explicit and server-authoritative | Accepted | Product + Risk | 2026-07-14 |
+| D-027 | Keep Paper launch validation separate from Live eligibility | Accepted | Product + Risk | 2026-07-15 |
 | D-028 | Treat Champion inputs and outputs as untrusted proposals | Accepted | Champion Platform + Security | 2026-07-14 |
 | D-029 | Give Paper portfolios explicit stop and archive lifecycles | Accepted | Product + Domain Engineering | 2026-07-14 |
 | D-030 | Compare Paper evidence only within a declared validity envelope | Accepted | Product + Data | 2026-07-14 |
@@ -111,11 +111,11 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Users need a visible next iteration and restorable work without turning every autosave or low-level command into a public version.
 
-**Decision:** Display the mutable candidate as `Draft Vn`. The active Draft is always the latest authoritative checkpoint in that generation, whether tested or untested. Each accepted semantic Draft change set creates and activates one next restorable checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Non-mutating, rejected, and autosave-only work do not increment it. Testing attaches evidence to an exact checkpoint; it does not create, advance, or select the active checkpoint.
+**Decision:** Display the mutable candidate as `Drafting Vn`. The active Draft is always the latest authoritative checkpoint in that generation, whether tested or untested. Product UI displays the local checkpoint as `Checkpoint m`; the canonical compound identity may remain `Vn.m` in contracts and audit records. Each accepted semantic Draft change set creates and activates one next restorable checkpoint such as `V5.1 → V5.2`, regardless of actor. Non-mutating, rejected, and autosave-only work do not increment it. A Dry Run attaches evidence to an exact checkpoint; it does not create, advance, or select the active checkpoint.
 
 **Reasoning:** Major generations communicate deployment separation; minor checkpoints provide meaningful recovery and provenance.
 
-**Consequences:** A change set containing multiple low-level commands produces one semantic checkpoint. Checkpoint creation and the active pointer are server-authoritative. Older checkpoints are read-only history unless restored through a new accepted change. The Draft generation and active checkpoint are displayed separately: `Draft V8 · checkpoint V8.4`.
+**Consequences:** A change set containing multiple low-level commands produces one semantic checkpoint. Checkpoint creation and the active pointer are server-authoritative. Older checkpoints are read-only history unless restored through a new accepted change. Normal UI says `Drafting V8 · Checkpoint 4`, never `Draft V8 · V8.4`.
 
 **Revisit when:** Direct multi-user editing or independent branch workflows require a different user-visible history model.
 
@@ -129,7 +129,7 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Reasoning:** The generation labels make the safety boundary visible and preserve the exact strategy definition and provenance. Reproducing execution additionally requires its runtime, data, clock, assumptions, and event inputs.
 
-**Consequences:** Paper displays `Paper V5` while details expose the exact V5.2 source checkpoint. Draft edits cannot mutate Paper.
+**Consequences:** Paper retains a stable portfolio name and displays `Running Strategy V5`; it is not renamed `Paper V5`. Details expose `Drafting V5 · Checkpoint 2` as provenance. Draft edits cannot mutate Paper.
 
 **Revisit when:** A product requirement permits in-place Paper strategy replacement; if adopted, deployment periods must preserve the old strategy and evidence.
 
@@ -139,7 +139,7 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Rigorous iteration requires observing behavior over time rather than replacing one simulated result with another.
 
-**Decision:** Paper V5, V6, V7, and later portfolios may coexist, accumulate independent histories, and be compared.
+**Decision:** Multiple named Paper portfolios running Strategy V5, V6, V7, or later may coexist, accumulate independent histories, and be compared.
 
 **Reasoning:** Parallel evidence exposes behavioral and regime differences and avoids rewriting history.
 
@@ -441,17 +441,17 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Revisit when:** Branching becomes an accepted product capability.
 
-## D-027 — Make Paper and Live eligibility explicit and server-authoritative
+## D-027 — Keep Paper launch validation separate from Live eligibility
 
 **Status:** Accepted
 
-**Context:** “Evidence sufficient” and “eligible for Live” cannot be left to whichever screen happens to implement the action.
+**Context:** Paper is the environment used to gather evidence, so a product-level `Paper eligible` verdict would be circular and arbitrary. Live readiness is materially different because it introduces real capital.
 
-**Decision:** Eligibility is a versioned, explainable server policy. Paper launch requires a structurally valid Draft, defined risk constraints and schedule, available data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. A zero-trade Evaluation may qualify because Paper exists to gather evidence. Live promotion additionally requires the exact Paper-tested strategy, satisfied evidence-policy thresholds, no blocking operational/data/risk failures, current authorization, a fresh impact review, and explicit human confirmation.
+**Decision:** Paper has no eligibility assessment, score, label, or readiness verdict. A Paper launch request receives ordinary server-side command validation for a coherent strategy snapshot, supported schedule and simulated-capital setup, current authorization, and valid destination; the user then explicitly confirms it. The onboarding workflow may place a transparent Dry Run before launch, but completion is a workflow step rather than an eligibility decision. Live promotion uses a separate versioned, explainable eligibility policy requiring the exact Paper-tested strategy, satisfied evidence-policy thresholds, no blocking operational/data/risk failures, current authorization, a fresh impact review, and explicit human confirmation.
 
-**Reasoning:** Paper should be easy and safe to start; Live must fail closed against an auditable policy rather than UI convention.
+**Reasoning:** Paper should be easy to start precisely because it is simulated. Live must fail closed against an auditable policy rather than UI convention.
 
-**Consequences:** The UI shows every satisfied, missing, failed, and stale criterion. The standard MVP path has no user override for a missing hard Live criterion. A zero-trade Paper may qualify only when its observation/run requirements are met and the inactivity is expected and explained; zero trades neither automatically qualifies nor disqualifies it. Numeric thresholds remain P-007 until Risk and Product approve them.
+**Consequences:** Paper surfaces never say `eligible`, `ineligible`, or `sufficient evidence`; they show validation errors, Dry Run results, and the launch review itself. Live review shows every satisfied, missing, failed, and stale criterion, and the standard MVP path has no user override for a missing hard Live criterion. A zero-trade Paper may satisfy Live evidence policy only when its observation/run requirements are met and the inactivity is expected and explained; zero trades neither automatically qualifies nor disqualifies it. Numeric Live thresholds remain P-007 until Risk and Product approve them.
 
 **Revisit when:** Regulation, account type, strategy cadence, or risk class requires a different policy; policy version and rationale remain attached to every review.
 
@@ -559,11 +559,11 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Placing editing, testing, history, evidence, and launch in separate tabs, corners, or conversation flows forces users to remember prior results and repeatedly reconstruct the same hypothesis. Replacing `Test` with `Launch` after one successful Evaluation also removes the loop from the next Draft generation.
 
-**Decision:** Draft keeps one visible circuit: current checkpoint and untested-change state → permanent `Test Draft Vn` action → eligibility → optional `Launch Draft Vn to Paper`. Launch appears beside Test and never replaces it. A rule's `Edit` affordance selects that exact rule, attaches it immediately above the persistent Atlas composer, and focuses the conversation dock. Atlas converts the user's intent into a reviewable typed semantic proposal; only server validation and an authoritative patch create the next checkpoint. The Edit action itself never mutates the rule and never opens an isolated editor modal. An evidence ledger retains Evaluation assumptions, checkpoint identity, baseline, current result, and neutral deltas. Rule evidence and decisions carry typed references in both directions. The core loop is keyboard operable, with shortcuts inactive while the user is typing and documented through visible hints and the command palette.
+**Decision:** Draft keeps one visible circuit: active checkpoint and independent Dry Run state → permanent `Dry Run` action → optional `Review Paper launch`. Paper launch has no eligibility verdict; it uses command validation and explicit confirmation. Launch appears beside Dry Run and never replaces it. A rule's `Edit` affordance selects that exact rule, attaches it immediately above the persistent Atlas composer, and focuses the conversation dock. Atlas converts the user's intent into a reviewable typed semantic proposal; only server validation and an authoritative patch create the next checkpoint. The Edit action itself never mutates the rule and never opens an isolated editor modal. An evidence ledger retains Evaluation assumptions, checkpoint identity, baseline, current result, and neutral deltas. Rule evidence and decisions carry typed references in both directions. The core loop is keyboard operable, with shortcuts inactive while the user is typing and documented through visible hints and the command palette.
 
 **Reasoning:** The primary product metric is the cost of changing one meaningful variable and learning whether behavior improved under comparable conditions. Keeping cause, evidence, baseline, and next action in one circuit removes navigation and memory as hidden dependencies without weakening server authority.
 
-**Consequences:** Strategy, test output, and baseline comparison remain simultaneously inspectable. The sticky output tray names the collection `Dry Runs`; `Test Draft` creates and opens a dedicated Dry Run page, and each completed run remains reopenable with distinct Summary and Activity views. Experiments and History may provide depth, but they cannot be required peer tabs for one normal iteration. Every Evaluation identifies the exact checkpoint tested and keeps its window, benchmark, capital, cutoff, assumptions, limitations, condition results, and data provenance visible. Verified activity is structured evidence rather than raw model reasoning or internal file reads. `Test` remains available for Draft Vn+1 after any Paper launch. `Improve in Draft` carries the selected Paper or Live run/decision context into the current Draft rather than performing bare navigation.
+**Consequences:** Strategy, Dry Run output, and baseline comparison remain simultaneously inspectable. The sticky output tray names the collection `Dry Runs`; `Dry Run` creates and opens a dedicated page, and each completed run remains reopenable with distinct Summary and Activity views. Experiments and History may provide depth, but they cannot be required peer tabs for one normal iteration. Every Evaluation identifies the exact checkpoint run and keeps its window, benchmark, capital, cutoff, assumptions, limitations, condition results, and data provenance visible. Verified activity is structured evidence rather than raw model reasoning or internal file reads. `Dry Run` remains available for Drafting Vn+1 after any Paper launch. `Improve in Draft` carries the selected Paper or Live run/decision context into the current Draft rather than performing bare navigation.
 
 **Revisit when:** Instrumented sessions show another interaction model lowers outcome-to-tested-change time while preserving baseline comprehension, provenance, accessibility, and authority.
 

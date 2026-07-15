@@ -34,6 +34,7 @@ describe("workspace demo authority", () => {
     expect(result.checkpoint).toBe("V1.2")
     expect(result.ruleSnapshot).toEqual(initialRules)
     expect(result.baseline.checkpoint).toBe("V1.1")
+    expect(result).not.toHaveProperty("eligibility")
 
     const mismatchedRules = initialRules.map((rule) =>
       rule.id === "universe" ? { ...rule, value: "Unconfirmed value" } : rule

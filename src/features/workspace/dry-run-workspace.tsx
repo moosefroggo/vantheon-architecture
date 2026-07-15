@@ -1,7 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
-import { ArrowLeft, MessageSquareText } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 import type {
   StrategyRuleFixture,
@@ -30,7 +30,6 @@ type DryRunWorkspaceProps = {
   activeTab: DryRunTab
   onActiveTabChange: (tab: DryRunTab) => void
   onBack: () => void
-  onAskAtlas: () => void
 }
 
 export function DryRunWorkspace({
@@ -39,7 +38,6 @@ export function DryRunWorkspace({
   activeTab,
   onActiveTabChange,
   onBack,
-  onAskAtlas,
 }: DryRunWorkspaceProps) {
   const eligibleDecisions = run.decisions.filter(
     (decision) => decision.outcome.toLowerCase() === "eligible"
@@ -54,51 +52,41 @@ export function DryRunWorkspace({
 
   return (
     <section className="flex h-full min-h-0 flex-col" aria-labelledby="dry-run-title">
-      <header className="shrink-0 border-b px-5 py-4">
-        <Button type="button" variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft />
-          {draftLabel} · Dry Runs
-        </Button>
-
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 id="dry-run-title" className="text-2xl font-semibold tracking-tight">
-                {run.label}
-              </h1>
-              <Badge variant="secondary">Completed</Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {draftLabel} · Checkpoint {run.checkpoint}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" onClick={onAskAtlas}>
-              <MessageSquareText />
-              Ask Atlas
-            </Button>
-          </div>
-        </div>
-
-        <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <RunFact label="Elapsed">{run.duration}</RunFact>
-          <RunFact label="Simulated orders">{eligibleDecisions.length}</RunFact>
-          <RunFact label="Simulated capital">{simulatedCapital}</RunFact>
-        </dl>
-      </header>
-
       <Tabs
         value={activeTab}
         onValueChange={(value) => onActiveTabChange(value as DryRunTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <div className="shrink-0 border-b px-5 py-2">
-          <TabsList aria-label={`${run.label} details`}>
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
-        </div>
+        <header className="shrink-0 space-y-2 border-b px-5 py-3">
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="min-w-0"
+              onClick={onBack}
+            >
+              <ArrowLeft />
+              <span className="truncate">
+                {draftLabel} / <span id="dry-run-title">{run.label}</span>
+              </span>
+            </Button>
+            <Badge variant="secondary">Completed</Badge>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground tabular-nums">
+              {formatCheckpointLabel(run.checkpoint)} · {run.duration} ·{" "}
+              {eligibleDecisions.length}{" "}
+              {eligibleDecisions.length === 1 ? "order" : "orders"} ·{" "}
+              {simulatedCapital}
+            </p>
+            <TabsList aria-label={`${run.label} details`}>
+              <TabsTrigger value="summary">Summary</TabsTrigger>
+              <TabsTrigger value="activity">Activity</TabsTrigger>
+            </TabsList>
+          </div>
+        </header>
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="p-5">
@@ -229,15 +217,15 @@ function SummaryTab({
       <section className="rounded-lg border" aria-labelledby={`${run.id}-metrics-title`}>
         <div className="border-b px-4 py-3">
           <h2 id={`${run.id}-metrics-title`} className="text-sm font-semibold">
-            Evidence versus {run.baseline.checkpoint}
+            Evidence versus {formatCheckpointLabel(run.baseline.checkpoint)}
           </h2>
         </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Metric</TableHead>
-              <TableHead>{run.checkpoint}</TableHead>
-              <TableHead>{run.baseline.checkpoint}</TableHead>
+              <TableHead>{formatCheckpointLabel(run.checkpoint)}</TableHead>
+              <TableHead>{formatCheckpointLabel(run.baseline.checkpoint)}</TableHead>
               <TableHead>Delta</TableHead>
             </TableRow>
           </TableHeader>
@@ -271,7 +259,7 @@ function ActivityTab({
       <ol className="divide-y rounded-lg border" aria-label="Dry Run activity">
         <ActivityStep
           title="Loaded the Draft checkpoint"
-          detail={`Bound the run to ${run.checkpoint} and preserved its rule snapshot.`}
+          detail={`Bound the run to ${formatCheckpointLabel(run.checkpoint)} and preserved its rule snapshot.`}
         />
         <ActivityStep
           title="Loaded evaluation inputs"
@@ -283,7 +271,7 @@ function ActivityTab({
         />
         <ActivityStep
           title="Recorded the result"
-          detail={`${run.eligibility.label}. The Dry Run and its evidence are immutable.`}
+          detail="The Dry Run completed and its evidence is immutable."
         />
       </ol>
 
@@ -364,20 +352,5 @@ function ActivityStep({ title, detail }: { title: string; detail: string }) {
       <p className="text-sm font-medium">{title}</p>
       <p className="text-sm text-muted-foreground">{detail}</p>
     </li>
-  )
-}
-
-function RunFact({
-  label,
-  children,
-}: {
-  label: string
-  children: ReactNode
-}) {
-  return (
-    <div className="flex items-baseline gap-1.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-medium tabular-nums">{children}</dd>
-    </div>
   )
 }

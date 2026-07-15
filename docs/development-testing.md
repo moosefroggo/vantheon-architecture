@@ -17,7 +17,7 @@ At each checkpoint, development pauses before the next major product slice. The 
 
 The checkpoint is complete only after the user has tried the application or explicitly chooses to defer the test. Feedback that changes an accepted architectural decision is recorded in `docs/decisions.md` before implementation continues.
 
-Until a production backend exists, interactive demo commands use the contract-level authority simulator described in `PLAN.md`. Client components may display the same pending, rejected, or confirmed states expected in production, but they may do so only from simulator responses—not by manufacturing authoritative patches, eligibility, or evidence inside React setters. Every checkpoint handoff names the active simulator scenario so demo evidence cannot be mistaken for brokerage or production evidence.
+Until a production backend exists, interactive demo commands use the contract-level authority simulator described in `PLAN.md`. Client components may display the same pending, rejected, or confirmed states expected in production, but they may do so only from simulator responses—not by manufacturing authoritative patches, Live eligibility, or evidence inside React setters. Every checkpoint handoff names the active simulator scenario so demo evidence cannot be mistaken for brokerage or production evidence.
 
 ## Checkpoints
 

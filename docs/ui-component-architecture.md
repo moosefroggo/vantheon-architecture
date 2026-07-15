@@ -98,7 +98,7 @@ Initial domain components should include:
 - `RunDecisionTrace`
 - `NoTradeExplanation`
 - `PromotionReview`
-- `EligibilityReview`
+- `LiveEligibilityReview`
 - `ComparisonValidityNotice`
 - `ChampionRuntimeStatus`
 - `PaperLifecycleControls`

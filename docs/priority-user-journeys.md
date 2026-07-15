@@ -123,7 +123,7 @@ The evaluation returns more than a performance number. It shows:
 - What it would have done.
 - What it rejected and why.
 - Risk and drawdown behavior.
-- The D-027 Paper eligibility criteria and whether revision is required.
+- Whether the Dry Run exposed a strategy, data, or setup problem worth revising before Paper.
 
 Success state:
 
@@ -144,7 +144,7 @@ Draft V1 from checkpoint V1.x
 
 The confirmation shows the exact checkpoint, key assumptions, evaluation result, schedule, and simulated capital. It explicitly states that no real capital is involved.
 
-The server eligibility assessment requires a structurally valid Draft, defined risk constraints and schedule, available data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. Zero trades do not block Paper because Paper exists to gather evidence.
+Paper has no eligibility assessment. The launch command validates the selected Draft snapshot, supported schedule and simulated-capital setup, authorization, and destination before explicit confirmation. The onboarding flow places a transparent Dry Run first so the user can inspect behavior, but a zero-trade result is evidence—not an eligibility outcome.
 
 After launch:
 

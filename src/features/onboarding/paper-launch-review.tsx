@@ -48,7 +48,7 @@ export function PaperLaunchReview({
             <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-xs text-muted-foreground">Source</dt>
-                <dd className="font-medium">Draft V1 · checkpoint V1.2</dd>
+                <dd className="font-medium">Drafting V1 · Checkpoint 2</dd>
               </div>
               <div>
                 <dt className="text-xs text-muted-foreground">Evaluation</dt>
@@ -70,8 +70,8 @@ export function PaperLaunchReview({
             className="space-y-1.5 rounded-lg bg-muted/50 p-3 text-sm"
           >
             <li><strong>Freeze:</strong> Strategy V1 becomes immutable.</li>
-            <li><strong>Run:</strong> Paper V1 starts with simulated capital.</li>
-            <li><strong>Continue:</strong> Draft V2 · checkpoint V2.0 starts separately with the same content.</li>
+            <li><strong>Run:</strong> Paper starts with simulated capital.</li>
+            <li><strong>Continue:</strong> Drafting V2 · Checkpoint 0 starts separately with the same content.</li>
           </ol>
         </div>
 

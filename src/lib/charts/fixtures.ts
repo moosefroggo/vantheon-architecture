@@ -8,7 +8,7 @@ export const portfolioEquityFixture: PortfolioEquityReadModel = {
     id: "paper-growth-equity",
     title: "Paper portfolio equity",
     metric: "Portfolio equity",
-    entity: "Growth Champion · Paper V5",
+    entity: "Growth Champion · Growth Test · Strategy V5",
     unit: { kind: "currency", currency: "USD", fractionDigits: 2 },
   },
   range: {
@@ -112,7 +112,7 @@ export const drawdownEvidenceFixture: DrawdownEvidenceReadModel = {
     id: "paper-growth-drawdown",
     title: "Drawdown and evidence",
     metric: "Drawdown",
-    entity: "Growth Champion · Paper V5",
+    entity: "Growth Champion · Growth Test · Strategy V5",
     unit: { kind: "percent", fractionDigits: 2 },
   },
   range: portfolioEquityFixture.range,

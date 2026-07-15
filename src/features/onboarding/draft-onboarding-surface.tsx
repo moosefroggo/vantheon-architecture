@@ -141,12 +141,11 @@ export function DraftOnboardingSurface({
                 <div><dt className="text-xs text-muted-foreground">Risk</dt><dd className="font-medium">{evaluation.result.risk}</dd></div>
                 <div><dt className="text-xs text-muted-foreground">Limitation</dt><dd className="font-medium">{evaluation.limitation}</dd></div>
               </dl>
-              <p className="mt-3 text-xs font-medium">{evaluation.result.eligibility}</p>
             </section>
           ) : (
             <details className="group px-1">
               <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm font-medium">
-                Review test setup
+                Review Dry Run setup
                 <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />
               </summary>
               <dl className="mt-3 grid gap-3 rounded-lg bg-muted/50 p-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
@@ -167,7 +166,7 @@ export function DraftOnboardingSurface({
             </Button>
           ) : (
             <Button type="button" onClick={onRunEvaluation}>
-              Test {draftLabel}
+              Dry Run
               <ArrowRight aria-hidden="true" data-icon="inline-end" />
             </Button>
           )}

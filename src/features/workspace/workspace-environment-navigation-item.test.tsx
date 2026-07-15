@@ -7,7 +7,7 @@ describe("WorkspaceEnvironmentNavigationItem Draft status", () => {
   it("presents the latest checkpoint independently from its test state", () => {
     render(
       <WorkspaceEnvironmentNavigationItem
-        label="Draft V1"
+        label="Drafting V1"
         status={{ kind: "draft", checkpoint: "V1.4", tested: false }}
         active
         compact
@@ -16,7 +16,9 @@ describe("WorkspaceEnvironmentNavigationItem Draft status", () => {
     )
 
     expect(
-      screen.getByRole("button", { name: "Draft V1, V1.4 · Untested" })
+      screen.getByRole("button", {
+        name: "Drafting V1, Checkpoint 4 · Untested",
+      })
     ).toHaveAttribute("aria-current", "page")
   })
 })

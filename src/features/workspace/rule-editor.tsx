@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 import type { WorkspaceAuthorityOperation } from "./workspace-demo-authority"
 import type {
@@ -91,7 +92,7 @@ export function RuleEditor({
 
       {decisionCheckpoint && linkedDecisions.length ? (
         <div className="space-y-2">
-          <Label>Linked decisions · {decisionCheckpoint}</Label>
+          <Label>Linked decisions · {formatCheckpointLabel(decisionCheckpoint)}</Label>
           <div className="flex flex-wrap gap-2">
             {linkedDecisions.map((decision) => (
               <Button
@@ -149,7 +150,9 @@ export function RuleEditor({
       {confirmedForRule ? (
         <Alert>
           <CircleCheck />
-          <AlertTitle>Server validated · {confirmedPatch.checkpoint}</AlertTitle>
+          <AlertTitle>
+            Server validated · {formatCheckpointLabel(confirmedPatch.checkpoint)}
+          </AlertTitle>
           <AlertDescription>
             The authoritative patch is applied. This checkpoint is untested.
           </AlertDescription>
@@ -157,8 +160,8 @@ export function RuleEditor({
       ) : null}
 
       <p className="text-sm text-muted-foreground">
-        Base {draftLabel} · {checkpoint}. Only a confirmed server patch updates the
-        Draft.
+        Base {draftLabel} · {formatCheckpointLabel(checkpoint)}. Only a confirmed
+        server patch updates the Draft.
       </p>
 
       <div className="flex flex-wrap justify-end gap-2">

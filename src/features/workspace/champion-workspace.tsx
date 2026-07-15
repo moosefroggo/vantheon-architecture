@@ -44,6 +44,12 @@ import {
 } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { DomainObjectReference } from "@/lib/charts/contracts"
+import {
+  formatCheckpointLabel,
+  formatDraftLabel,
+  formatPaperLabel,
+  formatVersionReference,
+} from "@/lib/version-labels"
 
 import {
   DraftStrategyWorkspace,
@@ -175,8 +181,12 @@ export function ChampionWorkspace() {
     authorityError,
   } = session
   const paperLaunched = paperSnapshot !== null
-  const draftLabel = paperLaunched ? "Draft V2" : workspaceFixture.draft.label
+  const internalDraftLabel = paperLaunched
+    ? "Draft V2"
+    : workspaceFixture.draft.label
+  const draftLabel = formatDraftLabel(internalDraftLabel)
   const checkpoint = draftState.checkpoint
+  const checkpointLabel = formatCheckpointLabel(checkpoint)
   const currentEvaluation =
     evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
@@ -184,10 +194,7 @@ export function ChampionWorkspace() {
     ? evaluations.find((evaluation) => evaluation.id === draftSelection.dryRunId) ?? null
     : null
   const evaluationComplete = currentEvaluation !== null
-  const paperLaunchAvailable =
-    !paperLaunched &&
-    evaluationComplete &&
-    currentEvaluation?.eligibility.paper === "eligible"
+  const paperLaunchReviewAvailable = !paperLaunched && evaluationComplete
 
   const evidenceBaseline = useMemo<WorkspaceEvaluationBaselineFixture>(() => {
     if (currentEvaluation) return currentEvaluation.baseline
@@ -220,7 +227,8 @@ export function ChampionWorkspace() {
 
     return {
       ...workspaceFixture.paper,
-      source: paperSnapshot.source,
+      label: formatPaperLabel(workspaceFixture.paper.label),
+      source: formatVersionReference(paperSnapshot.source),
       strategyRules: paperSnapshot.rules.map((rule) => ({
         label: rule.group,
         value: `${rule.value} · ${rule.constraint}`,
@@ -246,8 +254,8 @@ export function ChampionWorkspace() {
       : activeContext === "paper"
         ? paperLaunched
           ? selectedPaperRun
-            ? `Paper V1 · ${selectedPaperRun.label} · ${titleCase(paperSelection.runTab)}`
-            : `Paper V1 · ${titleCase(paperSelection.detailsTab)}`
+            ? `Paper · ${selectedPaperRun.label} · ${titleCase(paperSelection.runTab)}`
+            : `Paper · ${titleCase(paperSelection.detailsTab)}`
           : "Paper · Readiness"
         : "Live · Readiness"
   const viewedContext = defaultViewedContext
@@ -597,7 +605,7 @@ export function ChampionWorkspace() {
                     <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate">{draftView.title}</span>
                       <span className="truncate text-xs text-foreground">
-                        {draftLabel} · {checkpoint} ·{" "}
+                        {draftLabel} · {checkpointLabel} ·{" "}
                         {evaluationComplete ? "Tested" : "Untested"}
                       </span>
                     </span>
@@ -667,7 +675,7 @@ export function ChampionWorkspace() {
               <TabsList variant="line">
                 <TabsTrigger value="draft">{draftLabel}</TabsTrigger>
                 {paperLaunched ? (
-                  <TabsTrigger value="paper">Paper V1</TabsTrigger>
+                  <TabsTrigger value="paper">Paper</TabsTrigger>
                 ) : null}
               </TabsList>
             </Tabs>
@@ -713,12 +721,6 @@ export function ChampionWorkspace() {
                           context: null,
                         },
                       }))
-                    }
-                    onAskAtlas={() =>
-                      focusChampionConversation(
-                        championId,
-                        `${draftLabel} · ${selectedDryRun.label}`
-                      )
                     }
                   />
                 ) : (
@@ -921,7 +923,7 @@ export function ChampionWorkspace() {
             focusRequest={conversation.focusRequest}
             message={conversation.message}
             exchanges={conversation.exchanges}
-            paperLaunchAvailable={paperLaunchAvailable}
+            paperLaunchReviewAvailable={paperLaunchReviewAvailable}
             onMessageChange={(message) =>
               setConversationMessage(championId, message)
             }
@@ -930,7 +932,7 @@ export function ChampionWorkspace() {
                 championId,
                 request,
                 attachedContext ?? viewedContext,
-                `${draftLabel} · ${checkpoint}`
+                `${draftLabel} · ${checkpointLabel}`
               )
             }
             onClearAttachedContext={() =>
@@ -961,7 +963,7 @@ export function ChampionWorkspace() {
           }))
         }
         onConfirm={confirmPaperLaunch}
-        source={`${draftLabel} · ${checkpoint}`}
+        source={`${draftLabel} · ${checkpointLabel}`}
         pending={authorityOperation === "launching-paper"}
         error={authorityError}
       />
@@ -1155,7 +1157,7 @@ function PaperLaunchDialog({
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Launch Paper V1</DialogTitle>
+          <DialogTitle>Launch Paper</DialogTitle>
           <DialogDescription>Simulated capital only. Live remains unchanged.</DialogDescription>
         </DialogHeader>
 
@@ -1177,7 +1179,9 @@ function PaperLaunchDialog({
           </div>
           <div className="grid grid-cols-[7rem_1fr]">
             <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Result</span>
-            <span className="px-3 py-2 font-medium">Paper V1 + separate Draft V2</span>
+            <span className="px-3 py-2 font-medium">
+              Paper runs Strategy V1 · Drafting V2 starts separately
+            </span>
           </div>
         </div>
 

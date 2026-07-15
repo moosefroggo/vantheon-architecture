@@ -5,7 +5,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -18,16 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixtures"
-import { formatCheckpointLabel } from "@/lib/version-labels"
 
 type StrategySummaryProps = {
-  checkpoint: string
   rules: readonly StrategyRuleFixture[]
   onEditRule: (ruleId: string) => void
 }
 
 export function StrategySummary({
-  checkpoint,
   rules,
   onEditRule,
 }: StrategySummaryProps) {
@@ -35,9 +31,6 @@ export function StrategySummary({
     <Card>
       <CardHeader>
         <CardTitle>Strategy summary</CardTitle>
-        <CardDescription>
-          {formatCheckpointLabel(checkpoint)} · Active Draft
-        </CardDescription>
         <CardAction>
           <span className="text-sm text-muted-foreground">Autosaved</span>
         </CardAction>

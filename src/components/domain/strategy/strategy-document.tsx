@@ -1,23 +1,19 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixtures"
-import { formatCheckpointLabel } from "@/lib/version-labels"
 
 type StrategyDocumentProps = {
   objective: string
-  checkpoint: string
   rules: readonly StrategyRuleFixture[]
 }
 
 export function StrategyDocument({
   objective,
-  checkpoint,
   rules,
 }: StrategyDocumentProps) {
   const byGroup = new Map(rules.map((rule) => [rule.group, rule]))
@@ -32,9 +28,6 @@ export function StrategyDocument({
     <Card>
       <CardHeader>
         <CardTitle>Complete strategy</CardTitle>
-        <CardDescription>
-          {formatCheckpointLabel(checkpoint)} · Editable working document
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <DocumentSection title="Objective">{objective}</DocumentSection>

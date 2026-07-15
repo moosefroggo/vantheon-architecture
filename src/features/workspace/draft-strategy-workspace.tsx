@@ -105,7 +105,6 @@ export function DraftStrategyWorkspace({
           <div className="p-6">
             <TabsContent value="summary">
               <StrategySummary
-                checkpoint={checkpoint}
                 rules={draft.rules}
                 onEditRule={editRule}
               />
@@ -113,7 +112,6 @@ export function DraftStrategyWorkspace({
             <TabsContent value="document">
               <StrategyDocument
                 objective={draft.objective}
-                checkpoint={checkpoint}
                 rules={draft.rules}
               />
             </TabsContent>

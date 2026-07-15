@@ -5,7 +5,6 @@ import {
   Archive,
   CircleUserRound,
   Database,
-  Landmark,
   LockKeyhole,
   NotebookTabs,
 } from "lucide-react"
@@ -575,16 +574,19 @@ export function ChampionWorkspace() {
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Capital</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive={activeContext === "live"}
+                    aria-label="Live, not started"
                     onClick={() => selectWorkspaceContext(championId, "live")}
                   >
-                    <Landmark />
-                    <span>Live portfolio</span>
+                    <span
+                      aria-hidden="true"
+                      className="size-1.5 shrink-0 rounded-full border border-muted-foreground/60"
+                    />
+                    <span>Live</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -664,7 +666,7 @@ export function ChampionWorkspace() {
         <div className="flex h-12 shrink-0 items-center gap-3 border-b px-3">
           <SidebarTrigger />
           {activeContext === "live" ? (
-            <span className="text-sm font-medium">Live portfolio</span>
+            <span className="text-sm font-medium md:hidden">Live</span>
           ) : (
             <Tabs
               value={activeContext}

@@ -113,25 +113,8 @@ export function EmptyEnvironmentWorkspace({
   return (
     <section
       className="flex h-full min-h-0 flex-col"
-      aria-labelledby={`${environment.toLowerCase()}-empty-title`}
+      aria-label={`${environment} setup`}
     >
-      <header className="flex min-h-16 items-center gap-3 border-b px-4 py-3 sm:px-5">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h1
-              id={`${environment.toLowerCase()}-empty-title`}
-              className="text-base font-semibold"
-            >
-              {environment}
-            </h1>
-            <Badge variant="outline">Not started</Badge>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {environment === "Paper" ? "Simulated capital" : "Real capital"}
-          </p>
-        </div>
-      </header>
-
       <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-5">
         <div className="mx-auto max-w-3xl space-y-2">
           {steps.map((step, index) => {

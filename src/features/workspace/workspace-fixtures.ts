@@ -87,6 +87,7 @@ export type WorkspaceEvaluationTemplate = Omit<
 >
 
 export type WorkspaceFixture = {
+  initialPaper?: boolean
   champion: {
     id: string
     name: string
@@ -121,6 +122,41 @@ export type WorkspaceFixture = {
         quality?: "confirmed" | "estimated"
       }[]
     }
+    equityHistory?: readonly {
+      timestamp: string
+      value: number
+      quality?: "confirmed" | "estimated"
+      runId: string
+      decisionIds?: readonly string[]
+    }[]
+    runs?: readonly {
+      id: string
+      label: string
+      status: string
+      completedAt: string
+      decision: string
+      evaluated?: number
+      orders?: number
+      dataCutoff?: string
+      decisions?: readonly {
+        id: string
+        label: string
+        detail?: string
+      }[]
+    }[]
+    positionRows?: readonly {
+      symbol: string
+      marketValue: number
+      weight: number
+      dailyPnl: number
+    }[]
+    orderRows?: readonly {
+      id: string
+      symbol: string
+      side: string
+      quantity: number
+      status: string
+    }[]
   }
 }
 
@@ -280,6 +316,7 @@ const maraWorkspaceFixture = {
 } as const satisfies WorkspaceFixture
 
 const irisWorkspaceFixture = {
+  initialPaper: true,
   champion: {
     id: "iris",
     name: "Iris",
@@ -415,13 +452,13 @@ const irisWorkspaceFixture = {
     status: "Running",
     strategy: "Strategy V1",
     source: "Draft V1 · checkpoint V1.1",
-    portfolioValue: 100_000,
-    totalReturn: 0,
-    dailyPnl: 0,
-    buyingPower: 100_000,
-    exposure: 0,
-    maxDrawdown: 0,
-    positions: 0,
+    portfolioValue: 103_800,
+    totalReturn: 3.8,
+    dailyPnl: 220,
+    buyingPower: 22_800,
+    exposure: 78,
+    maxDrawdown: -2.1,
+    positions: 4,
     openOrders: 0,
     nextRun: "Aug 3 · 4:15 PM ET",
     runCadence: "First business day of each month",
@@ -430,8 +467,37 @@ const irisWorkspaceFixture = {
       symbol: "SPY",
       label: "SPY",
       methodology: "SPY total return sampled at each completed-run cutoff and normalized to the portfolio launch value.",
-      history: [],
+      history: [
+        { timestamp: "2026-06-01T20:15:00.000Z", value: 100_000 },
+        { timestamp: "2026-06-08T20:15:00.000Z", value: 100_600 },
+        { timestamp: "2026-06-15T20:15:00.000Z", value: 101_100 },
+        { timestamp: "2026-06-22T20:15:00.000Z", value: 100_900 },
+        { timestamp: "2026-06-29T20:15:00.000Z", value: 102_100 },
+        { timestamp: "2026-07-06T20:15:00.000Z", value: 102_900 },
+      ],
     },
+    equityHistory: [
+      { timestamp: "2026-06-01T20:15:00.000Z", value: 100_000, runId: "iris-run-1" },
+      { timestamp: "2026-06-08T20:15:00.000Z", value: 101_200, runId: "iris-run-2" },
+      { timestamp: "2026-06-15T20:15:00.000Z", value: 102_100, runId: "iris-run-3" },
+      { timestamp: "2026-06-22T20:15:00.000Z", value: 101_500, runId: "iris-run-4" },
+      { timestamp: "2026-06-29T20:15:00.000Z", value: 102_900, runId: "iris-run-5" },
+      { timestamp: "2026-07-06T20:15:00.000Z", value: 103_800, runId: "iris-run-6" },
+    ],
+    runs: [
+      { id: "iris-run-1", label: "Run 1", status: "Completed", completedAt: "Jun 1 · 4:15 PM ET", decision: "Opened positions", evaluated: 60, orders: 4 },
+      { id: "iris-run-2", label: "Run 2", status: "Completed", completedAt: "Jun 8 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+      { id: "iris-run-3", label: "Run 3", status: "Completed", completedAt: "Jun 15 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 2 },
+      { id: "iris-run-4", label: "Run 4", status: "Completed", completedAt: "Jun 22 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+      { id: "iris-run-5", label: "Run 5", status: "Completed", completedAt: "Jun 29 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 1 },
+      { id: "iris-run-6", label: "Run 6", status: "Completed", completedAt: "Jul 6 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+    ],
+    positionRows: [
+      { symbol: "PG", marketValue: 22_000, weight: 21.2, dailyPnl: 74 },
+      { symbol: "KO", marketValue: 20_500, weight: 19.7, dailyPnl: 42 },
+      { symbol: "JNJ", marketValue: 19_800, weight: 19.1, dailyPnl: 61 },
+      { symbol: "PEP", marketValue: 18_700, weight: 18.0, dailyPnl: 43 },
+    ],
   },
 } as const satisfies WorkspaceFixture
 

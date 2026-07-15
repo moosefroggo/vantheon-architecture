@@ -739,15 +739,22 @@ function createInitialRuntime(): WorkspaceRuntimeState {
 function createChampionSession(
   fixture: WorkspaceFixture
 ): ChampionSessionState {
+  const initialPaper = fixture.initialPaper === true
+
   return {
-    activeContext: "draft",
+    activeContext: initialPaper ? "paper" : "draft",
     evaluations: [],
     draftState: {
-      checkpoint: fixture.draft.checkpoint,
+      checkpoint: initialPaper ? "V2.0" : fixture.draft.checkpoint,
       rules: fixture.draft.rules.map((rule) => ({ ...rule })),
       confirmedPatch: null,
     },
-    paperSnapshot: null,
+    paperSnapshot: initialPaper
+      ? {
+          source: fixture.paper.source,
+          rules: fixture.draft.rules.map((rule) => ({ ...rule })),
+        }
+      : null,
     draftSelection: {
       ruleId: fixture.draft.rules[0]?.id ?? "",
       decision: null,

@@ -113,7 +113,7 @@ test("switches complete Champion sessions without leaking conversation state", a
   await maraConversation.getByRole("button", { name: "Send" }).click()
 
   await selectChampion(page, "Iris")
-  await expect(page.getByRole("heading", { name: "Quality income compounders" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Paper V1", exact: true })).toBeVisible()
   const irisConversation = page.getByRole("complementary", { name: "Iris conversation" })
   await expect(irisConversation.getByText("Keep this attached to Mara.")).toHaveCount(0)
   const irisComposer = irisConversation.getByRole("textbox", { name: /Message Iris about/ })
@@ -128,6 +128,19 @@ test("switches complete Champion sessions without leaking conversation state", a
   await selectChampion(page, "Iris")
   await expect(irisComposer).toHaveValue("Keep this unfinished for Iris.")
   await expect(irisConversation.getByText("Live · Readiness")).toBeVisible()
+})
+
+test("renders the completed-run portfolio comparison against SPY", async ({ page }) => {
+  await page.goto("/")
+  await selectChampion(page, "Iris")
+
+  const comparison = page.getByRole("figure", { name: "Portfolio value vs SPY" })
+  await expect(comparison).toBeVisible()
+  await expect(comparison.getByText("SPY", { exact: true })).toBeVisible()
+  await expect(
+    comparison.locator('[data-chart-engine="lightweight-charts"]'),
+  ).toHaveAttribute("data-benchmark-point-count", "6")
+  await expect(comparison.getByText(/portfolio minus benchmark was/)).toBeVisible()
 })
 
 test("has no automatically detectable accessibility violations", async ({ page }) => {

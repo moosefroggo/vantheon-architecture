@@ -1,7 +1,7 @@
 "use client"
 
 import { type ReactNode } from "react"
-import { ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react"
+import { ArrowLeft, ArrowRight, ChevronDown, LockKeyhole } from "lucide-react"
 
 import { PortfolioEquityChart } from "@/components/domain/charts/portfolio-equity-chart"
 import { Money } from "@/components/system/money"
@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Tabs,
   TabsContent,
@@ -107,11 +108,9 @@ export type PaperWorkspaceFixture = {
 
 export type PaperPortfolioWorkspaceProps = {
   paper: PaperWorkspaceFixture
-  detailsTab: PaperDetailsTab
   selectedReference: DomainObjectReference | null
   runTab: PaperRunTab
   onOpenDraft: () => void
-  onDetailsTabChange: (tab: PaperDetailsTab) => void
   onRunTabChange: (tab: PaperRunTab) => void
   onSelectedReferenceChange: (
     reference: DomainObjectReference | null
@@ -123,15 +122,22 @@ export type PaperRunTab = "summary" | "activity"
 
 export function PaperPortfolioWorkspace({
   paper,
-  detailsTab,
   selectedReference,
   runTab,
   onOpenDraft,
-  onDetailsTabChange,
   onRunTabChange,
   onSelectedReferenceChange,
 }: PaperPortfolioWorkspaceProps) {
   const currency = paper.currency ?? "USD"
+  const startingValue =
+    paper.totalReturn > -1
+      ? paper.portfolioValue / (1 + paper.totalReturn)
+      : paper.portfolioValue
+  const totalPnl = paper.portfolioValue - startingValue
+  const deployedValue = Math.max(0, paper.portfolioValue - paper.buyingPower)
+  const cashRatio = paper.portfolioValue
+    ? paper.buyingPower / paper.portfolioValue
+    : 0
   const equityPresentation = createPaperEquityPresentation(paper)
   const equityChartHeight = getEquityChartHeight(paper.equityHistory?.length ?? 0)
   const selectedRun = selectedReference
@@ -144,7 +150,6 @@ export function PaperPortfolioWorkspace({
 
   function openEvidenceReference(reference: DomainObjectReference) {
     onSelectedReferenceChange(reference)
-    onDetailsTabChange("runs")
   }
 
   if (selectedRun) {
@@ -194,32 +199,41 @@ export function PaperPortfolioWorkspace({
           <Money value={paper.portfolioValue} currency={currency} />
         </Metric>
         <Metric
-          label="Total return"
+          label="Profit & loss"
           detail={
             <>
-              Today{" "}
-              <Money
-                value={paper.dailyPnl}
-                currency={currency}
-                showSign
-                maximumFractionDigits={2}
-              />
+              <Percentage value={paper.totalReturn} showSign /> total · Today{" "}
+              <Money value={paper.dailyPnl} currency={currency} showSign />
             </>
           }
         >
-          <Percentage value={paper.totalReturn} showSign />
+          <Money value={totalPnl} currency={currency} showSign />
         </Metric>
-        <Metric label="Exposure">
-          <Percentage value={paper.exposure} />
+        <Metric
+          label="Buying power"
+          detail={
+            <>
+              <Percentage value={cashRatio} /> cash
+            </>
+          }
+        >
+          <Money value={paper.buyingPower} currency={currency} />
         </Metric>
-        <Metric label="Max drawdown">
-          <Percentage value={Math.abs(paper.maxDrawdown)} />
+        <Metric
+          label="Deployed"
+          detail={
+            <>
+              <Percentage value={paper.exposure} /> of portfolio
+            </>
+          }
+        >
+          <Money value={deployedValue} currency={currency} />
         </Metric>
       </dl>
 
       <dl className="flex flex-wrap items-center gap-x-5 gap-y-1 border-y py-2 text-xs">
-        <OperationalFact label="Buying power">
-          <Money value={paper.buyingPower} currency={currency} />
+        <OperationalFact label="Max drawdown">
+          <Percentage value={Math.abs(paper.maxDrawdown)} />
         </OperationalFact>
         <OperationalFact label="Positions">{paper.positions}</OperationalFact>
         <OperationalFact label="Open orders">{paper.openOrders}</OperationalFact>
@@ -229,7 +243,7 @@ export function PaperPortfolioWorkspace({
         <OperationalFact label="Freshness">{paper.freshness}</OperationalFact>
       </dl>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(22rem,0.85fr)]">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,0.65fr)]">
         {equityPresentation.state === "ready" ? (
           <PortfolioEquityChart
             model={equityPresentation.model}
@@ -246,28 +260,77 @@ export function PaperPortfolioWorkspace({
           />
         )}
 
-        <Tabs
-          value={detailsTab}
-          onValueChange={(value) => onDetailsTabChange(value as PaperDetailsTab)}
-          className="min-w-0 gap-3"
-        >
-          <TabsList variant="line" aria-label={`${paper.label} details`}>
-            <TabsTrigger value="runs">Runs</TabsTrigger>
-            <TabsTrigger value="positions">Positions</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="strategy">Strategy</TabsTrigger>
-          </TabsList>
+        <LatestRunOverview
+          paper={paper}
+          onOpenRun={(run) =>
+            onSelectedReferenceChange({ kind: "run", id: run.id, label: run.label })
+          }
+        />
+      </div>
+    </section>
+  )
+}
 
+export function PaperWorkspaceBottomPanel({
+  paper,
+  activeTab,
+  expanded,
+  onActiveTabChange,
+  onExpandedChange,
+  onOpenRun,
+}: {
+  paper: PaperWorkspaceFixture
+  activeTab: PaperDetailsTab
+  expanded: boolean
+  onActiveTabChange: (tab: PaperDetailsTab) => void
+  onExpandedChange: (expanded: boolean) => void
+  onOpenRun: (run: PaperRunFixture) => void
+}) {
+  return (
+    <Tabs
+      value={activeTab}
+      onValueChange={(value) => {
+        onActiveTabChange(value as PaperDetailsTab)
+        onExpandedChange(true)
+      }}
+      className="shrink-0 gap-0 border-t"
+    >
+      <div className="flex h-11 items-center justify-between gap-3 px-3">
+        <TabsList aria-label={`${paper.label} workspace panel`}>
+          <TabsTrigger value="runs" onClick={() => onExpandedChange(true)}>
+            Runs
+          </TabsTrigger>
+          <TabsTrigger value="positions" onClick={() => onExpandedChange(true)}>
+            Positions
+          </TabsTrigger>
+          <TabsTrigger value="orders" onClick={() => onExpandedChange(true)}>
+            Orders
+          </TabsTrigger>
+          <TabsTrigger value="strategy" onClick={() => onExpandedChange(true)}>
+            Strategy
+          </TabsTrigger>
+        </TabsList>
+
+        {expanded ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Collapse Paper workspace panel"
+            onClick={() => onExpandedChange(false)}
+          >
+            <ChevronDown />
+          </Button>
+        ) : null}
+      </div>
+
+      {expanded ? (
+        <ScrollArea className="h-52 border-t px-3 py-3">
           <TabsContent value="runs">
-            <RunsPanel
-              paper={paper}
-              onOpenRun={(run) =>
-                onSelectedReferenceChange({ kind: "run", id: run.id, label: run.label })
-              }
-            />
+            <RunsPanel paper={paper} onOpenRun={onOpenRun} />
           </TabsContent>
           <TabsContent value="positions">
-            <PositionsPanel paper={paper} currency={currency} />
+            <PositionsPanel paper={paper} currency={paper.currency ?? "USD"} />
           </TabsContent>
           <TabsContent value="orders">
             <OrdersPanel paper={paper} />
@@ -275,9 +338,53 @@ export function PaperPortfolioWorkspace({
           <TabsContent value="strategy">
             <StrategyPanel paper={paper} />
           </TabsContent>
-        </Tabs>
-      </div>
-    </section>
+        </ScrollArea>
+      ) : null}
+    </Tabs>
+  )
+}
+
+function LatestRunOverview({
+  paper,
+  onOpenRun,
+}: {
+  paper: PaperWorkspaceFixture
+  onOpenRun: (run: PaperRunFixture) => void
+}) {
+  const latestRun = paper.runs?.at(-1)
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Latest run</CardTitle>
+        <CardDescription>{paper.runCadence}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {latestRun ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-auto w-full justify-between px-3 py-3 text-left"
+            onClick={() => onOpenRun(latestRun)}
+          >
+            <span>
+              <span className="block text-sm font-medium">{latestRun.label}</span>
+              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                {latestRun.decision} · {latestRun.completedAt}
+              </span>
+            </span>
+            <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+          </Button>
+        ) : (
+          <div className="rounded-lg border border-dashed px-3 py-4">
+            <p className="text-sm font-medium">No completed runs</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Next run {paper.nextRun}
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

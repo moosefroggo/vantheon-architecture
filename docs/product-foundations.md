@@ -135,11 +135,11 @@ Each primary surface has one dominant action appropriate to its state. Secondary
 
 ### Show context and authority separately
 
-Always distinguish what the user is viewing from what a strategy-changing action can modify:
+Always distinguish what the user is viewing from what a strategy-changing action can modify. The selected evidence is attached to the composer; Atlas names the Draft target when the request becomes a strategy change and the review surface repeats it before acceptance:
 
 ```text
-Viewing: Paper V5 · Run 42
-Changes go to: Draft V8 · checkpoint V8.4
+Selected: Paper V5 · Run 42
+Proposed change: Draft V8 · checkpoint V8.4
 ```
 
 Analysis can remain grounded in Paper or Live evidence. Accepted strategy changes still target only the current Draft.

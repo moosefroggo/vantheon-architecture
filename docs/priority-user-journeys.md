@@ -264,14 +264,13 @@ When the user selects `Improve in Draft`, carry:
 - Relevant rule evaluations and market-data cutoff.
 - The user's selected observation or question.
 
-The composer displays both:
+The composer keeps the evidence attached:
 
 ```text
-Viewing: Paper V5 · Run 42
-Changes go to: Draft V8 · checkpoint V8.4
+Paper V5 · Run 42
 ```
 
-The user must never infer that conversation changed Paper V5 or Live V5.
+If the request becomes a strategy change, Atlas names `Draft V8 · checkpoint V8.4` in its interpretation and the proposal review repeats that target. The user must never infer that conversation changed Paper V5 or Live V5.
 
 ### Stage 3: Resolve version drift
 

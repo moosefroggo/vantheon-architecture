@@ -191,11 +191,11 @@ flowchart TD
     B --> C["Select Improve in Draft"]
     C --> D["Carry portfolio, run, decision, rule evaluation, cutoff, and question"]
     D --> E["Show Viewing Paper V5 Run 42"]
-    D --> F["Show Changes go to Draft V8 · checkpoint V8.4"]
+    D --> F["Resolve Draft V8 · checkpoint V8.4 as command target"]
     E --> G["Compare V5 source rule with Draft V8 · checkpoint V8.4 equivalent"]
     F --> G
     G --> H{"Learning compatible with current Draft?"}
-    H -->|"Yes"| I["Propose semantic change set against checkpoint V8.4"]
+    H -->|"Yes"| I["Show target and propose semantic change set against checkpoint V8.4"]
     I --> J["Validate commands and base checkpoint"]
     J --> K["Create authoritative checkpoint V8.5 in Draft V8"]
     H -->|"No"| L["Explain conflict, superseded rule, or changed assumption"]

@@ -46,7 +46,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
   - Live: explain, monitor risk, and prepare changes for the Draft.
 - Strategy-changing chat always targets the current Draft. Paper and Live strategies remain immutable.
 - Champion inputs and outputs are untrusted. Model-produced changes are proposals until capability-scoped commands pass independent server validation.
-- The chat composer always distinguishes the viewed context from the mutation target, for example: `Viewing Paper V5 · Changes go to Draft V8 · checkpoint V8.4`.
+- The chat composer attaches the selected rule, run, order, position, or other context without permanent instructional copy. When a request would change strategy, Atlas and the semantic proposal identify the exact current Draft checkpoint before acceptance.
 - Learning from an older Paper or Live version is proposed against the latest Draft. The Champion compares the observed source rule with its current equivalent, explains incompatibilities, and requests a decision rather than silently overwriting or creating another Draft branch.
 - Paper is optimized for learning and comparison; Live is optimized for capital visibility, risk, and control.
 
@@ -57,7 +57,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
   - Draft/Paper/Live switcher with `Developing` and `Running` state labels.
   - Desktop workbench organized as environment navigator, primary workbench, contextual inspector, and test/run output tray.
   - Persistently visible Champion conversation dock, spatially secondary to the primary workbench and continuously correlated with the selected rule, metric, run, order, position, or outcome.
-  - Visible viewed-context and Draft-mutation-target labels near the conversation composer.
+  - Visible selected-context attachment above the composer; mutation target disclosed at strategy-change interpretation and review.
   - Current Champion activity and notifications.
   - Conversation remains docked and visible at every supported viewport; notifications and secondary detail may collapse during data-dense work.
   - Switching Champions atomically switches identity, conversation, Draft/Paper/Live environment, mutation target, and attached references while preserving each Champion's own last active workspace state and warm cache.
@@ -194,7 +194,7 @@ Record the following as accepted decisions with their reasoning and revisit cond
 - Require Paper validation before Live promotion.
 - Treat evaluation as evidence only when its assumptions, data cutoff, behavior, rejections, risk, and limitations are visible; return alone is insufficient.
 - Keep chat contextual but route strategy mutations exclusively to the current Draft.
-- Always expose viewed context separately from the Draft mutation target.
+- Keep viewed context and Draft mutation target separate in state; expose the selected context in the composer and the exact target before accepting a strategy change.
 - Apply observations from older portfolios as proposals against the latest Draft; explain conflicts and do not introduce multiple active Draft branches in the MVP.
 - Keep deployed strategies immutable and show semantic rather than raw JSON differences.
 - Use server-backed reads and validated patches; local stores render reality but do not define it.

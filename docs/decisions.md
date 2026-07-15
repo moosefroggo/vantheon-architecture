@@ -181,11 +181,11 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Context:** Users converse while viewing Draft, Paper, Live, or a specific run, but deployed strategies must remain immutable.
 
-**Decision:** Conversation persists across the Champion workspace and carries viewed context. Strategy-changing requests always target the current Draft. The composer shows both viewed context and mutation target.
+**Decision:** Conversation persists across the Champion workspace and carries viewed context. Strategy-changing requests always target the current Draft. The composer shows the selected rule, run, position, order, or other attached context immediately above the input. It does not repeat a permanent `Changes → Draft` explanation. When viewed evidence and mutation target differ, Atlas identifies the target when interpreting a strategy-changing request, and the semantic proposal and confirmation surface name the exact Draft checkpoint before acceptance.
 
 **Reasoning:** Persistent context improves explanation and iteration while a single mutation target removes capital ambiguity.
 
-**Consequences:** A Paper question may explain its frozen strategy and then propose a current-Draft change. The interface must never imply that the viewed Paper or Live strategy was edited.
+**Consequences:** A Paper question may explain its frozen strategy and then propose a current-Draft change. The interface must never imply that the viewed Paper or Live strategy was edited. Mutation-target identity remains a command precondition and review fact, not permanent composer instruction text.
 
 **Revisit when:** Multiple active Draft branches become an intentional product capability.
 

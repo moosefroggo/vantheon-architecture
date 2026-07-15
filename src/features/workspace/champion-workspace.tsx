@@ -57,6 +57,7 @@ import {
 import { EmptyEnvironmentWorkspace } from "./empty-environment-workspace"
 import {
   PaperPortfolioWorkspace,
+  PaperWorkspaceBottomPanel,
   type PaperDetailsTab,
   type PaperRunTab,
 } from "./paper-portfolio-workspace"
@@ -118,6 +119,7 @@ type ChampionSessionState = {
   }
   paperSelection: {
     detailsTab: PaperDetailsTab
+    panelExpanded: boolean
     runTab: PaperRunTab
     reference: DomainObjectReference | null
   }
@@ -625,8 +627,15 @@ export function ChampionWorkspace() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                isActive={bottomPanel.expanded && bottomPanel.tab === "data"}
-                onClick={() => setBottomPanel({ tab: "data", expanded: true })}
+                isActive={
+                  activeContext === "draft" &&
+                  bottomPanel.expanded &&
+                  bottomPanel.tab === "data"
+                }
+                onClick={() => {
+                  selectWorkspaceContext(championId, "draft")
+                  setBottomPanel({ tab: "data", expanded: true })
+                }}
               >
                 <Database />
                 <span>Datasets</span>
@@ -761,23 +770,9 @@ export function ChampionWorkspace() {
                 <div className="h-full overflow-auto p-4 sm:p-5">
                   <PaperPortfolioWorkspace
                     paper={paperView}
-                    detailsTab={paperSelection.detailsTab}
                     selectedReference={paperSelection.reference}
                     runTab={paperSelection.runTab}
                     onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
-                    onDetailsTabChange={(detailsTab) =>
-                      updateChampionSession(championId, (current) => ({
-                        ...current,
-                        paperSelection: {
-                          ...current.paperSelection,
-                          detailsTab,
-                        },
-                        conversation: {
-                          ...current.conversation,
-                          context: null,
-                        },
-                      }))
-                    }
                     onRunTabChange={(runTab) =>
                       updateChampionSession(championId, (current) => ({
                         ...current,
@@ -797,6 +792,9 @@ export function ChampionWorkspace() {
                         paperSelection: {
                           ...current.paperSelection,
                           reference,
+                          panelExpanded: reference
+                            ? false
+                            : current.paperSelection.panelExpanded,
                           runTab: reference ? "summary" : current.paperSelection.runTab,
                         },
                         conversation: {
@@ -835,46 +833,90 @@ export function ChampionWorkspace() {
               )}
             </div>
 
-            <WorkspaceEvidencePanel
-              checkpoint={checkpoint}
-              evaluation={currentEvaluation}
-              evaluations={evaluations}
-              baseline={evidenceBaseline}
-              template={workspaceFixture.evaluation}
-              authorityError={authorityError}
-              activeTab={bottomPanel.tab}
-              expanded={bottomPanel.expanded}
-              onActiveTabChange={(tab) =>
-                setBottomPanel((current) => ({ ...current, tab }))
-              }
-              onExpandedChange={(expanded) =>
-                setBottomPanel((current) => ({ ...current, expanded }))
-              }
-              forkPending={authorityOperation === "forking-checkpoint"}
-              onForkCheckpoint={forkCheckpoint}
-              onOpenDryRun={(dryRunId) =>
-                updateChampionSession(championId, (current) => ({
-                  ...current,
-                  activeContext: "draft",
-                  draftSelection: {
-                    ...current.draftSelection,
-                    dryRunId,
-                    dryRunTab: "summary",
-                  },
-                  conversation: {
-                    ...current.conversation,
-                    context: null,
-                  },
-                }))
-              }
-            />
+            {activeContext === "draft" ? (
+              <WorkspaceEvidencePanel
+                checkpoint={checkpoint}
+                evaluation={currentEvaluation}
+                evaluations={evaluations}
+                baseline={evidenceBaseline}
+                template={workspaceFixture.evaluation}
+                authorityError={authorityError}
+                activeTab={bottomPanel.tab}
+                expanded={bottomPanel.expanded}
+                onActiveTabChange={(tab) =>
+                  setBottomPanel((current) => ({ ...current, tab }))
+                }
+                onExpandedChange={(expanded) =>
+                  setBottomPanel((current) => ({ ...current, expanded }))
+                }
+                forkPending={authorityOperation === "forking-checkpoint"}
+                onForkCheckpoint={forkCheckpoint}
+                onOpenDryRun={(dryRunId) =>
+                  updateChampionSession(championId, (current) => ({
+                    ...current,
+                    activeContext: "draft",
+                    draftSelection: {
+                      ...current.draftSelection,
+                      dryRunId,
+                      dryRunTab: "summary",
+                    },
+                    conversation: {
+                      ...current.conversation,
+                      context: null,
+                    },
+                  }))
+                }
+              />
+            ) : activeContext === "paper" && paperView ? (
+              <PaperWorkspaceBottomPanel
+                paper={paperView}
+                activeTab={paperSelection.detailsTab}
+                expanded={paperSelection.panelExpanded}
+                onActiveTabChange={(detailsTab) =>
+                  updateChampionSession(championId, (current) => ({
+                    ...current,
+                    paperSelection: {
+                      ...current.paperSelection,
+                      detailsTab,
+                    },
+                    conversation: {
+                      ...current.conversation,
+                      context: null,
+                    },
+                  }))
+                }
+                onExpandedChange={(panelExpanded) =>
+                  updateChampionSession(championId, (current) => ({
+                    ...current,
+                    paperSelection: {
+                      ...current.paperSelection,
+                      panelExpanded,
+                    },
+                  }))
+                }
+                onOpenRun={(run) =>
+                  updateChampionSession(championId, (current) => ({
+                    ...current,
+                    paperSelection: {
+                      ...current.paperSelection,
+                      reference: { kind: "run", id: run.id, label: run.label },
+                      panelExpanded: false,
+                      runTab: "summary",
+                    },
+                    conversation: {
+                      ...current.conversation,
+                      context: null,
+                    },
+                  }))
+                }
+              />
+            ) : null}
           </div>
 
           <WorkspaceChampionDock
             championId={championId}
             viewedContext={viewedContext}
             attachedContext={attachedContext}
-            mutationTarget={`${draftLabel} · ${checkpoint}`}
             focusRequest={conversation.focusRequest}
             message={conversation.message}
             exchanges={conversation.exchanges}
@@ -986,6 +1028,7 @@ function createChampionSession(
     },
     paperSelection: {
       detailsTab: "runs",
+      panelExpanded: false,
       runTab: "summary",
       reference: null,
     },

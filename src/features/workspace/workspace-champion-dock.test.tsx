@@ -12,7 +12,6 @@ describe("WorkspaceChampionDock context attachment", () => {
         championId="mara"
         viewedContext="Draft V1 · Summary"
         attachedContext="Selection · Momentum rank"
-        mutationTarget="Draft V1 · V1.2"
         focusRequest={1}
         message=""
         exchanges={[]}
@@ -23,14 +22,17 @@ describe("WorkspaceChampionDock context attachment", () => {
     )
 
     expect(screen.getByText("Selection · Momentum rank")).toBeVisible()
-    expect(
-      screen.getByRole("textbox", {
-        name: "Message Atlas about Selection · Momentum rank",
-      })
-    ).toHaveFocus()
+    const composer = screen.getByRole("textbox", {
+      name: "Message Atlas about Selection · Momentum rank",
+    })
+    const sendButton = screen.getByRole("button", { name: "Send" })
+
+    expect(composer).toHaveFocus()
+    expect(composer.parentElement).toContainElement(sendButton)
     expect(
       screen.getByPlaceholderText("Tell Atlas how this should change…")
     ).toBeVisible()
+    expect(screen.queryByText(/Changes →/)).not.toBeInTheDocument()
 
     fireEvent.click(
       screen.getByRole("button", {

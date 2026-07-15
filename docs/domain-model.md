@@ -144,11 +144,11 @@ Its minimum semantic context is:
 - Persistent conversation context.
 - Current Champion activity and connection freshness.
 
-The UI must show viewed context and mutation target independently, for example:
+The UI must preserve viewed context and mutation target independently. Selected context appears as a composer attachment; the Draft target appears when Atlas interprets a strategy-changing request and again in the semantic proposal, for example:
 
 ```text
-Viewing: Paper V5 · Run 42
-Changes go to: Draft V8 · checkpoint V8.4
+Selected: Paper V5 · Run 42
+Proposed change: Draft V8 · checkpoint V8.4
 ```
 
 ### Strategy lineage

@@ -48,7 +48,7 @@ flowchart TB
 - A primary domain surface whose identity, status, current work, and next meaningful action remain legible without conversation.
 - Persistently visible docked conversation whose prompt, references, and attached context adapt to the viewed surface.
 - Correlated Champion activity that exposes verified work phases and resulting domain objects outside prose.
-- Viewed-context and Draft-mutation-target labels adjacent to the composer.
+- A compact selected-context attachment immediately above the composer when a rule, run, position, order, or other object is carried into conversation.
 - Notifications and secondary detail that can collapse during data-dense work; conversation remains visible.
 - Stable navigation and useful cached state while nested content changes.
 
@@ -83,7 +83,7 @@ The layout must not resemble a general-purpose chat application with an attached
 2. **Correlated work and activity:** what the Champion or system is doing, which object it affects, what completed, and what requires attention.
 3. **Conversation:** intent, clarification, explanation, and contextual requests.
 
-At every supported viewport, conversation remains docked beside the primary surface. The primary surface receives the majority of usable workspace and first focus, while the dock retains a usable composer, current context, mutation target, connection state, and relevant history. Conversation never becomes an overlay, sheet, modal, transient drawer, or separate route. If a viewport cannot preserve both regions without obscuring domain identity, evidence, or consequential controls, its full-workspace support must be resolved under P-001 rather than by covering the work with chat.
+At every supported viewport, conversation remains docked beside the primary surface. The primary surface receives the majority of usable workspace and first focus, while the dock retains a usable composer, selected context, connection state, and relevant history. The current Draft mutation target remains resolved independently and is named when Atlas interprets a strategy-changing request or presents a semantic proposal; it is not repeated as permanent composer guidance. Conversation never becomes an overlay, sheet, modal, transient drawer, or separate route. If a viewport cannot preserve both regions without obscuring domain identity, evidence, or consequential controls, its full-workspace support must be resolved under P-001 rather than by covering the work with chat.
 
 ### Bidirectional correlation
 
@@ -230,10 +230,10 @@ Paper is a persistent simulated portfolio, not a run. It is optimized for unders
 ### Overview information order
 
 1. `Paper Vn`, simulated-capital label, exact immutable strategy, and source checkpoint.
-2. Four-number value strip: portfolio value, return/P&L, exposure, and drawdown.
+2. Four money-first statistics: portfolio value, total P&L with return, buying power, and dollars deployed with exposure.
 3. Cadence-honest evidence curve or truthful first-run placeholder.
 4. Latest meaningful run or event, visible above the fold on the accepted desktop viewport.
-5. Operational facts: buying power, positions, orders, freshness, schedule, and next expected run.
+5. Operational facts: drawdown, positions, orders, freshness, schedule, and next expected run.
 6. Performance limitations, evidence-linked Champion assessment, and comparison entry point.
 7. Positions, orders, and read-only strategy detail.
 
@@ -342,7 +342,7 @@ Iteration begins from evidence and returns to evidence; it does not begin from a
 |---|---|---|---|
 | Observe | Paper/Live overview, comparison, run, decision, order, risk, or no-trade | Exact portfolio, strategy, run, cutoff, and selected observation | Explanation in place |
 | Trace | Run decision trace | Rule evaluations, action/rejection, immutable rule, source checkpoint | `Improve in Draft Vn` |
-| Transfer | Original evidence remains attached to conversation | `Viewing … · Changes go to Draft Vn · checkpoint Vn.x` | Current Draft semantic proposal |
+| Transfer | Original evidence remains attached to conversation | Selected evidence stays attached; Atlas names `Draft Vn · checkpoint Vn.x` when proposing a change | Current Draft semantic proposal |
 | Resolve drift | Source version compared with current Draft | Compatible application or domain-language conflict choices | Server-validatable proposal |
 | Review change | Draft Strategy | Motivation, change, benefit, downside, unchanged constraints, provenance | Accept/reject change set |
 | Test | Inline evaluation/Experiments | Baseline, assumptions, risk, behavior, limitations | Revise or launch new Paper |
@@ -363,15 +363,15 @@ The source remains immutable. If it differs materially from the current Draft, s
 
 ## Viewed Context Versus Mutation Target
 
-This distinction is persistent, not a one-time warning.
+This distinction is persistent in the domain model, but it does not require a permanent explanatory line beneath the composer. Context is attached directly; the target is named when a strategy-changing request is interpreted and again before acceptance.
 
 | Viewed surface | Analysis context | Strategy mutation target | Required composer treatment |
 |---|---|---|---|
-| Draft V8 · checkpoint V8.4 | Current Draft | Draft V8 · checkpoint V8.4 | `Developing Draft V8 · checkpoint V8.4` |
-| Paper V5 overview | Paper V5 evidence | Draft V8 · checkpoint V8.4 | `Viewing Paper V5 · Changes go to Draft V8 · checkpoint V8.4` |
-| Paper V5 Run 42 | Run 42 and Strategy V5 | Draft V8 · checkpoint V8.4 | Preserve the run reference visibly |
-| Live V3 | Live V3 evidence and risk | Draft V8 · checkpoint V8.4 | `Viewing Live V3 · Changes go to Draft V8 · checkpoint V8.4` |
-| Paper comparison | Selected immutable portfolios | Draft V8 · checkpoint V8.4 | List compared versions; one Draft target |
+| Draft V8 · checkpoint V8.4 | Current Draft | Draft V8 · checkpoint V8.4 | Attach the selected strategy section above the composer. |
+| Paper V5 overview | Paper V5 evidence | Draft V8 · checkpoint V8.4 | Keep Paper context in the workspace; name Draft V8 only when a change is interpreted or proposed. |
+| Paper V5 Run 42 | Run 42 and Strategy V5 | Draft V8 · checkpoint V8.4 | Attach the run or decision visibly above the composer. |
+| Live V3 | Live V3 evidence and risk | Draft V8 · checkpoint V8.4 | Preserve Live context; name Draft V8 before proposing any strategy change. |
+| Paper comparison | Selected immutable portfolios | Draft V8 · checkpoint V8.4 | Attach compared versions; name the one Draft target at proposal time. |
 
 An explanatory question does not create a checkpoint. When the Champion proposes a strategy change, the semantic change-review surface identifies the target again before acceptance. Server validation and the authoritative patch determine whether the Draft changed.
 
@@ -500,7 +500,7 @@ Until these are recorded in the decision ledger, “responsive” must not be us
 - A user can distinguish Draft Vn, Paper Vn, and Live Vn without color.
 - Every Paper and Live view exposes the exact immutable strategy in control and its source checkpoint.
 - A Paper or Live observation can reach `Improve in Draft` without losing its run and rule context.
-- The composer always exposes viewed context and mutation target when they differ.
+- The composer exposes selected context without instructional copy; Atlas and every semantic proposal identify the exact Draft target before a strategy change can be accepted.
 - Persistent conversation does not duplicate or replace Champion activity, current work, domain results, authority, or the next meaningful action in the primary surface.
 - Paper navigation prioritizes runs and learning; Live navigation prioritizes risk and control.
 - Active Paper can be stopped from its detail context; only Stopped Paper can be archived; Archived Paper is discoverable outside the everyday selector and unarchives without resuming.

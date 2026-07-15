@@ -41,7 +41,6 @@ export type WorkspaceChampionDockProps = {
   championId: string
   viewedContext: string
   attachedContext?: string | null
-  mutationTarget: string
   focusRequest: number
   message: string
   exchanges: readonly ConversationExchange[]
@@ -56,7 +55,6 @@ export function WorkspaceChampionDock({
   championId,
   viewedContext,
   attachedContext = null,
-  mutationTarget,
   focusRequest,
   message,
   exchanges,
@@ -226,23 +224,26 @@ export function WorkspaceChampionDock({
                 ) : null}
               </div>
             ) : null}
-            <Textarea
-              ref={inputRef}
-              value={message}
-              onChange={(event) => onMessageChange(event.target.value)}
-              aria-label={`Message ${assistantName} about ${composerContext}`}
-              placeholder={
-                attachedContext
-                  ? "Tell Atlas how this should change…"
-                  : contextualPlaceholder(viewedContext)
-              }
-              rows={4}
-            />
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-muted-foreground">
-                Changes → {mutationTarget}
-              </span>
-              <Button type="submit" size="icon" disabled={!message.trim()}>
+            <div className="relative">
+              <Textarea
+                ref={inputRef}
+                value={message}
+                onChange={(event) => onMessageChange(event.target.value)}
+                aria-label={`Message ${assistantName} about ${composerContext}`}
+                placeholder={
+                  attachedContext
+                    ? "Tell Atlas how this should change…"
+                    : contextualPlaceholder(viewedContext)
+                }
+                className="pb-11 pr-12"
+                rows={4}
+              />
+              <Button
+                type="submit"
+                size="icon-sm"
+                className="absolute bottom-3 right-3"
+                disabled={!message.trim()}
+              >
                 <ArrowUp />
                 <span className="sr-only">Send</span>
               </Button>
@@ -264,7 +265,7 @@ function contextualPrompt(context: string) {
     return "Open any completed run to inspect its summary and activity, or ask me to compare behavior across runs."
   }
   if (normalized.includes("paper")) {
-    return "Ask about performance, positions, orders, or a completed run. Strategy changes still go to the current Draft."
+    return "Ask about performance, positions, orders, or a completed run."
   }
   if (normalized.includes("live")) {
     return "Ask about readiness, risk, or what would need to change before real capital is involved."

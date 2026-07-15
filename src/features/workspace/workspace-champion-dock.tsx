@@ -73,7 +73,7 @@ export function WorkspaceChampionDock({
   return (
     <aside
       aria-label={`${championName} conversation`}
-      className="flex h-[min(22rem,42vh)] shrink-0 p-4 xl:h-auto xl:w-96"
+      className="flex h-[min(22rem,42vh)] shrink-0 p-3 xl:h-auto xl:w-80"
     >
       <Card className="min-h-0 flex-1">
         <CardHeader>

@@ -8,6 +8,7 @@ async function selectChampion(page: Page, name: string) {
 
 async function makeDraftPaperEligible(page: Page) {
   await page.getByRole("button", { name: "Test Draft", exact: true }).click()
+  await page.getByRole("tab", { name: "Problems" }).click()
   await expect(page.getByText("No blocking problems")).toBeVisible()
   await expect(page.getByRole("button", { name: "Review launch" })).toBeVisible()
 }
@@ -93,7 +94,13 @@ test("keeps the Champion chat docked and contextual across the workspace", async
   await expect(conversation).toBeVisible()
   await expect(marketStatus).toBeVisible()
   await expect(bottomPanel).toBeVisible()
+  await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0)
   await expect(conversation.getByText("Draft V1 · Strategy", { exact: true })).toBeVisible()
+
+  await bottomPanel.getByRole("tab", { name: "Problems" }).click()
+  await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toBeVisible()
+  await page.getByRole("button", { name: "Collapse bottom panel" }).click()
+  await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0)
 
   await composer.fill("Why is the position cap fifteen percent?")
   await conversation.getByRole("button", { name: "Send" }).click()

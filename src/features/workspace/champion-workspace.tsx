@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState, type CSSProperties } from "react"
 import { Archive, Landmark, LockKeyhole, NotebookTabs } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -468,7 +468,10 @@ export function ChampionWorkspace() {
   }
 
   return (
-    <SidebarProvider className="h-svh min-h-[36rem] overflow-hidden">
+    <SidebarProvider
+      className="h-svh min-h-[36rem] overflow-hidden"
+      style={{ "--sidebar-width": "14rem" } as CSSProperties}
+    >
       <a
         href="#primary-workspace"
         className="fixed left-3 top-3 z-[60] -translate-y-20 rounded-md bg-background px-3 py-2 text-sm font-medium shadow-sm focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring"

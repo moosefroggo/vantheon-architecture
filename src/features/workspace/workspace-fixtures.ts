@@ -137,11 +137,18 @@ export type WorkspaceFixture = {
       decision: string
       evaluated?: number
       orders?: number
+      duration?: string
       dataCutoff?: string
       decisions?: readonly {
         id: string
         label: string
         detail?: string
+      }[]
+      activity?: readonly {
+        id: string
+        time: string
+        title: string
+        detail: string
       }[]
     }[]
     positionRows?: readonly {
@@ -460,11 +467,11 @@ const irisWorkspaceFixture = {
     strategy: "Strategy V1",
     source: "Draft V1 · checkpoint V1.1",
     portfolioValue: 103_800,
-    totalReturn: 3.8,
+    totalReturn: 0.038,
     dailyPnl: 220,
     buyingPower: 22_800,
-    exposure: 78,
-    maxDrawdown: -2.1,
+    exposure: 0.78,
+    maxDrawdown: -0.021,
     positions: 4,
     openOrders: 0,
     nextRun: "Aug 3 · 4:15 PM ET",
@@ -497,13 +504,61 @@ const irisWorkspaceFixture = {
       { id: "iris-run-3", label: "Run 3", status: "Completed", completedAt: "Jun 15 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 2 },
       { id: "iris-run-4", label: "Run 4", status: "Completed", completedAt: "Jun 22 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
       { id: "iris-run-5", label: "Run 5", status: "Completed", completedAt: "Jun 29 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 1 },
-      { id: "iris-run-6", label: "Run 6", status: "Completed", completedAt: "Jul 6 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+      {
+        id: "iris-run-6",
+        label: "Run 6",
+        status: "Completed",
+        completedAt: "Jul 6 · 4:15 PM ET",
+        decision: "Held",
+        evaluated: 60,
+        orders: 0,
+        duration: "8m 54s",
+        dataCutoff: "Jul 6 · 4:00 PM ET",
+        decisions: [
+          {
+            id: "iris-run-6-pg",
+            label: "PG · Hold",
+            detail: "Quality and payout coverage remained inside Strategy V1 limits.",
+          },
+          {
+            id: "iris-run-6-vz",
+            label: "VZ · Rejected",
+            detail: "Quality rank passed, but the position cap blocked a new order.",
+          },
+        ],
+        activity: [
+          {
+            id: "iris-run-6-started",
+            time: "4:15:00 PM",
+            title: "Run started",
+            detail: "Loaded Strategy V1, current positions, buying power, and scheduled data cutoff.",
+          },
+          {
+            id: "iris-run-6-screened",
+            time: "4:17:12 PM",
+            title: "Screened 60 companies",
+            detail: "Applied dividend continuity, quality rank, and payout-coverage rules.",
+          },
+          {
+            id: "iris-run-6-risk",
+            time: "4:22:48 PM",
+            title: "Applied portfolio constraints",
+            detail: "The position cap blocked VZ; existing holdings remained within the risk envelope.",
+          },
+          {
+            id: "iris-run-6-completed",
+            time: "4:23:54 PM",
+            title: "No orders created",
+            detail: "The portfolio was held unchanged and the completed trace was recorded.",
+          },
+        ],
+      },
     ],
     positionRows: [
-      { symbol: "PG", marketValue: 22_000, weight: 21.2, dailyPnl: 74 },
-      { symbol: "KO", marketValue: 20_500, weight: 19.7, dailyPnl: 42 },
-      { symbol: "JNJ", marketValue: 19_800, weight: 19.1, dailyPnl: 61 },
-      { symbol: "PEP", marketValue: 18_700, weight: 18.0, dailyPnl: 43 },
+      { symbol: "PG", marketValue: 22_000, weight: 0.212, dailyPnl: 74 },
+      { symbol: "KO", marketValue: 20_500, weight: 0.197, dailyPnl: 42 },
+      { symbol: "JNJ", marketValue: 19_800, weight: 0.191, dailyPnl: 61 },
+      { symbol: "PEP", marketValue: 18_700, weight: 0.18, dailyPnl: 43 },
     ],
   },
 } as const satisfies WorkspaceFixture

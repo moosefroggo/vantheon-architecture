@@ -1,15 +1,37 @@
-import { ArrowLeft, Check, Minus } from "lucide-react"
+import { ArrowRight, Check, LockKeyhole } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export type EmptyEnvironmentWorkspaceProps = {
   environment: "Paper" | "Live"
   draftLabel: string
   evaluationComplete: boolean
   paperLaunched: boolean
+  measurementComplete: boolean
+  onAskAtlas: () => void
   onOpenDraft: () => void
+  onRunDraft: () => void
+  onReviewPaperLaunch: () => void
   onOpenPaper?: () => void
+}
+
+type JourneyStep = {
+  number: number
+  time: string
+  title: string
+  description: string
+  complete: boolean
+  marker?: string
+  actionLabel: string
+  action: () => void
 }
 
 export function EmptyEnvironmentWorkspace({
@@ -17,78 +39,158 @@ export function EmptyEnvironmentWorkspace({
   draftLabel,
   evaluationComplete,
   paperLaunched,
+  measurementComplete,
+  onAskAtlas,
   onOpenDraft,
+  onRunDraft,
+  onReviewPaperLaunch,
   onOpenPaper,
 }: EmptyEnvironmentWorkspaceProps) {
-  const isPaper = environment === "Paper"
-  const checks = isPaper
-    ? [
-        { label: "Structured Draft", complete: true },
-        { label: "Transparent evaluation", complete: evaluationComplete },
-        { label: "Paper portfolio", complete: paperLaunched },
-      ]
-    : [
-        { label: "Paper strategy", complete: paperLaunched },
-        { label: "Observation evidence", complete: false },
-        { label: "Live review", complete: false },
-      ]
+  const steps: JourneyStep[] = [
+    {
+      number: 1,
+      time: "2–10 mins",
+      title: "Brainstorm with Atlas",
+      description: "Describe the outcome, constraints, and risk you want Atlas to work within.",
+      complete: true,
+      actionLabel: "Explore with Atlas",
+      action: onAskAtlas,
+    },
+    {
+      number: 2,
+      time: "30 secs",
+      title: "Draft your strategy",
+      description: "Inspect the structured strategy Atlas produced and change any rule directly.",
+      complete: true,
+      actionLabel: `Open ${draftLabel}`,
+      action: onOpenDraft,
+    },
+    {
+      number: 3,
+      time: "2–5 mins",
+      title: "Dry run the strategy",
+      description: "Test the current checkpoint and inspect every rule, decision, and rejection.",
+      complete: evaluationComplete,
+      actionLabel: evaluationComplete ? "Review test" : `Test ${draftLabel}`,
+      action: evaluationComplete ? onOpenDraft : onRunDraft,
+    },
+    {
+      number: 4,
+      time: "30 secs",
+      title: "Promote to paper trading",
+      description: "Freeze the tested checkpoint as Strategy V1 and start simulated trading.",
+      complete: paperLaunched,
+      marker: "→ V1",
+      actionLabel: paperLaunched ? "Open Paper V1" : "Review Paper launch",
+      action: paperLaunched && onOpenPaper ? onOpenPaper : onReviewPaperLaunch,
+    },
+    {
+      number: 5,
+      time: "1–14 days",
+      title: "Measure performance",
+      description: "Review at least 14 days and five completed runs before considering real capital.",
+      complete: measurementComplete,
+      marker: "14d · 5 runs",
+      actionLabel: "Open Paper evidence",
+      action: onOpenPaper ?? onOpenDraft,
+    },
+    {
+      number: 6,
+      time: "When ready",
+      title: "Put your money to work",
+      description: "Review the exact strategy, evidence, limits, brokerage, and capital impact.",
+      complete: false,
+      marker: "$",
+      actionLabel: "Review Live readiness",
+      action: onAskAtlas,
+    },
+  ]
+  const currentStepIndex = Math.max(
+    0,
+    steps.findIndex((step) => !step.complete)
+  )
 
   return (
-    <section className="flex h-full min-h-0 flex-col" aria-labelledby={`${environment.toLowerCase()}-empty-title`}>
+    <section
+      className="flex h-full min-h-0 flex-col"
+      aria-labelledby={`${environment.toLowerCase()}-empty-title`}
+    >
       <header className="flex min-h-16 items-center gap-3 border-b px-4 py-3 sm:px-5">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 id={`${environment.toLowerCase()}-empty-title`} className="text-base font-semibold">
+            <h1
+              id={`${environment.toLowerCase()}-empty-title`}
+              className="text-base font-semibold"
+            >
               {environment}
             </h1>
-            <Badge variant="outline" className="h-5 rounded-sm px-1.5 font-normal">
-              Not started
-            </Badge>
+            <Badge variant="outline">Not started</Badge>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {isPaper ? "Simulated capital" : "Real capital"}
+            {environment === "Paper" ? "Simulated capital" : "Real capital"}
           </p>
         </div>
-        {isPaper ? (
-          <Button type="button" variant="outline" onClick={onOpenDraft}>
-            <ArrowLeft aria-hidden="true" data-icon="inline-start" />
-            Open {draftLabel}
-          </Button>
-        ) : paperLaunched && onOpenPaper ? (
-          <Button type="button" variant="outline" onClick={onOpenPaper}>
-            Open Paper V1
-          </Button>
-        ) : (
-          <Button type="button" variant="outline" onClick={onOpenDraft}>
-            Open {draftLabel}
-          </Button>
-        )}
       </header>
 
-      <div className="min-h-0 flex-1 overflow-auto">
-        <table className="w-full border-collapse text-left text-sm">
-          <caption className="sr-only">{environment} readiness</caption>
-          <thead>
-            <tr className="border-b text-xs text-muted-foreground">
-              <th scope="col" className="w-10 px-4 py-2 font-medium sm:px-5">State</th>
-              <th scope="col" className="px-3 py-2 font-medium">Requirement</th>
-            </tr>
-          </thead>
-          <tbody>
-            {checks.map((check) => (
-              <tr key={check.label} className="border-b">
-                <td className="px-4 py-3 sm:px-5">
-                  {check.complete ? (
-                    <Check aria-label="Complete" className="size-4" />
-                  ) : (
-                    <Minus aria-label="Not complete" className="size-4 text-muted-foreground" />
-                  )}
-                </td>
-                <td className="px-3 py-3 font-medium">{check.label}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-5">
+        <div className="mx-auto max-w-3xl space-y-2">
+          {steps.map((step, index) => {
+            const isCurrent = index === currentStepIndex
+            const locked = index > currentStepIndex
+
+            if (!isCurrent) {
+              return (
+                <div
+                  key={step.number}
+                  className="flex min-h-14 items-center gap-3 rounded-lg border px-4 py-3"
+                  aria-disabled={locked}
+                >
+                  <span className="w-20 shrink-0 text-xs text-muted-foreground">
+                    {step.time}
+                  </span>
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full border text-xs">
+                    {step.complete ? <Check className="size-3.5" /> : <LockKeyhole className="size-3" />}
+                  </span>
+                  <span className="min-w-0 flex-1 text-sm font-medium">
+                    Step {step.number} · {step.title}
+                  </span>
+                  {step.marker ? (
+                    <Badge variant="secondary" className="shrink-0">
+                      {step.marker}
+                    </Badge>
+                  ) : null}
+                  {step.complete ? (
+                    <Button type="button" variant="ghost" size="sm" onClick={step.action}>
+                      Open
+                    </Button>
+                  ) : null}
+                </div>
+              )
+            }
+
+            return (
+              <Card key={step.number}>
+                <CardHeader>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span>{step.time}</span>
+                    <span>Step {step.number}</span>
+                    {step.marker ? <Badge variant="secondary">{step.marker}</Badge> : null}
+                  </div>
+                  <CardTitle role="heading" aria-level={2}>
+                    {step.title}
+                  </CardTitle>
+                  <CardDescription>{step.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button type="button" onClick={step.action}>
+                    {step.actionLabel}
+                    <ArrowRight />
+                  </Button>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       </div>
     </section>
   )

@@ -21,13 +21,24 @@ import { Textarea } from "@/components/ui/textarea"
 export type ConversationExchange = {
   id: string
   request: string
+  response: readonly AtlasMessagePart[]
   viewedContext: string
   mutationTarget: string
 }
 
+export type AtlasMessagePart =
+  | {
+      kind: "text"
+      text: string
+    }
+  | {
+      kind: "question"
+      prompt: string
+      options: readonly string[]
+    }
+
 export type WorkspaceChampionDockProps = {
   championId: string
-  championName: string
   viewedContext: string
   mutationTarget: string
   focusRequest: number
@@ -41,7 +52,6 @@ export type WorkspaceChampionDockProps = {
 
 export function WorkspaceChampionDock({
   championId,
-  championName,
   viewedContext,
   mutationTarget,
   focusRequest,
@@ -52,6 +62,7 @@ export function WorkspaceChampionDock({
   onSubmit,
   onReviewPaperLaunch,
 }: WorkspaceChampionDockProps) {
+  const assistantName = "Atlas"
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
 
@@ -72,19 +83,19 @@ export function WorkspaceChampionDock({
 
   return (
     <aside
-      aria-label={`${championName} conversation`}
-      className="flex h-[min(22rem,42vh)] shrink-0 p-3 xl:h-auto xl:w-80"
+      aria-label={`${assistantName} conversation`}
+      className="flex h-[min(24rem,46vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
     >
       <Card className="min-h-0 flex-1">
         <CardHeader>
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarFallback className="text-foreground">
-                {championName.slice(0, 2).toUpperCase()}
+                AT
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle>{championName}</CardTitle>
+              <CardTitle>{assistantName}</CardTitle>
               <CardDescription>{viewedContext}</CardDescription>
             </div>
           </div>
@@ -98,24 +109,69 @@ export function WorkspaceChampionDock({
             <div role="log" aria-live="polite" className="space-y-4 pr-3">
               {exchanges.length ? (
                 exchanges.map((exchange) => (
-                  <div key={exchange.id} className="space-y-3">
-                    <Card size="sm" className="ml-8">
-                      <CardContent>{exchange.request}</CardContent>
-                    </Card>
-                    <Card size="sm" className="mr-8">
-                      <CardContent>
-                        Attached to {exchange.viewedContext}. Any strategy change will be
-                        reviewed in {exchange.mutationTarget}.
-                      </CardContent>
-                    </Card>
+                  <div key={exchange.id} className="space-y-4">
+                    <div className="flex justify-end">
+                      <div className="max-w-[88%] rounded-2xl bg-primary px-4 py-2.5 text-sm text-primary-foreground">
+                        {exchange.request}
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Avatar className="size-7 shrink-0">
+                        <AvatarFallback className="text-[0.625rem] text-foreground">
+                          AT
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 space-y-1 pt-1">
+                        <p className="text-xs font-medium">Atlas</p>
+                        <div className="space-y-3">
+                          {exchange.response.map((part, index) =>
+                            part.kind === "text" ? (
+                              <p key={index} className="text-sm leading-relaxed">
+                                {part.text}
+                              </p>
+                            ) : (
+                              <Card key={index} size="sm">
+                                <CardHeader>
+                                  <CardTitle>{part.prompt}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex flex-wrap gap-2">
+                                  {part.options.map((option) => (
+                                    <Button
+                                      key={option}
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        onMessageChange(option)
+                                        inputRef.current?.focus()
+                                      }}
+                                    >
+                                      {option}
+                                    </Button>
+                                  ))}
+                                </CardContent>
+                              </Card>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))
               ) : (
-                <Card size="sm">
-                  <CardContent>
-                    Ask about the selected strategy, evidence, run, or portfolio.
-                  </CardContent>
-                </Card>
+                <div className="flex gap-3">
+                  <Avatar className="size-7 shrink-0">
+                    <AvatarFallback className="text-[0.625rem] text-foreground">
+                      AT
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 space-y-1 pt-1">
+                    <p className="text-xs font-medium">Atlas</p>
+                    <p className="text-sm leading-relaxed">
+                      {contextualPrompt(viewedContext)}
+                    </p>
+                  </div>
+                </div>
               )}
 
               {paperLaunchAvailable && onReviewPaperLaunch ? (
@@ -144,9 +200,9 @@ export function WorkspaceChampionDock({
               ref={inputRef}
               value={message}
               onChange={(event) => onMessageChange(event.target.value)}
-              aria-label={`Message ${championName} about ${viewedContext}`}
-              placeholder={`Message ${championName}…`}
-              rows={3}
+              aria-label={`Message ${assistantName} about ${viewedContext}`}
+              placeholder={contextualPlaceholder(viewedContext)}
+              rows={4}
             />
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-muted-foreground">
@@ -162,4 +218,34 @@ export function WorkspaceChampionDock({
       </Card>
     </aside>
   )
+}
+
+function contextualPrompt(context: string) {
+  const normalized = context.toLowerCase()
+
+  if (normalized.includes("· run ")) {
+    return "Ask why a candidate passed, failed, or produced an order. I can carry anything we learn into the current Draft for review."
+  }
+  if (normalized.endsWith("· runs")) {
+    return "Open any completed run to inspect its summary and activity, or ask me to compare behavior across runs."
+  }
+  if (normalized.includes("paper")) {
+    return "Ask about performance, positions, orders, or a completed run. Strategy changes still go to the current Draft."
+  }
+  if (normalized.includes("live")) {
+    return "Ask about readiness, risk, or what would need to change before real capital is involved."
+  }
+
+  return "Tell me the outcome you want, the constraints that matter, and how much risk you are comfortable taking. I’ll turn it into a strategy you can inspect and test."
+}
+
+function contextualPlaceholder(context: string) {
+  const normalized = context.toLowerCase()
+
+  if (normalized.includes("· run ")) return "Ask Atlas about this run…"
+  if (normalized.endsWith("· runs")) return "Ask Atlas about completed runs…"
+  if (normalized.includes("paper")) return "Ask Atlas about this Paper portfolio…"
+  if (normalized.includes("live")) return "Ask Atlas about Live readiness…"
+  if (normalized.includes("document")) return "Ask Atlas about the strategy document…"
+  return "Build or change this strategy with Atlas…"
 }

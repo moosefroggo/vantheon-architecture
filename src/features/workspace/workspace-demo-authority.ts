@@ -30,11 +30,18 @@ export type DemoAuthorityPaperLaunch = {
   nextDraft: DemoAuthorityDraftSnapshot
 }
 
+export type DemoAuthorityCheckpointFork = {
+  championId: string
+  draft: DemoAuthorityDraftSnapshot
+  sourceCheckpoint: string
+}
+
 export type WorkspaceDemoAuthorityErrorCode =
   | "stale-checkpoint"
   | "rule-snapshot-mismatch"
   | "invalid-proposal"
   | "unknown-rule"
+  | "unknown-checkpoint"
   | "checkpoint-not-evaluated"
 
 export class WorkspaceDemoAuthorityError extends Error {
@@ -55,6 +62,7 @@ export type WorkspaceAuthorityOperation =
   | "validating-rule"
   | "evaluating"
   | "launching-paper"
+  | "forking-checkpoint"
   | null
 
 /**
@@ -82,6 +90,10 @@ export function createWorkspaceDemoAuthority({
   const initialAuthoritativeDraft = cloneDraft(initialDraft)
   let authoritativeDraft = cloneDraft(initialDraft)
   let evaluations: WorkspaceEvaluationFixture[] = []
+  const checkpointHistory = new Map<string, StrategyRuleFixture[]>([
+    [initialDraft.checkpoint, cloneRules(initialDraft.rules)],
+    [evaluationTemplate.baseline.checkpoint, cloneRules(initialDraft.rules)],
+  ])
 
   async function confirmRuleChange(
     proposal: DraftRuleChangeProposal
@@ -133,6 +145,7 @@ export function createWorkspaceDemoAuthority({
           : { ...candidate }
       ),
     }
+    checkpointHistory.set(nextCheckpoint, cloneRules(authoritativeDraft.rules))
 
     return {
       championId,
@@ -218,6 +231,10 @@ export function createWorkspaceDemoAuthority({
       checkpoint: nextDraftCheckpoint(request.checkpoint),
       rules: cloneRules(launchedRules),
     }
+    checkpointHistory.set(
+      authoritativeDraft.checkpoint,
+      cloneRules(authoritativeDraft.rules)
+    )
 
     return {
       championId,
@@ -226,9 +243,48 @@ export function createWorkspaceDemoAuthority({
     }
   }
 
+  async function forkCheckpoint(request: {
+    sourceCheckpoint: string
+    baseCheckpoint: string
+  }): Promise<DemoAuthorityCheckpointFork> {
+    await waitForAuthority(latencyMs)
+
+    assertCheckpoint(request.baseCheckpoint, authoritativeDraft.checkpoint)
+    if (request.sourceCheckpoint === authoritativeDraft.checkpoint) {
+      throw new WorkspaceDemoAuthorityError(
+        "invalid-proposal",
+        `${request.sourceCheckpoint} is already the current checkpoint.`
+      )
+    }
+
+    const sourceRules = checkpointHistory.get(request.sourceCheckpoint)
+    if (!sourceRules) {
+      throw new WorkspaceDemoAuthorityError(
+        "unknown-checkpoint",
+        `Checkpoint ${request.sourceCheckpoint} is not available in this Draft history.`
+      )
+    }
+
+    authoritativeDraft = {
+      checkpoint: incrementCheckpoint(authoritativeDraft.checkpoint),
+      rules: cloneRules(sourceRules),
+    }
+    checkpointHistory.set(
+      authoritativeDraft.checkpoint,
+      cloneRules(authoritativeDraft.rules)
+    )
+
+    return {
+      championId,
+      draft: cloneDraft(authoritativeDraft),
+      sourceCheckpoint: request.sourceCheckpoint,
+    }
+  }
+
   return {
     confirmRuleChange,
     evaluateDraft,
+    forkCheckpoint,
     launchPaper,
   }
 }

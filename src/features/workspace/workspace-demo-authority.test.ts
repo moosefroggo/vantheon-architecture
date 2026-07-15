@@ -92,6 +92,26 @@ describe("workspace demo authority", () => {
     expect(launch.nextDraft.checkpoint).toBe("V2.0")
   })
 
+  it("forks a historical checkpoint into a new append-only current checkpoint", async () => {
+    const authority = createWorkspaceDemoAuthority({ latencyMs: 0 })
+    const changed = await authority.confirmRuleChange({
+      ruleId: "universe",
+      proposedValue: "30 liquid U.S. large-cap equities",
+      motivation: "Test a narrower universe before restoring prior work.",
+      baseCheckpoint: "V1.2",
+    })
+
+    const fork = await authority.forkCheckpoint({
+      sourceCheckpoint: "V1.1",
+      baseCheckpoint: changed.draft.checkpoint,
+    })
+
+    expect(changed.draft.checkpoint).toBe("V1.3")
+    expect(fork.sourceCheckpoint).toBe("V1.1")
+    expect(fork.draft.checkpoint).toBe("V1.4")
+    expect(fork.draft.rules).toEqual(workspaceFixture.draft.rules)
+  })
+
   it("returns Champion-scoped results from the selected fixture authority", async () => {
     const iris = workspaceFixtures.find(
       (fixture) => fixture.champion.id === "iris"

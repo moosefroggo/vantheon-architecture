@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, type ReactNode, type Ref } from "react"
-import { ArrowRight, LockKeyhole } from "lucide-react"
+import { type ReactNode } from "react"
+import { ArrowLeft, ArrowRight, LockKeyhole } from "lucide-react"
 
 import { PortfolioEquityChart } from "@/components/domain/charts/portfolio-equity-chart"
 import { Money } from "@/components/system/money"
@@ -35,11 +35,18 @@ export type PaperRunFixture = {
   readonly decision: string
   readonly evaluated?: number
   readonly orders?: number
+  readonly duration?: string
   readonly dataCutoff?: string
   readonly decisions?: readonly {
     readonly id: string
     readonly label: string
     readonly detail?: string
+  }[]
+  readonly activity?: readonly {
+    readonly id: string
+    readonly time: string
+    readonly title: string
+    readonly detail: string
   }[]
 }
 
@@ -102,37 +109,55 @@ export type PaperPortfolioWorkspaceProps = {
   paper: PaperWorkspaceFixture
   detailsTab: PaperDetailsTab
   selectedReference: DomainObjectReference | null
+  runTab: PaperRunTab
   onOpenDraft: () => void
   onDetailsTabChange: (tab: PaperDetailsTab) => void
+  onRunTabChange: (tab: PaperRunTab) => void
   onSelectedReferenceChange: (
     reference: DomainObjectReference | null
   ) => void
 }
 
 export type PaperDetailsTab = "runs" | "positions" | "orders" | "strategy"
+export type PaperRunTab = "summary" | "activity"
 
 export function PaperPortfolioWorkspace({
   paper,
   detailsTab,
   selectedReference,
+  runTab,
   onOpenDraft,
   onDetailsTabChange,
+  onRunTabChange,
   onSelectedReferenceChange,
 }: PaperPortfolioWorkspaceProps) {
   const currency = paper.currency ?? "USD"
   const equityPresentation = createPaperEquityPresentation(paper)
   const equityChartHeight = getEquityChartHeight(paper.equityHistory?.length ?? 0)
-  const runTraceRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (detailsTab === "runs" && selectedReference) {
-      runTraceRef.current?.focus()
-    }
-  }, [detailsTab, selectedReference])
+  const selectedRun = selectedReference
+    ? findRunForReference(paper.runs ?? [], selectedReference)
+    : null
+  const selectedDecision =
+    selectedRun && selectedReference?.kind === "decision"
+      ? selectedRun.decisions?.find((decision) => decision.id === selectedReference.id)
+      : null
 
   function openEvidenceReference(reference: DomainObjectReference) {
     onSelectedReferenceChange(reference)
     onDetailsTabChange("runs")
+  }
+
+  if (selectedRun) {
+    return (
+      <PaperRunWorkspace
+        paper={paper}
+        run={selectedRun}
+        selectedDecisionId={selectedDecision?.id ?? null}
+        activeTab={runTab}
+        onActiveTabChange={onRunTabChange}
+        onBack={() => onSelectedReferenceChange(null)}
+      />
+    )
   }
 
   return (
@@ -235,9 +260,10 @@ export function PaperPortfolioWorkspace({
 
           <TabsContent value="runs">
             <RunsPanel
-              ref={runTraceRef}
               paper={paper}
-              selectedReference={selectedReference}
+              onOpenRun={(run) =>
+                onSelectedReferenceChange({ kind: "run", id: run.id, label: run.label })
+              }
             />
           </TabsContent>
           <TabsContent value="positions">
@@ -346,16 +372,14 @@ function InvalidHistorySurface({ reason }: { reason: string }) {
 
 function RunsPanel({
   paper,
-  selectedReference,
-  ref,
+  onOpenRun,
 }: {
   paper: PaperWorkspaceFixture
-  selectedReference: DomainObjectReference | null
-  ref: Ref<HTMLElement>
+  onOpenRun: (run: PaperRunFixture) => void
 }) {
   if (!paper.runs?.length) {
     return (
-      <section ref={ref} tabIndex={-1} className="grid min-h-28 place-items-center rounded-lg border border-dashed p-5 text-center outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <section className="grid min-h-28 place-items-center rounded-lg border border-dashed p-5 text-center">
         <div>
           <p className="text-sm font-medium">No completed runs</p>
           <p className="mt-1 text-xs text-muted-foreground">Next run {paper.nextRun}</p>
@@ -364,55 +388,172 @@ function RunsPanel({
     )
   }
 
-  const selectedRun = selectedReference
-    ? findRunForReference(paper.runs, selectedReference)
-    : null
-  const run = selectedRun ?? paper.runs.at(-1) ?? paper.runs[0]
-  const selectedDecision = selectedReference?.kind === "decision"
-    ? run.decisions?.find((decision) => decision.id === selectedReference.id)
-    : null
+  return (
+    <div className="overflow-hidden rounded-lg border">
+      <div className="border-b px-4 py-3 text-sm font-medium">
+        Completed runs ({paper.runs.length})
+      </div>
+      <div className="divide-y">
+        {[...paper.runs].reverse().map((run) => (
+          <Button
+            key={run.id}
+            type="button"
+            variant="ghost"
+            className="h-auto w-full justify-between rounded-none px-4 py-3 text-left"
+            onClick={() => onOpenRun(run)}
+          >
+            <span className="min-w-0">
+              <span className="block text-sm font-medium">{run.label}</span>
+              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                {run.completedAt} · {run.decision}
+              </span>
+            </span>
+            <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+          </Button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PaperRunWorkspace({
+  paper,
+  run,
+  selectedDecisionId,
+  activeTab,
+  onActiveTabChange,
+  onBack,
+}: {
+  paper: PaperWorkspaceFixture
+  run: PaperRunFixture
+  selectedDecisionId: string | null
+  activeTab: PaperRunTab
+  onActiveTabChange: (tab: PaperRunTab) => void
+  onBack: () => void
+}) {
+  const activity =
+    run.activity ??
+    [
+      {
+        id: `${run.id}-started`,
+        time: run.completedAt,
+        title: "Run started",
+        detail: `Loaded ${paper.strategy} and the current Paper portfolio state.`,
+      },
+      {
+        id: `${run.id}-evaluated`,
+        time: run.completedAt,
+        title: `Evaluated ${run.evaluated ?? 0} candidates`,
+        detail: "Applied universe, entry, portfolio, and risk rules in order.",
+      },
+      {
+        id: `${run.id}-completed`,
+        time: run.completedAt,
+        title: run.orders ? `Created ${run.orders} orders` : "No orders created",
+        detail: `Completed with decision: ${run.decision}.`,
+      },
+    ]
 
   return (
-    <article
-      ref={ref}
-      tabIndex={-1}
-      aria-label={`${run.label} trace`}
-      className="rounded-lg border outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
-        <div>
-          <h2 className="text-sm font-semibold">{run.label}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{run.completedAt}</p>
+    <section aria-labelledby="paper-run-title" className="space-y-4">
+      <header className="border-b pb-4">
+        <Button type="button" variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft />
+          {paper.label} · Runs
+        </Button>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 id="paper-run-title" className="font-heading text-2xl font-medium">
+                {run.label}
+              </h1>
+              <Badge variant="secondary">{run.status}</Badge>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{run.completedAt}</p>
+          </div>
+          <dl className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+            <OperationalFact label="Elapsed">{run.duration ?? "8m 54s"}</OperationalFact>
+            <OperationalFact label="Orders">{run.orders ?? 0}</OperationalFact>
+            <OperationalFact label="Buying power">
+              <Money value={paper.buyingPower} currency={paper.currency ?? "USD"} />
+            </OperationalFact>
+          </dl>
         </div>
-        <Badge variant="outline">{run.status}</Badge>
       </header>
-      <dl className="grid gap-px bg-border sm:grid-cols-4">
-        <CompactFact label="Decision" value={run.decision} />
-        <CompactFact label="Evaluated" value={run.evaluated ?? 0} />
-        <CompactFact label="Orders" value={run.orders ?? 0} />
-        <CompactFact label="Data cutoff" value={run.dataCutoff ?? "Unavailable"} />
-      </dl>
-      {run.decisions?.length ? (
-        <section aria-labelledby={`${run.id}-decisions-title`} className="border-t px-4 py-3">
-          <h3 id={`${run.id}-decisions-title`} className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Decision trace
-          </h3>
-          <ul className="mt-2 divide-y">
-            {run.decisions.map((decision) => (
-              <li
-                key={decision.id}
-                className={selectedDecision?.id === decision.id ? "bg-muted/50 px-2 py-2" : "px-2 py-2"}
-              >
-                <p className="text-sm font-medium">{decision.label}</p>
-                {decision.detail ? (
-                  <p className="mt-0.5 text-xs text-muted-foreground">{decision.detail}</p>
-                ) : null}
+
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => onActiveTabChange(value as PaperRunTab)}
+        className="mt-4 gap-4"
+      >
+        <TabsList aria-label={`${run.label} details`}>
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="summary" className="space-y-4">
+          <dl className="grid gap-px overflow-hidden rounded-lg bg-border sm:grid-cols-4">
+            <CompactFact label="Decision" value={run.decision} />
+            <CompactFact label="Evaluated" value={run.evaluated ?? 0} />
+            <CompactFact label="Orders" value={run.orders ?? 0} />
+            <CompactFact label="Data cutoff" value={run.dataCutoff ?? "Unavailable"} />
+          </dl>
+          <DecisionTrace run={run} selectedDecisionId={selectedDecisionId} />
+        </TabsContent>
+
+        <TabsContent value="activity">
+          <ol className="divide-y rounded-lg border">
+            {activity.map((event) => (
+              <li key={event.id} className="grid gap-2 px-4 py-4 sm:grid-cols-[7rem_1fr]">
+                <time className="text-xs text-muted-foreground">{event.time}</time>
+                <div>
+                  <p className="text-sm font-medium">{event.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{event.detail}</p>
+                </div>
               </li>
             ))}
-          </ul>
-        </section>
-      ) : null}
-    </article>
+          </ol>
+        </TabsContent>
+      </Tabs>
+    </section>
+  )
+}
+
+function DecisionTrace({
+  run,
+  selectedDecisionId,
+}: {
+  run: PaperRunFixture
+  selectedDecisionId: string | null
+}) {
+  if (!run.decisions?.length) {
+    return (
+      <EmptyTableState
+        title="No individual decision records"
+        detail="This run completed without an expanded candidate trace."
+      />
+    )
+  }
+
+  return (
+    <section aria-labelledby={`${run.id}-decisions-title`} className="rounded-lg border">
+      <h2 id={`${run.id}-decisions-title`} className="border-b px-4 py-3 text-sm font-medium">
+        Decision trace
+      </h2>
+      <ul className="divide-y">
+        {run.decisions.map((decision) => (
+          <li
+            key={decision.id}
+            className={selectedDecisionId === decision.id ? "bg-muted/50 px-4 py-3" : "px-4 py-3"}
+          >
+            <p className="text-sm font-medium">{decision.label}</p>
+            {decision.detail ? (
+              <p className="mt-1 text-sm text-muted-foreground">{decision.detail}</p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

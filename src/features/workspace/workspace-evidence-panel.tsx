@@ -1,11 +1,25 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, CircleCheck, CircleAlert } from "lucide-react"
+import {
+  ChevronDown,
+  CircleAlert,
+  CircleCheck,
+  GitFork,
+  LoaderCircle,
+} from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
@@ -29,7 +43,15 @@ type WorkspaceEvidencePanelProps = {
   baseline: WorkspaceEvaluationBaselineFixture
   template: WorkspaceEvaluationTemplate
   authorityError: string | null
+  activeTab: WorkspaceEvidenceTab
+  expanded: boolean
+  onActiveTabChange: (tab: WorkspaceEvidenceTab) => void
+  onExpandedChange: (expanded: boolean) => void
+  forkPending: boolean
+  onForkCheckpoint: (checkpoint: string) => void
 }
+
+export type WorkspaceEvidenceTab = "problems" | "tests" | "checkpoints" | "data"
 
 export function WorkspaceEvidencePanel({
   checkpoint,
@@ -37,24 +59,38 @@ export function WorkspaceEvidencePanel({
   baseline,
   template,
   authorityError,
+  activeTab,
+  expanded,
+  onActiveTabChange,
+  onExpandedChange,
+  forkPending,
+  onForkCheckpoint,
 }: WorkspaceEvidencePanelProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [openedCheckpoint, setOpenedCheckpoint] = useState<string | null>(null)
+  const [forkCandidate, setForkCandidate] = useState<string | null>(null)
   const current = evaluation?.checkpoint === checkpoint ? evaluation : null
 
   return (
-    <Tabs defaultValue="problems" className="shrink-0 gap-0 border-t">
+    <Tabs
+      value={activeTab}
+      onValueChange={(value) => {
+        onActiveTabChange(value as WorkspaceEvidenceTab)
+        onExpandedChange(true)
+      }}
+      className="shrink-0 gap-0 border-t"
+    >
       <div className="flex h-11 items-center justify-between gap-3 px-3">
         <TabsList aria-label="Workspace bottom panel">
-          <TabsTrigger value="problems" onClick={() => setExpanded(true)}>
+          <TabsTrigger value="problems" onClick={() => onExpandedChange(true)}>
             Problems
           </TabsTrigger>
-          <TabsTrigger value="tests" onClick={() => setExpanded(true)}>
+          <TabsTrigger value="tests" onClick={() => onExpandedChange(true)}>
             Tests
           </TabsTrigger>
-          <TabsTrigger value="checkpoints" onClick={() => setExpanded(true)}>
+          <TabsTrigger value="checkpoints" onClick={() => onExpandedChange(true)}>
             Checkpoints
           </TabsTrigger>
-          <TabsTrigger value="data" onClick={() => setExpanded(true)}>
+          <TabsTrigger value="data" onClick={() => onExpandedChange(true)}>
             Data
           </TabsTrigger>
         </TabsList>
@@ -65,7 +101,7 @@ export function WorkspaceEvidencePanel({
             variant="ghost"
             size="icon-sm"
             aria-label="Collapse bottom panel"
-            onClick={() => setExpanded(false)}
+            onClick={() => onExpandedChange(false)}
           >
             <ChevronDown />
           </Button>
@@ -140,6 +176,7 @@ export function WorkspaceEvidencePanel({
                       <TableHead>Checkpoint</TableHead>
                       <TableHead>State</TableHead>
                       <TableHead>Completed</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -147,14 +184,56 @@ export function WorkspaceEvidencePanel({
                       <TableCell className="font-medium">{checkpoint}</TableCell>
                       <TableCell>{current ? "Tested" : "Untested"}</TableCell>
                       <TableCell>{current?.completedAt ?? "—"}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setOpenedCheckpoint(checkpoint)}
+                        >
+                          Open
+                        </Button>
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">{baseline.checkpoint}</TableCell>
                       <TableCell>{baseline.label}</TableCell>
                       <TableCell>{baseline.completedAt}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setOpenedCheckpoint(baseline.checkpoint)}
+                        >
+                          Open
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
+                {openedCheckpoint ? (
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
+                    <div>
+                      <p className="text-sm font-medium">{openedCheckpoint}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {openedCheckpoint === checkpoint
+                          ? "Current Draft checkpoint"
+                          : "Historical checkpoint · preserved after a fork"}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={openedCheckpoint === checkpoint}
+                      onClick={() => setForkCandidate(openedCheckpoint)}
+                    >
+                      <GitFork />
+                      Fork checkpoint
+                    </Button>
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
           </TabsContent>
@@ -183,6 +262,52 @@ export function WorkspaceEvidencePanel({
           </TabsContent>
         </ScrollArea>
       ) : null}
+
+      <Dialog
+        open={forkCandidate !== null}
+        onOpenChange={(open) => {
+          if (!open && !forkPending) setForkCandidate(null)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Fork {forkCandidate} into the current Draft?</DialogTitle>
+            <DialogDescription>
+              This creates {nextCheckpointLabel(checkpoint)} from {forkCandidate}. The
+              current {checkpoint} remains in history, and Paper or Live portfolios do
+              not change.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={forkPending}
+              onClick={() => setForkCandidate(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={!forkCandidate || forkPending}
+              onClick={() => {
+                if (!forkCandidate) return
+                onForkCheckpoint(forkCandidate)
+                setForkCandidate(null)
+              }}
+            >
+              {forkPending ? <LoaderCircle className="animate-spin" /> : <GitFork />}
+              Create {nextCheckpointLabel(checkpoint)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   )
+}
+
+function nextCheckpointLabel(checkpoint: string) {
+  const match = /^V(\d+)\.(\d+)$/.exec(checkpoint)
+  if (!match) return "next checkpoint"
+  return `V${match[1]}.${Number(match[2]) + 1}`
 }

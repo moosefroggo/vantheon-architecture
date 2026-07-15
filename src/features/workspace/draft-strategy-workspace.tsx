@@ -31,6 +31,8 @@ export type DraftDecisionSelection = {
   id: string
 } | null
 
+export type DraftSurfaceTab = "summary" | "document"
+
 export type DraftStrategyWorkspaceProps = {
   draft: WorkspaceDraftFixture
   evaluation: WorkspaceEvaluationFixture | null
@@ -40,9 +42,11 @@ export type DraftStrategyWorkspaceProps = {
   confirmedRulePatch: ConfirmedDraftRulePatch | null
   authorityOperation: WorkspaceAuthorityOperation
   authorityError: string | null
+  activeTab: DraftSurfaceTab
   selectedRuleId: string
   selectedDecision: DraftDecisionSelection
   onRunEvaluation: () => void
+  onActiveTabChange: (tab: DraftSurfaceTab) => void
   onApplyRuleChange: (proposal: DraftRuleChangeProposal) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
@@ -58,9 +62,11 @@ export function DraftStrategyWorkspace({
   confirmedRulePatch,
   authorityOperation,
   authorityError,
+  activeTab,
   selectedRuleId,
   selectedDecision,
   onRunEvaluation,
+  onActiveTabChange,
   onApplyRuleChange,
   onAskAbout,
   onSelectedRuleChange,
@@ -115,7 +121,11 @@ export function DraftStrategyWorkspace({
         </Button>
       </div>
 
-      <Tabs defaultValue="summary" className="flex min-h-0 flex-1 flex-col gap-0">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => onActiveTabChange(value as DraftSurfaceTab)}
+        className="flex min-h-0 flex-1 flex-col gap-0"
+      >
         <div className="px-6">
           <TabsList>
             <TabsTrigger value="summary">Summary</TabsTrigger>

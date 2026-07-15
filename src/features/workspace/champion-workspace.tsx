@@ -1,7 +1,14 @@
 "use client"
 
 import { useMemo, useRef, useState, type CSSProperties } from "react"
-import { Archive, Landmark, LockKeyhole, NotebookTabs } from "lucide-react"
+import {
+  Archive,
+  CircleUserRound,
+  Database,
+  Landmark,
+  LockKeyhole,
+  NotebookTabs,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { MarketSessionStatus } from "@/components/domain/market/market-session-status"
@@ -23,6 +30,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -40,17 +48,22 @@ import type { DomainObjectReference } from "@/lib/charts/contracts"
 import {
   DraftStrategyWorkspace,
   type DraftDecisionSelection,
+  type DraftSurfaceTab,
 } from "./draft-strategy-workspace"
 import { EmptyEnvironmentWorkspace } from "./empty-environment-workspace"
 import {
   PaperPortfolioWorkspace,
   type PaperDetailsTab,
+  type PaperRunTab,
 } from "./paper-portfolio-workspace"
 import {
   WorkspaceChampionDock,
   type ConversationExchange,
 } from "./workspace-champion-dock"
-import { WorkspaceEvidencePanel } from "./workspace-evidence-panel"
+import {
+  WorkspaceEvidencePanel,
+  type WorkspaceEvidenceTab,
+} from "./workspace-evidence-panel"
 import {
   createWorkspaceDemoAuthority,
   WorkspaceDemoAuthorityError,
@@ -94,11 +107,13 @@ type ChampionSessionState = {
   draftState: DraftRuntimeState
   paperSnapshot: PaperLaunchSnapshot | null
   draftSelection: {
+    surface: DraftSurfaceTab
     ruleId: string
     decision: DraftDecisionSelection
   }
   paperSelection: {
     detailsTab: PaperDetailsTab
+    runTab: PaperRunTab
     reference: DomainObjectReference | null
   }
   launchReviewOpen: boolean
@@ -115,6 +130,11 @@ type WorkspaceRuntimeState = {
 
 export function ChampionWorkspace() {
   const [runtime, setRuntime] = useState<WorkspaceRuntimeState>(createInitialRuntime)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [bottomPanel, setBottomPanel] = useState<{
+    tab: WorkspaceEvidenceTab
+    expanded: boolean
+  }>({ tab: "problems", expanded: false })
   const runtimeRef = useRef(runtime)
   const authoritiesRef = useRef<Map<string, WorkspaceDemoAuthority> | null>(null)
   const conversationSequenceRef = useRef(0)
@@ -198,12 +218,24 @@ export function ChampionWorkspace() {
     }
   }, [paperSnapshot, workspaceFixture.paper])
 
+  const selectedPaperRun = paperSelection.reference
+    ? workspaceFixture.paper.runs?.find((run) =>
+        paperSelection.reference?.kind === "run"
+          ? run.id === paperSelection.reference.id
+          : run.decisions?.some(
+              (decision) => decision.id === paperSelection.reference?.id
+            )
+      )
+    : null
+
   const defaultViewedContext =
     activeContext === "draft"
-      ? `${draftLabel} · Strategy`
+      ? `${draftLabel} · ${titleCase(draftSelection.surface)}`
       : activeContext === "paper"
         ? paperLaunched
-          ? "Paper V1 · Overview"
+          ? selectedPaperRun
+            ? `Paper V1 · ${selectedPaperRun.label} · ${titleCase(paperSelection.runTab)}`
+            : `Paper V1 · ${titleCase(paperSelection.detailsTab)}`
           : "Paper · Readiness"
         : "Live · Readiness"
   const viewedContext = conversation.context ?? defaultViewedContext
@@ -307,6 +339,7 @@ export function ChampionWorkspace() {
     const exchange: ConversationExchange = {
       id: `${sourceChampionId}:${conversationSequenceRef.current}`,
       request,
+      response: atlasResponseForContext(attachedContext, mutationTarget),
       viewedContext: attachedContext,
       mutationTarget,
     }
@@ -396,6 +429,45 @@ export function ChampionWorkspace() {
       setAuthorityError(sourceChampionId, authorityErrorMessage(error))
     } finally {
       finishAuthorityOperation(sourceChampionId, "validating-rule")
+    }
+  }
+
+  async function forkCheckpoint(sourceCheckpoint: string) {
+    const sourceChampionId = championId
+    const sourceSession = runtimeRef.current.sessions[sourceChampionId]
+
+    if (!beginAuthorityOperation(sourceChampionId, "forking-checkpoint")) return
+
+    try {
+      const response = await getAuthority(
+        authoritiesRef.current,
+        sourceChampionId
+      ).forkCheckpoint({
+        sourceCheckpoint,
+        baseCheckpoint: sourceSession.draftState.checkpoint,
+      })
+      assertAuthorityChampion(response.championId, sourceChampionId)
+
+      updateChampionSession(sourceChampionId, (current) => ({
+        ...current,
+        activeContext: "draft",
+        draftState: {
+          ...response.draft,
+          confirmedPatch: null,
+        },
+        draftSelection: {
+          ...current.draftSelection,
+          decision: null,
+        },
+        conversation: {
+          ...current.conversation,
+          context: null,
+        },
+      }))
+    } catch (error) {
+      setAuthorityError(sourceChampionId, authorityErrorMessage(error))
+    } finally {
+      finishAuthorityOperation(sourceChampionId, "forking-checkpoint")
     }
   }
 
@@ -562,6 +634,26 @@ export function ChampionWorkspace() {
             </SidebarGroup>
           ) : null}
         </SidebarContent>
+
+        <SidebarFooter className="border-t">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={bottomPanel.expanded && bottomPanel.tab === "data"}
+                onClick={() => setBottomPanel({ tab: "data", expanded: true })}
+              >
+                <Database />
+                <span>Datasets</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setProfileOpen(true)}>
+                <CircleUserRound />
+                <span>Profile</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
@@ -604,9 +696,23 @@ export function ChampionWorkspace() {
                   confirmedRulePatch={draftState.confirmedPatch}
                   authorityOperation={authorityOperation}
                   authorityError={authorityError}
+                  activeTab={draftSelection.surface}
                   selectedRuleId={draftSelection.ruleId}
                   selectedDecision={draftSelection.decision}
                   onRunEvaluation={runEvaluation}
+                  onActiveTabChange={(surface) =>
+                    updateChampionSession(championId, (current) => ({
+                      ...current,
+                      draftSelection: {
+                        ...current.draftSelection,
+                        surface,
+                      },
+                      conversation: {
+                        ...current.conversation,
+                        context: null,
+                      },
+                    }))
+                  }
                   onApplyRuleChange={applyRuleChange}
                   onAskAbout={(context) =>
                     focusChampionConversation(
@@ -639,6 +745,7 @@ export function ChampionWorkspace() {
                     paper={paperView}
                     detailsTab={paperSelection.detailsTab}
                     selectedReference={paperSelection.reference}
+                    runTab={paperSelection.runTab}
                     onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
                     onDetailsTabChange={(detailsTab) =>
                       updateChampionSession(championId, (current) => ({
@@ -646,6 +753,23 @@ export function ChampionWorkspace() {
                         paperSelection: {
                           ...current.paperSelection,
                           detailsTab,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
+                        },
+                      }))
+                    }
+                    onRunTabChange={(runTab) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        paperSelection: {
+                          ...current.paperSelection,
+                          runTab,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
                         },
                       }))
                     }
@@ -655,6 +779,11 @@ export function ChampionWorkspace() {
                         paperSelection: {
                           ...current.paperSelection,
                           reference,
+                          runTab: reference ? "summary" : current.paperSelection.runTab,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
                         },
                       }))
                     }
@@ -666,7 +795,23 @@ export function ChampionWorkspace() {
                   draftLabel={draftLabel}
                   evaluationComplete={evaluationComplete}
                   paperLaunched={paperLaunched}
+                  measurementComplete={
+                    paperLaunched && (paperView?.runs?.length ?? 0) >= 5
+                  }
+                  onAskAtlas={() =>
+                    focusChampionConversation(
+                      championId,
+                      activeContext === "paper" ? "Paper · Journey" : "Live · Journey"
+                    )
+                  }
                   onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
+                  onRunDraft={runEvaluation}
+                  onReviewPaperLaunch={() =>
+                    updateChampionSession(championId, (current) => ({
+                      ...current,
+                      launchReviewOpen: true,
+                    }))
+                  }
                   onOpenPaper={() => selectWorkspaceContext(championId, "paper")}
                 />
               )}
@@ -678,12 +823,21 @@ export function ChampionWorkspace() {
               baseline={evidenceBaseline}
               template={workspaceFixture.evaluation}
               authorityError={authorityError}
+              activeTab={bottomPanel.tab}
+              expanded={bottomPanel.expanded}
+              onActiveTabChange={(tab) =>
+                setBottomPanel((current) => ({ ...current, tab }))
+              }
+              onExpandedChange={(expanded) =>
+                setBottomPanel((current) => ({ ...current, expanded }))
+              }
+              forkPending={authorityOperation === "forking-checkpoint"}
+              onForkCheckpoint={forkCheckpoint}
             />
           </div>
 
           <WorkspaceChampionDock
             championId={championId}
-            championName={workspaceFixture.champion.name}
             viewedContext={viewedContext}
             mutationTarget={`${draftLabel} · ${checkpoint}`}
             focusRequest={conversation.focusRequest}
@@ -724,6 +878,23 @@ export function ChampionWorkspace() {
         pending={authorityOperation === "launching-paper"}
         error={authorityError}
       />
+
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Profile</DialogTitle>
+            <DialogDescription>
+              Account, security, brokerage connections, and notification preferences.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border p-4">
+            <p className="text-sm font-medium">Personal workspace</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your profile remains available across every Champion workspace.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   )
 }
@@ -763,11 +934,13 @@ function createChampionSession(
         }
       : null,
     draftSelection: {
+      surface: "summary",
       ruleId: fixture.draft.rules[0]?.id ?? "",
       decision: null,
     },
     paperSelection: {
       detailsTab: "runs",
+      runTab: "summary",
       reference: null,
     },
     launchReviewOpen: false,
@@ -806,6 +979,66 @@ function assertAuthorityChampion(actual: string, expected: string) {
       `Authority response for ${actual} cannot update Champion ${expected}.`
     )
   }
+}
+
+function atlasResponseForContext(context: string, mutationTarget: string) {
+  const normalized = context.toLowerCase()
+
+  if (normalized.includes("run")) {
+    return [
+      {
+        kind: "text" as const,
+        text: `I’m reading this run as evidence. If you ask for a strategy change, I’ll prepare it against ${mutationTarget}; the completed run remains immutable.`,
+      },
+      {
+        kind: "question" as const,
+        prompt: "What should I do with this evidence?",
+        options: ["Explain the decision", "Compare with Draft", "Propose a change"],
+      },
+    ]
+  }
+  if (normalized.includes("paper")) {
+    return [
+      {
+        kind: "text" as const,
+        text: `I’ll analyze the selected Paper evidence here. Any change I propose will be reviewed in ${mutationTarget}, not applied to the running portfolio.`,
+      },
+      {
+        kind: "question" as const,
+        prompt: "Which evidence should we inspect?",
+        options: ["Latest run", "Performance vs SPY", "Risk and drawdown"],
+      },
+    ]
+  }
+  if (normalized.includes("live")) {
+    return [
+      {
+        kind: "text" as const,
+        text: "I’ll treat this as a Live-safety question. I can explain or prepare a proposal, but no capital control changes without an explicit reviewed deployment.",
+      },
+      {
+        kind: "question" as const,
+        prompt: "What do you want to review first?",
+        options: ["Risk limits", "Capital impact", "Deployment readiness"],
+      },
+    ]
+  }
+
+  return [
+    {
+      kind: "text" as const,
+      text: `I’ll use this as strategy intent and prepare structured changes in ${mutationTarget}. You’ll see and test the artifact before anything is promoted.`,
+    },
+    {
+      kind: "question" as const,
+      prompt: "What should I optimize first?",
+      options: ["Lower drawdown", "Higher return", "Fewer trades"],
+    },
+  ]
+}
+
+function titleCase(value: string) {
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`
 }
 
 function PaperLaunchDialog({

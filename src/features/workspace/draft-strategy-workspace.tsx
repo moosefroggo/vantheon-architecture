@@ -19,14 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { RuleEditor } from "./rule-editor"
 import type { WorkspaceAuthorityOperation } from "./workspace-demo-authority"
-import { WorkspaceEvidencePanel } from "./workspace-evidence-panel"
 import type {
   ConfirmedDraftRulePatch,
   DraftRuleChangeProposal,
   WorkspaceDraftFixture,
-  WorkspaceEvaluationBaselineFixture,
   WorkspaceEvaluationFixture,
-  WorkspaceEvaluationTemplate,
 } from "./workspace-fixtures"
 
 export type DraftDecisionSelection = {
@@ -35,22 +32,17 @@ export type DraftDecisionSelection = {
 } | null
 
 export type DraftStrategyWorkspaceProps = {
-  championId: string
   draft: WorkspaceDraftFixture
   evaluation: WorkspaceEvaluationFixture | null
-  evidenceBaseline: WorkspaceEvaluationBaselineFixture
-  evaluationTemplate: WorkspaceEvaluationTemplate
   draftLabel: string
   checkpoint: string
   evaluationComplete: boolean
-  paperLaunched: boolean
   confirmedRulePatch: ConfirmedDraftRulePatch | null
   authorityOperation: WorkspaceAuthorityOperation
   authorityError: string | null
   selectedRuleId: string
   selectedDecision: DraftDecisionSelection
   onRunEvaluation: () => void
-  onReviewPaperLaunch: () => void
   onApplyRuleChange: (proposal: DraftRuleChangeProposal) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
@@ -60,8 +52,6 @@ export type DraftStrategyWorkspaceProps = {
 export function DraftStrategyWorkspace({
   draft,
   evaluation,
-  evidenceBaseline,
-  evaluationTemplate,
   draftLabel,
   checkpoint,
   evaluationComplete,
@@ -152,14 +142,6 @@ export function DraftStrategyWorkspace({
           </div>
         </ScrollArea>
       </Tabs>
-
-      <WorkspaceEvidencePanel
-        checkpoint={checkpoint}
-        evaluation={evaluation}
-        baseline={evidenceBaseline}
-        template={evaluationTemplate}
-        authorityError={authorityError}
-      />
 
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
         <DialogContent>

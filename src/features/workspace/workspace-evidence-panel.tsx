@@ -38,7 +38,7 @@ export function WorkspaceEvidencePanel({
 
   return (
     <Tabs defaultValue="problems" className="shrink-0 gap-3 border-t p-4">
-      <TabsList>
+      <TabsList aria-label="Workspace bottom panel">
         <TabsTrigger value="problems">Problems</TabsTrigger>
         <TabsTrigger value="tests">Tests</TabsTrigger>
         <TabsTrigger value="checkpoints">Checkpoints</TabsTrigger>

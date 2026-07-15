@@ -50,6 +50,7 @@ import {
   WorkspaceChampionDock,
   type ConversationExchange,
 } from "./workspace-champion-dock"
+import { WorkspaceEvidencePanel } from "./workspace-evidence-panel"
 import {
   createWorkspaceDemoAuthority,
   WorkspaceDemoAuthorityError,
@@ -584,97 +585,97 @@ export function ChampionWorkspace() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
-          <div
-            id="primary-workspace"
-            tabIndex={-1}
-            className="min-h-0 min-w-0 flex-1 outline-none"
-          >
-            {activeContext === "draft" ? (
-              <DraftStrategyWorkspace
-                championId={championId}
-                draft={draftView}
-                evaluation={currentEvaluation}
-                evidenceBaseline={evidenceBaseline}
-                evaluationTemplate={workspaceFixture.evaluation}
-                draftLabel={draftLabel}
-                checkpoint={checkpoint}
-                evaluationComplete={evaluationComplete}
-                paperLaunched={paperLaunched}
-                confirmedRulePatch={draftState.confirmedPatch}
-                authorityOperation={authorityOperation}
-                authorityError={authorityError}
-                selectedRuleId={draftSelection.ruleId}
-                selectedDecision={draftSelection.decision}
-                onRunEvaluation={runEvaluation}
-                onReviewPaperLaunch={() =>
-                  updateChampionSession(championId, (current) => ({
-                    ...current,
-                    launchReviewOpen: true,
-                  }))
-                }
-                onApplyRuleChange={applyRuleChange}
-                onAskAbout={(context) =>
-                  focusChampionConversation(
-                    championId,
-                    `${draftLabel} · ${context}`
-                  )
-                }
-                onSelectedRuleChange={(ruleId) =>
-                  updateChampionSession(championId, (current) => ({
-                    ...current,
-                    draftSelection: {
-                      ...current.draftSelection,
-                      ruleId,
-                    },
-                  }))
-                }
-                onSelectedDecisionChange={(decision) =>
-                  updateChampionSession(championId, (current) => ({
-                    ...current,
-                    draftSelection: {
-                      ...current.draftSelection,
-                      decision,
-                    },
-                  }))
-                }
-              />
-            ) : activeContext === "paper" && paperView ? (
-              <div className="h-full overflow-auto p-4 sm:p-5">
-                <PaperPortfolioWorkspace
-                  paper={paperView}
-                  detailsTab={paperSelection.detailsTab}
-                  selectedReference={paperSelection.reference}
-                  onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
-                  onDetailsTabChange={(detailsTab) =>
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div
+              id="primary-workspace"
+              tabIndex={-1}
+              className="min-h-0 min-w-0 flex-1 outline-none"
+            >
+              {activeContext === "draft" ? (
+                <DraftStrategyWorkspace
+                  draft={draftView}
+                  evaluation={currentEvaluation}
+                  draftLabel={draftLabel}
+                  checkpoint={checkpoint}
+                  evaluationComplete={evaluationComplete}
+                  confirmedRulePatch={draftState.confirmedPatch}
+                  authorityOperation={authorityOperation}
+                  authorityError={authorityError}
+                  selectedRuleId={draftSelection.ruleId}
+                  selectedDecision={draftSelection.decision}
+                  onRunEvaluation={runEvaluation}
+                  onApplyRuleChange={applyRuleChange}
+                  onAskAbout={(context) =>
+                    focusChampionConversation(
+                      championId,
+                      `${draftLabel} · ${context}`
+                    )
+                  }
+                  onSelectedRuleChange={(ruleId) =>
                     updateChampionSession(championId, (current) => ({
                       ...current,
-                      paperSelection: {
-                        ...current.paperSelection,
-                        detailsTab,
+                      draftSelection: {
+                        ...current.draftSelection,
+                        ruleId,
                       },
                     }))
                   }
-                  onSelectedReferenceChange={(reference) =>
+                  onSelectedDecisionChange={(decision) =>
                     updateChampionSession(championId, (current) => ({
                       ...current,
-                      paperSelection: {
-                        ...current.paperSelection,
-                        reference,
+                      draftSelection: {
+                        ...current.draftSelection,
+                        decision,
                       },
                     }))
                   }
                 />
-              </div>
-            ) : (
-              <EmptyEnvironmentWorkspace
-                environment={activeContext === "paper" ? "Paper" : "Live"}
-                draftLabel={draftLabel}
-                evaluationComplete={evaluationComplete}
-                paperLaunched={paperLaunched}
-                onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
-                onOpenPaper={() => selectWorkspaceContext(championId, "paper")}
-              />
-            )}
+              ) : activeContext === "paper" && paperView ? (
+                <div className="h-full overflow-auto p-4 sm:p-5">
+                  <PaperPortfolioWorkspace
+                    paper={paperView}
+                    detailsTab={paperSelection.detailsTab}
+                    selectedReference={paperSelection.reference}
+                    onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
+                    onDetailsTabChange={(detailsTab) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        paperSelection: {
+                          ...current.paperSelection,
+                          detailsTab,
+                        },
+                      }))
+                    }
+                    onSelectedReferenceChange={(reference) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        paperSelection: {
+                          ...current.paperSelection,
+                          reference,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <EmptyEnvironmentWorkspace
+                  environment={activeContext === "paper" ? "Paper" : "Live"}
+                  draftLabel={draftLabel}
+                  evaluationComplete={evaluationComplete}
+                  paperLaunched={paperLaunched}
+                  onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
+                  onOpenPaper={() => selectWorkspaceContext(championId, "paper")}
+                />
+              )}
+            </div>
+
+            <WorkspaceEvidencePanel
+              checkpoint={checkpoint}
+              evaluation={currentEvaluation}
+              baseline={evidenceBaseline}
+              template={workspaceFixture.evaluation}
+              authorityError={authorityError}
+            />
           </div>
 
           <WorkspaceChampionDock

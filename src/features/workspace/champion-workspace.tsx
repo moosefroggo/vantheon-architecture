@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react"
 import { Archive, Landmark, LockKeyhole, NotebookTabs } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { MarketSessionStatus } from "@/components/domain/market/market-session-status"
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ import {
   type WorkspaceEvaluationBaselineFixture,
   type WorkspaceEvaluationFixture,
   type WorkspaceFixture,
+  marketSessionFixture,
   workspaceFixtures,
 } from "./workspace-fixtures"
 
@@ -578,6 +580,7 @@ export function ChampionWorkspace() {
               </TabsList>
             </Tabs>
           )}
+          <MarketSessionStatus session={marketSessionFixture} />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col xl:flex-row">

@@ -160,6 +160,13 @@ export type WorkspaceFixture = {
   }
 }
 
+export const marketSessionFixture = {
+  state: "open",
+  venue: "U.S. equities",
+  asOf: "Jul 15 · 12:37 PM CT",
+  nextTransition: "Closes today at 3:00 PM CT",
+} as const
+
 const maraWorkspaceFixture = {
   champion: {
     id: "mara",

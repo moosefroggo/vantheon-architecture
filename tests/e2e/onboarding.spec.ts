@@ -87,8 +87,10 @@ test("keeps the Champion chat docked and contextual across the workspace", async
   await page.goto("/")
 
   const conversation = page.getByRole("complementary", { name: "Mara conversation" })
+  const marketStatus = page.getByRole("status", { name: /Market open/ })
   const composer = conversation.getByRole("textbox", { name: /Message Mara about/ })
   await expect(conversation).toBeVisible()
+  await expect(marketStatus).toBeVisible()
   await expect(conversation.getByText("Draft V1 · Strategy", { exact: true })).toBeVisible()
 
   await composer.fill("Why is the position cap fifteen percent?")
@@ -96,10 +98,12 @@ test("keeps the Champion chat docked and contextual across the workspace", async
   await expect(conversation.getByText("Why is the position cap fifteen percent?")).toBeVisible()
 
   await page.getByRole("button", { name: "Live portfolio" }).click()
+  await expect(marketStatus).toBeVisible()
   await expect(conversation.getByText("Live · Readiness")).toBeVisible()
   await expect(conversation.getByText("Why is the position cap fifteen percent?")).toBeVisible()
 
   await page.getByRole("button", { name: /Lower-volatility momentum/ }).click()
+  await expect(marketStatus).toBeVisible()
   await expect(conversation.getByText("Draft V1 · Strategy", { exact: true })).toBeVisible()
 })
 

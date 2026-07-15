@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useRef } from "react"
 import { ArrowUp, CircleCheck, Pencil, X } from "lucide-react"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -91,16 +90,9 @@ export function WorkspaceChampionDock({
     >
       <Card className="min-h-0 flex-1">
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback className="text-foreground">
-                AT
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle>{assistantName}</CardTitle>
-              <CardDescription>{viewedContext}</CardDescription>
-            </div>
+          <div>
+            <CardTitle>{assistantName}</CardTitle>
+            <CardDescription>{viewedContext}</CardDescription>
           </div>
           <CardAction>
             <Badge variant="secondary">Active</Badge>
@@ -118,62 +110,48 @@ export function WorkspaceChampionDock({
                         {exchange.request}
                       </div>
                     </div>
-                    <div className="flex gap-3">
-                      <Avatar className="size-7 shrink-0">
-                        <AvatarFallback className="text-[0.625rem] text-foreground">
-                          AT
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 space-y-1 pt-1">
-                        <p className="text-xs font-medium">Atlas</p>
-                        <div className="space-y-3">
-                          {exchange.response.map((part, index) =>
-                            part.kind === "text" ? (
-                              <p key={index} className="text-sm leading-relaxed">
-                                {part.text}
-                              </p>
-                            ) : (
-                              <Card key={index} size="sm">
-                                <CardHeader>
-                                  <CardTitle>{part.prompt}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex flex-wrap gap-2">
-                                  {part.options.map((option) => (
-                                    <Button
-                                      key={option}
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => {
-                                        onMessageChange(option)
-                                        inputRef.current?.focus()
-                                      }}
-                                    >
-                                      {option}
-                                    </Button>
-                                  ))}
-                                </CardContent>
-                              </Card>
-                            )
-                          )}
-                        </div>
+                    <div className="min-w-0 space-y-1">
+                      <p className="text-xs font-medium">Atlas</p>
+                      <div className="space-y-3">
+                        {exchange.response.map((part, index) =>
+                          part.kind === "text" ? (
+                            <p key={index} className="text-sm leading-relaxed">
+                              {part.text}
+                            </p>
+                          ) : (
+                            <Card key={index} size="sm">
+                              <CardHeader>
+                                <CardTitle>{part.prompt}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="flex flex-wrap gap-2">
+                                {part.options.map((option) => (
+                                  <Button
+                                    key={option}
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      onMessageChange(option)
+                                      inputRef.current?.focus()
+                                    }}
+                                  >
+                                    {option}
+                                  </Button>
+                                ))}
+                              </CardContent>
+                            </Card>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex gap-3">
-                  <Avatar className="size-7 shrink-0">
-                    <AvatarFallback className="text-[0.625rem] text-foreground">
-                      AT
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 space-y-1 pt-1">
-                    <p className="text-xs font-medium">Atlas</p>
-                    <p className="text-sm leading-relaxed">
-                      {contextualPrompt(viewedContext)}
-                    </p>
-                  </div>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-xs font-medium">Atlas</p>
+                  <p className="text-sm leading-relaxed">
+                    {contextualPrompt(viewedContext)}
+                  </p>
                 </div>
               )}
 

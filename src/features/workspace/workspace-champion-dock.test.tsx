@@ -32,6 +32,7 @@ describe("WorkspaceChampionDock context attachment", () => {
     expect(
       screen.getByPlaceholderText("Tell Atlas how this should change…")
     ).toBeVisible()
+    expect(screen.queryByText("AT")).not.toBeInTheDocument()
     expect(screen.queryByText(/Changes →/)).not.toBeInTheDocument()
 
     fireEvent.click(

@@ -22,6 +22,7 @@ describe("EmptyEnvironmentWorkspace", () => {
     )
 
     expect(screen.getByRole("region", { name: "Live setup" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Live", level: 1 })).toBeVisible()
     expect(screen.getByText("Dry run the strategy")).toBeInTheDocument()
     expect(screen.queryByText("Not started")).not.toBeInTheDocument()
     expect(screen.queryByText("Real capital")).not.toBeInTheDocument()

@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+import { WorkspacePageHeader } from "./workspace-page-header"
+
 export type EmptyEnvironmentWorkspaceProps = {
   environment: "Paper" | "Live"
   draftLabel: string
@@ -115,6 +117,7 @@ export function EmptyEnvironmentWorkspace({
       className="flex h-full min-h-0 flex-col"
       aria-label={`${environment} setup`}
     >
+      <WorkspacePageHeader title={environment} className="px-4 py-3 sm:px-5" />
       <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-5">
         <div className="mx-auto max-w-3xl space-y-2">
           {steps.map((step, index) => {

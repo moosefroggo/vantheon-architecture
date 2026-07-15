@@ -28,6 +28,8 @@ import type {
   PortfolioEquityReadModel,
 } from "@/lib/charts/contracts"
 
+import { WorkspacePageHeader } from "./workspace-page-header"
+
 export type PaperRunFixture = {
   readonly id: string
   readonly label: string
@@ -167,32 +169,30 @@ export function PaperPortfolioWorkspace({
 
   return (
     <section aria-labelledby="paper-workspace-title" className="space-y-4">
-      <header className="flex flex-col gap-3 border-b pb-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1
-              id="paper-workspace-title"
-              className="font-heading text-2xl font-medium tracking-tight"
-            >
-              {paper.label}
-            </h1>
-            <Badge variant="secondary">{paper.status}</Badge>
-            <Badge variant="outline">Simulated</Badge>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <WorkspacePageHeader
+        title={paper.label}
+        titleId="paper-workspace-title"
+        badges={[
+          { label: paper.status, variant: "secondary" },
+          { label: "Simulated" },
+        ]}
+        details={
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
               <LockKeyhole aria-hidden="true" className="size-3.5" />
               {paper.strategy}
             </span>
             <span>{paper.source}</span>
           </div>
-        </div>
-
-        <Button type="button" onClick={onOpenDraft} className="shrink-0 self-start">
-          Open Draft
-          <ArrowRight aria-hidden="true" data-icon="inline-end" />
-        </Button>
-      </header>
+        }
+        action={
+          <Button type="button" onClick={onOpenDraft}>
+            Open Draft
+            <ArrowRight aria-hidden="true" data-icon="inline-end" />
+          </Button>
+        }
+        className="pb-3"
+      />
 
       <dl className="grid grid-cols-2 overflow-hidden rounded-lg border sm:grid-cols-4">
         <Metric label="Portfolio value">
@@ -571,7 +571,7 @@ function PaperRunWorkspace({
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h1 id="paper-run-title" className="font-heading text-2xl font-medium">
+              <h1 id="paper-run-title" className="text-2xl font-semibold tracking-tight">
                 {run.label}
               </h1>
               <Badge variant="secondary">{run.status}</Badge>

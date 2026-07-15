@@ -4,7 +4,6 @@ import { Play } from "lucide-react"
 
 import { StrategyDocument } from "@/components/domain/strategy/strategy-document"
 import { StrategySummary } from "@/components/domain/strategy/strategy-summary"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,6 +13,7 @@ import type {
   WorkspaceDraftFixture,
   WorkspaceEvaluationFixture,
 } from "./workspace-fixtures"
+import { WorkspacePageHeader } from "./workspace-page-header"
 
 export type DraftDecisionSelection = {
   checkpoint: string
@@ -66,30 +66,28 @@ export function DraftStrategyWorkspace({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex flex-wrap items-start justify-between gap-4 p-6">
-        <div className="min-w-0 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">{draftLabel}</Badge>
-            <Badge variant={currentEvaluation ? "secondary" : "outline"}>
-              {currentEvaluation ? "Tested" : "Untested"}
-            </Badge>
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{draft.title}</h1>
-            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-              {draft.objective}
-            </p>
-          </div>
-        </div>
-        <Button
-          type="button"
-          onClick={onRunEvaluation}
-          disabled={authorityOperation !== null}
-        >
-          <Play />
-          {evaluationPending ? "Running…" : "Dry Run"}
-        </Button>
-      </div>
+      <WorkspacePageHeader
+        title={draft.title}
+        badges={[
+          { label: draftLabel },
+          {
+            label: currentEvaluation ? "Tested" : "Untested",
+            variant: currentEvaluation ? "secondary" : "outline",
+          },
+        ]}
+        details={<span className="block max-w-3xl">{draft.objective}</span>}
+        action={
+          <Button
+            type="button"
+            onClick={onRunEvaluation}
+            disabled={authorityOperation !== null}
+          >
+            <Play />
+            {evaluationPending ? "Running…" : "Dry Run"}
+          </Button>
+        }
+        className="px-6 py-4"
+      />
 
       <Tabs
         value={activeTab}

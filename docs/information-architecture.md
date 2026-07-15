@@ -198,7 +198,7 @@ The number communicates strategy generation; the state words communicate what ex
 ### Default information order
 
 1. Loop bar: Draft/checkpoint, untested changes, permanent Test, eligibility, and optional Paper launch.
-2. Strategy objective and structured content with direct, validated rule-edit affordances.
+2. Strategy objective and structured content with rule-targeted Edit affordances. Edit attaches the exact rule above the Atlas composer and focuses the dock; it never opens an isolated modal or changes the Draft by itself.
 3. Universe, entry/exit behavior, sizing, risk, schedule, assumptions, and exclusions.
 4. Rule-linked evidence from the latest matching Evaluation.
 5. Evidence ledger with evaluated checkpoint, baseline, neutral deltas, assumptions, cutoff, and limitations.

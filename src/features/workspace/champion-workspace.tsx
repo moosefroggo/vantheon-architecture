@@ -76,7 +76,6 @@ import {
 } from "./workspace-demo-authority"
 import {
   type ConfirmedDraftRulePatch,
-  type DraftRuleChangeProposal,
   type StrategyRuleFixture,
   type WorkspaceEvaluationBaselineFixture,
   type WorkspaceEvaluationFixture,
@@ -249,7 +248,8 @@ export function ChampionWorkspace() {
             : `Paper V1 · ${titleCase(paperSelection.detailsTab)}`
           : "Paper · Readiness"
         : "Live · Readiness"
-  const viewedContext = conversation.context ?? defaultViewedContext
+  const viewedContext = defaultViewedContext
+  const attachedContext = conversation.context
 
   function commitRuntime(
     update: (current: WorkspaceRuntimeState) => WorkspaceRuntimeState
@@ -411,35 +411,6 @@ export function ChampionWorkspace() {
       setAuthorityError(sourceChampionId, authorityErrorMessage(error))
     } finally {
       finishAuthorityOperation(sourceChampionId, "launching-paper")
-    }
-  }
-
-  async function applyRuleChange(proposal: DraftRuleChangeProposal) {
-    const sourceChampionId = championId
-    if (!beginAuthorityOperation(sourceChampionId, "validating-rule")) return
-
-    try {
-      const response = await getAuthority(
-        authoritiesRef.current,
-        sourceChampionId
-      ).confirmRuleChange(proposal)
-      assertAuthorityChampion(response.championId, sourceChampionId)
-
-      updateChampionSession(sourceChampionId, (current) => ({
-        ...current,
-        draftState: {
-          ...response.draft,
-          confirmedPatch: response.confirmedPatch,
-        },
-        draftSelection: {
-          ...current.draftSelection,
-          decision: null,
-        },
-      }))
-    } catch (error) {
-      setAuthorityError(sourceChampionId, authorityErrorMessage(error))
-    } finally {
-      finishAuthorityOperation(sourceChampionId, "validating-rule")
     }
   }
 
@@ -745,15 +716,11 @@ export function ChampionWorkspace() {
                     draft={draftView}
                     evaluation={currentEvaluation}
                     draftLabel={draftLabel}
-                    checkpoint={checkpoint}
-                    evaluationComplete={evaluationComplete}
-                    confirmedRulePatch={draftState.confirmedPatch}
-                    authorityOperation={authorityOperation}
-                    authorityError={authorityError}
-                    activeTab={draftSelection.surface}
-                    selectedRuleId={draftSelection.ruleId}
-                    selectedDecision={draftSelection.decision}
-                    onRunEvaluation={runEvaluation}
+                  checkpoint={checkpoint}
+                  evaluationComplete={evaluationComplete}
+                  authorityOperation={authorityOperation}
+                  activeTab={draftSelection.surface}
+                  onRunEvaluation={runEvaluation}
                     onActiveTabChange={(surface) =>
                       updateChampionSession(championId, (current) => ({
                         ...current,
@@ -767,12 +734,8 @@ export function ChampionWorkspace() {
                         },
                       }))
                     }
-                    onApplyRuleChange={applyRuleChange}
                     onAskAbout={(context) =>
-                      focusChampionConversation(
-                        championId,
-                        `${draftLabel} · ${context}`
-                      )
+                      focusChampionConversation(championId, context)
                     }
                     onSelectedRuleChange={(ruleId) =>
                       updateChampionSession(championId, (current) => ({
@@ -910,6 +873,7 @@ export function ChampionWorkspace() {
           <WorkspaceChampionDock
             championId={championId}
             viewedContext={viewedContext}
+            attachedContext={attachedContext}
             mutationTarget={`${draftLabel} · ${checkpoint}`}
             focusRequest={conversation.focusRequest}
             message={conversation.message}
@@ -922,9 +886,18 @@ export function ChampionWorkspace() {
               submitConversation(
                 championId,
                 request,
-                viewedContext,
+                attachedContext ?? viewedContext,
                 `${draftLabel} · ${checkpoint}`
               )
+            }
+            onClearAttachedContext={() =>
+              updateChampionSession(championId, (current) => ({
+                ...current,
+                conversation: {
+                  ...current.conversation,
+                  context: null,
+                },
+              }))
             }
             onReviewPaperLaunch={() =>
               updateChampionSession(championId, (current) => ({

@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useEffect, useRef } from "react"
-import { ArrowUp, CircleCheck } from "lucide-react"
+import { ArrowUp, CircleCheck, Pencil, X } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -40,6 +40,7 @@ export type AtlasMessagePart =
 export type WorkspaceChampionDockProps = {
   championId: string
   viewedContext: string
+  attachedContext?: string | null
   mutationTarget: string
   focusRequest: number
   message: string
@@ -47,12 +48,14 @@ export type WorkspaceChampionDockProps = {
   paperLaunchAvailable?: boolean
   onMessageChange: (message: string) => void
   onSubmit: (request: string) => void
+  onClearAttachedContext?: () => void
   onReviewPaperLaunch?: () => void
 }
 
 export function WorkspaceChampionDock({
   championId,
   viewedContext,
+  attachedContext = null,
   mutationTarget,
   focusRequest,
   message,
@@ -60,11 +63,13 @@ export function WorkspaceChampionDock({
   paperLaunchAvailable = false,
   onMessageChange,
   onSubmit,
+  onClearAttachedContext,
   onReviewPaperLaunch,
 }: WorkspaceChampionDockProps) {
   const assistantName = "Atlas"
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
+  const composerContext = attachedContext ?? viewedContext
 
   useEffect(() => {
     const handled = handledFocusRequests.current[championId] ?? 0
@@ -196,12 +201,41 @@ export function WorkspaceChampionDock({
 
         <CardFooter>
           <form onSubmit={submit} className="w-full space-y-3">
+            {attachedContext ? (
+              <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
+                <Pencil aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[0.6875rem] font-medium uppercase tracking-wide text-muted-foreground">
+                    Selected
+                  </p>
+                  <p className="truncate text-sm font-medium">{attachedContext}</p>
+                </div>
+                {onClearAttachedContext ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Remove ${attachedContext} from conversation`}
+                    onClick={() => {
+                      onClearAttachedContext()
+                      inputRef.current?.focus()
+                    }}
+                  >
+                    <X />
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
             <Textarea
               ref={inputRef}
               value={message}
               onChange={(event) => onMessageChange(event.target.value)}
-              aria-label={`Message ${assistantName} about ${viewedContext}`}
-              placeholder={contextualPlaceholder(viewedContext)}
+              aria-label={`Message ${assistantName} about ${composerContext}`}
+              placeholder={
+                attachedContext
+                  ? "Tell Atlas how this should change…"
+                  : contextualPlaceholder(viewedContext)
+              }
               rows={4}
             />
             <div className="flex items-center justify-between gap-3">

@@ -1,27 +1,16 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
 import { Play } from "lucide-react"
 
 import { StrategyDocument } from "@/components/domain/strategy/strategy-document"
 import { StrategySummary } from "@/components/domain/strategy/strategy-summary"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { RuleEditor } from "./rule-editor"
 import type { WorkspaceAuthorityOperation } from "./workspace-demo-authority"
 import type {
-  ConfirmedDraftRulePatch,
-  DraftRuleChangeProposal,
   WorkspaceDraftFixture,
   WorkspaceEvaluationFixture,
 } from "./workspace-fixtures"
@@ -39,15 +28,10 @@ export type DraftStrategyWorkspaceProps = {
   draftLabel: string
   checkpoint: string
   evaluationComplete: boolean
-  confirmedRulePatch: ConfirmedDraftRulePatch | null
   authorityOperation: WorkspaceAuthorityOperation
-  authorityError: string | null
   activeTab: DraftSurfaceTab
-  selectedRuleId: string
-  selectedDecision: DraftDecisionSelection
   onRunEvaluation: () => void
   onActiveTabChange: (tab: DraftSurfaceTab) => void
-  onApplyRuleChange: (proposal: DraftRuleChangeProposal) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
   onSelectedDecisionChange: (selection: DraftDecisionSelection) => void
@@ -59,39 +43,25 @@ export function DraftStrategyWorkspace({
   draftLabel,
   checkpoint,
   evaluationComplete,
-  confirmedRulePatch,
   authorityOperation,
-  authorityError,
   activeTab,
-  selectedRuleId,
-  selectedDecision,
   onRunEvaluation,
   onActiveTabChange,
-  onApplyRuleChange,
   onAskAbout,
   onSelectedRuleChange,
   onSelectedDecisionChange,
 }: DraftStrategyWorkspaceProps) {
-  const editorRef = useRef<HTMLTextAreaElement>(null)
-  const [editorOpen, setEditorOpen] = useState(false)
-  const selectedRule = useMemo(
-    () => draft.rules.find((rule) => rule.id === selectedRuleId) ?? draft.rules[0]!,
-    [draft.rules, selectedRuleId]
-  )
   const currentEvaluation =
     evaluationComplete && evaluation?.checkpoint === checkpoint ? evaluation : null
-  const linkedDecisions =
-    currentEvaluation?.decisions.filter((decision) =>
-      decision.ruleIds.includes(selectedRule.id)
-    ) ?? []
-  const selectedDecisionId =
-    selectedDecision?.checkpoint === checkpoint ? selectedDecision.id : null
   const evaluationPending = authorityOperation === "evaluating"
 
   function editRule(ruleId: string) {
+    const rule = draft.rules.find((candidate) => candidate.id === ruleId)
+    if (!rule) return
+
     onSelectedRuleChange(ruleId)
     onSelectedDecisionChange(null)
-    setEditorOpen(true)
+    onAskAbout(`${rule.group} · ${rule.name}`)
   }
 
   return (
@@ -152,38 +122,6 @@ export function DraftStrategyWorkspace({
           </div>
         </ScrollArea>
       </Tabs>
-
-      <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit {selectedRule.group}</DialogTitle>
-            <DialogDescription>
-              Proposed changes are validated by the server before the Draft updates.
-            </DialogDescription>
-          </DialogHeader>
-          <RuleEditor
-            key={`${selectedRule.id}:${checkpoint}`}
-            rule={selectedRule}
-            draftLabel={draftLabel}
-            checkpoint={checkpoint}
-            editorRef={editorRef}
-            confirmedPatch={confirmedRulePatch}
-            decisionCheckpoint={currentEvaluation?.checkpoint ?? null}
-            linkedDecisions={linkedDecisions}
-            selectedDecisionId={selectedDecisionId}
-            authorityOperation={authorityOperation}
-            authorityError={authorityError}
-            onApply={onApplyRuleChange}
-            onSelectDecision={(decisionId) =>
-              onSelectedDecisionChange({ checkpoint, id: decisionId })
-            }
-            onDiscuss={() => {
-              setEditorOpen(false)
-              onAskAbout(`${selectedRule.group} · ${selectedRule.name}`)
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

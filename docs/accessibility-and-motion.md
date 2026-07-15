@@ -15,6 +15,7 @@ This document defines interaction and presentation requirements. It does not rep
 - Use native HTML semantics before ARIA.
 - Preserve stock shadcn/Radix keyboard and accessibility behavior when composing domain components.
 - Expose Draft, Paper, Live, version, checkpoint, operational state, freshness, and authority through text.
+- Treat compact environment status dots as decorative reinforcement only. Their adjacent sub-copy and the control's complete accessible name expose entity existence, lifecycle, and connectivity without color.
 - Keep DOM reading order aligned with the meaningful visual order.
 - Meet 4.5:1 text contrast and 3:1 large-text and non-text UI contrast where WCAG applies.
 - Provide a visible focus indicator with sufficient contrast and area.
@@ -28,7 +29,7 @@ The minimum usable viewport, unsupported widths, panel-collapse behavior, and an
 Regardless of width:
 
 - Source context and Draft mutation target remain discoverable near conversation.
-- Collapsing chat or notifications does not remove their status or unread state from the accessibility tree without an alternative control.
+- The conversation dock remains present; collapsing notifications or secondary detail does not remove their status or unread state from the accessibility tree without an alternative control.
 - Financially consequential actions remain reachable without horizontal page scanning.
 - Zoom to 200% and browser text resizing do not obscure confirmation consequences or focus.
 - Reflow and 400% zoom are tested against the declared supported viewport contract; any exception is explicitly documented.
@@ -38,7 +39,7 @@ Regardless of width:
 Each workspace exposes:
 
 - A skip link to the active workspace content.
-- A skip link to the conversation when it is persistently visible.
+- A skip link to the persistently visible conversation dock.
 - One page-level heading naming the Champion and active context.
 - Distinct navigation, main, complementary conversation, and notification regions where those regions exist.
 - A programmatic status summary containing `Draft Vn`, `Paper running Vn`, or `Live running Vn` as applicable.
@@ -51,17 +52,20 @@ Follow the relevant WAI-ARIA pattern only when a native control cannot express t
 
 | Surface | Required behavior |
 |---|---|
-| Draft/Paper/Live switcher | Implement as navigation or tabs consistently; arrow-key behavior only when it is a true tablist |
-| Champion switcher | Searchable keyboard list with an accessible name, current selection, and deterministic focus return |
+| Draft/Paper/Live switcher | Implement as navigation or tabs consistently; arrow-key behavior only when it is a true tablist; preserve visible and programmatic status text when the rail becomes compact |
+| Champion switcher | Searchable keyboard list with an accessible name and current selection; after switching, announce the new Champion and restored environment, then move focus deterministically without exposing prior-Champion controls under the new identity |
 | Strategy sections | Logical document order; edit controls follow the content they affect |
+| Draft iteration loop | Test, move among rules, edit, discuss, and switch Draft/Paper/Live without pointer input; visible hints and the command palette disclose shortcuts |
 | Conversation | Composer reachable without traversing every message; history and composer have separate names |
 | Virtualized histories | Keyboard traversal loads or scrolls the target item without losing the focused logical record |
 | Charts | Keyboard-accessible range and series controls plus a direct path to the textual equivalent |
-| Dialogs and sheets | Initial focus on context or the safest action, trapped while modal, restored to the opener on close |
+| Dialogs and sheets | Reserved for bounded non-chat tasks; initial focus on context or the safest action, trapped while modal, restored to the opener on close |
 | Paper launch and Live promotion review | Review content precedes confirmation; cancel remains easy to reach; no Enter-key surprise submission |
 | Emergency controls | Separate focusable controls for pausing executions and cancelling eligible orders, each with scoped confirmation |
 
 Do not introduce global shortcuts that override browser or assistive-technology conventions. Any product shortcut must be documented, discoverable, remappable where appropriate, and inactive while typing.
+
+The initial desktop shortcut proposal uses `Command/Control+Enter` for Test, `Command/Control+K` for the palette, `J/K` for rule traversal, `E` to edit the selected rule, `D` to discuss it, and `1/2/3` for Draft/Paper/Live. P-001 and keyboard usability testing must accept the final map before production use; the behavioral requirement is accepted even if individual bindings change.
 
 ## Focus Management
 
@@ -87,6 +91,7 @@ Focus is an application state with explicit transitions, not a side effect of re
 
 - Appending a message, run, or order does not steal focus or force scroll.
 - Auto-scroll conversation only when the user is already at the end; otherwise expose a `New messages` control.
+- Domain selection updates the dock's attached context without moving focus; `Discuss`, `Explain`, or `Improve in Draft` may move focus to the composer only after explicit activation.
 - Removing a focused item moves focus to a predictable adjacent item or collection heading.
 
 ## Live Regions and Dynamic Updates

@@ -50,6 +50,11 @@ Changes to an accepted decision must update this ledger and every affected journ
 | D-031 | Phase the simulator with the product vertical slices | Accepted | Frontend + Performance | 2026-07-14 |
 | D-032 | Center domain work and evidence rather than the chat transcript | Accepted | Product + Design + Frontend | 2026-07-14 |
 | D-033 | Use specialized chart engines behind separate semantic boundaries | Accepted | Frontend + Data Visualization | 2026-07-14 |
+| D-034 | Use an operational workbench shell after the empty-Draft state | Accepted | Product + Design + Frontend | 2026-07-14 |
+| D-035 | Make the edit-test-compare-launch loop a permanent workspace circuit | Accepted | Product + Design + Frontend | 2026-07-14 |
+| D-036 | Present Vantheon as an evidence-led research instrument | Accepted | Product + Design + Data Visualization | 2026-07-14 |
+| D-037 | Keep Champion conversation persistently visible and docked | Accepted | Product + Design + Frontend | 2026-07-14 |
+| D-038 | Make Champion selection the parent workspace context | Accepted | Product + Frontend | 2026-07-14 |
 
 ## Proposed Decisions
 
@@ -516,7 +521,7 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 
 **Reasoning:** Users trust financial software by seeing what exists, what changed, what is running, what evidence supports it, and what remains pending. Chat is best at intent and explanation; structured artifacts and event-linked evidence are best at comprehension, iteration, and auditability.
 
-**Consequences:** The primary surface receives spatial, focus, loading, and navigation priority. Conversation may collapse without hiding current work or stopping the Champion. Progress, semantic changes, evaluations, eligibility, runs, and outcomes remain inspectable outside the transcript. Selecting a reference in conversation opens or focuses the corresponding domain object; invoking the Champion from an object attaches that exact context. Chat is never a top-level product destination or the only work queue, status display, approval surface, or audit trail.
+**Consequences:** The primary surface receives spatial, focus, loading, and navigation priority. Conversation remains visible in its persistent dock under D-037, while progress, semantic changes, evaluations, eligibility, runs, and outcomes remain independently inspectable outside the transcript. Selecting a reference in conversation opens or focuses the corresponding domain object; invoking the Champion from an object attaches that exact context. Chat is never a top-level product destination or the only work queue, status display, approval surface, or audit trail.
 
 **Revisit when:** Never for the separation between conversational presentation and authoritative domain state; layout emphasis may change after measured usability evidence.
 
@@ -533,3 +538,87 @@ Proposed decisions are tracked here rather than scattered as anonymous `unresolv
 **Consequences:** Feature screens do not import chart engines directly. Lightweight Charts receives imperative, animation-frame-conflated updates from the external telemetry store; Visx receives query-backed or deliberately bounded derived data. Both use the same normalized source as their textual summary and accessible equivalent. Production builds track engine-chunk cost and representative browser timing; numeric gates follow D-018 rather than package-count intuition. See `docs/charting-architecture.md`.
 
 **Revisit when:** Representative production builds show unacceptable route cost, an engine cannot satisfy a required interaction or accessibility contract, or measured rendering violates the accepted responsiveness baseline.
+
+## D-034 — Use an operational workbench shell after the empty-Draft state
+
+**Status:** Accepted
+
+**Context:** A centered onboarding card can shorten an empty-state journey, but it makes an established Draft or portfolio feel like a tutorial. Users return to inspect strategy logic, money, risk, runs, and variables that may require a change. Those objects must remain visible without expanding summaries or rereading explanatory prose.
+
+**Decision:** Once a structured Draft exists, use a desktop workbench composed of a persistent environment navigator, a fluid primary workbench, a contextual inspector, a test/run output tray, and a persistently visible Champion conversation dock. Draft shows its structured strategy by default. Paper shows financial and operational facts before explanation. Live shows capital, risk, pending actions, and controls before conversation. The dock remains spatially secondary to the primary workbench and tracks the selected rule, metric, run, order, position, or outcome without covering it.
+
+**Reasoning:** This maps the iterative application-development workflow to financial work: navigate environments, inspect the artifact, run evidence, diagnose output, change the current Draft, and deliberately promote a frozen version. It keeps the product legible without relying on transcript prose and makes the current source, evidence, and money state immediately inspectable beside conversation.
+
+**Consequences:** Empty-Draft onboarding is a temporary state, not the application shell. Strategy rules are never hidden behind a summary disclosure once they exist. A newly launched Paper portfolio immediately shows truthful zero-state value, P&L, cash, exposure, drawdown, position, order, freshness, and next-run facts. Explanatory prose moves to contextual detail or consequential review surfaces. Paper and Live remain navigable when empty through compact readiness states rather than disabled top-level navigation.
+
+**Revisit when:** Measured usability shows a different shell produces faster evidence-led iteration without weakening strategy, portfolio, risk, version, or authority comprehension.
+
+## D-035 — Make the edit-test-compare-launch loop a permanent workspace circuit
+
+**Status:** Accepted
+
+**Context:** Placing editing, testing, history, evidence, and launch in separate tabs, corners, or conversation flows forces users to remember prior results and repeatedly reconstruct the same hypothesis. Replacing `Test` with `Launch` after one successful Evaluation also removes the loop from the next Draft generation.
+
+**Decision:** Draft keeps one visible circuit: current checkpoint and untested-change state → permanent `Test Draft Vn` action → eligibility → optional `Launch Draft Vn to Paper`. Launch appears beside Test and never replaces it. Direct rule editing produces a reviewed, server-validated semantic proposal and authoritative checkpoint; it does not require a conversation round-trip. An evidence ledger retains Evaluation assumptions, checkpoint identity, baseline, current result, and neutral deltas. Rule evidence and decisions carry typed references in both directions. The core loop is keyboard operable, with shortcuts inactive while the user is typing and documented through visible hints and the command palette.
+
+**Reasoning:** The primary product metric is the cost of changing one meaningful variable and learning whether behavior improved under comparable conditions. Keeping cause, evidence, baseline, and next action in one circuit removes navigation and memory as hidden dependencies without weakening server authority.
+
+**Consequences:** Strategy, test output, and baseline comparison remain simultaneously inspectable. The sticky output tray names the collection `Dry Runs`; `Test Draft` creates and opens a dedicated Dry Run page, and each completed run remains reopenable with distinct Summary and Activity views. Experiments and History may provide depth, but they cannot be required peer tabs for one normal iteration. Every Evaluation identifies the exact checkpoint tested and keeps its window, benchmark, capital, cutoff, assumptions, limitations, condition results, and data provenance visible. Verified activity is structured evidence rather than raw model reasoning or internal file reads. `Test` remains available for Draft Vn+1 after any Paper launch. `Improve in Draft` carries the selected Paper or Live run/decision context into the current Draft rather than performing bare navigation.
+
+**Revisit when:** Instrumented sessions show another interaction model lowers outcome-to-tested-change time while preserving baseline comprehension, provenance, accessibility, and authority.
+
+## D-036 — Present Vantheon as an evidence-led research instrument
+
+**Status:** Accepted
+
+**Context:** “Value first” can drift into broker or exchange conventions—hero price charts, KPI walls, tick flashing, ambient red/green, and urgency—even when the product's job is deliberate strategy research. Avoiding exchange styling can also overcorrect into a chat application that hides the artifact and evidence inside prose.
+
+**Decision:** Vantheon presents as a research instrument: part lab notebook, part version-control client, and part observability tool. Every financial visualization exists to explain strategy behavior and links to its runs or decisions. Visual cadence matches strategy cadence; sparse weekly evidence is not rendered as a continuous intraday feed. Visual weight, sparklines, benchmark overlays, rankings, and verdict color are earned by sufficient evidence and the D-030 validity envelope. Directional delta glyphs use neutral ink; semantic color is reserved for validated verdicts and safety states. Conversation stays persistently visible in the secondary dock defined by D-037, while the complete edit-test-compare-launch loop remains materialized in domain surfaces and does not require a conversational round-trip.
+
+**Reasoning:** The product should help users understand what a strategy did, why, under which assumptions, and whether a deliberate change improved the evidence. Exchange attention mechanics and transcript-first interaction both obscure that job.
+
+**Consequences:** No naked price charts, fake continuous curves, ambient market widgets, KPI-tile walls, ticker cadence, streaks, leaderboards, or urgency mechanics. Market data appears only when it explains a strategy decision; a widget that still makes sense after removing the strategy does not belong in the Champion workspace. Empty charts state when evidence will arrive rather than manufacturing a benchmark contest. Champion transcripts remain provenance, not navigation or the home surface.
+
+**Revisit when:** A new product surface has a different primary job; the Champion strategy-development workspace remains governed by this identity.
+
+## D-037 — Keep Champion conversation persistently visible and docked
+
+**Status:** Accepted
+
+**Context:** Conversation is essential to directing and understanding a Champion, but hiding it behind a trigger interrupts continuity and makes context feel temporary. Making it an overlay, sheet, or modal would cover the strategy or evidence it is meant to discuss and would recreate a chat-first application whenever opened.
+
+**Decision:** Champion conversation is an always-visible, persistent docked region of the workspace at every supported viewport. It is never presented as an overlay, sheet, modal, transient drawer, or separate top-level destination. The primary strategy, evidence, Paper, or Live surface retains the majority of usable workspace and first-focus priority. The dock continuously exposes the viewed domain context and the current Draft mutation target. Selecting a domain object updates the dock's attached context; selecting a typed reference in conversation focuses the canonical object in the primary surface.
+
+**Reasoning:** Persistent adjacency lets users discuss the exact artifact or evidence in view without losing either side. Keeping the dock secondary preserves Vantheon's research-instrument identity: conversation is continuously available, but structured strategy, evidence, and capital state remain the substance.
+
+**Consequences:** There is no open/close interaction for Champion conversation in the supported workspace. Responsive layouts must reserve space for both the primary domain surface and the dock; a width that cannot do so safely is not converted into an overlay and must be handled by the viewport-support decision. Conversation history may be virtualized and the dock may be resized within accepted bounds, but its composer, context, connection state, and latest relevant exchange remain present. Direct editing, testing, comparison, and launch continue to produce authoritative domain objects outside the transcript, so persistent visibility does not make chat the source of truth.
+
+**Revisit when:** Measured usability demonstrates that another always-available, non-obscuring layout preserves domain priority, correlation, and continuous conversation better; never to make conversation an overlay over consequential evidence or controls.
+
+## D-038 — Make Champion selection the parent workspace context
+
+**Status:** Accepted
+
+**Context:** Draft, Paper, Live, conversation, and selected evidence are meaningful only within one Champion. Switching only the visible strategy or only the conversation would create identity ambiguity and could attach an instruction or domain reference to the wrong Draft.
+
+**Decision:** Champion selection is the shell-level parent above Draft, Paper, and Live. Selecting another Champion atomically changes the visible Champion identity, conversation/thread, environment navigation, active Draft/Paper/Live context, mutation target, and attached domain references to that Champion's workspace. Each Champion preserves its last active environment, nested selection, conversation position, and eligible warm-cache state for restoration on return. No mutation target, composer attachment, selected domain reference, pending local interaction, or optimistic projection may cross a Champion boundary.
+
+**Reasoning:** A single parent identity makes the scope of every read, message, command, and financial fact predictable. Restoring a Champion's own workspace state provides fast switching without trading away provenance or safety.
+
+**Consequences:** Routes, query keys, local-selection keys, recovery records, stream subscriptions, and command preconditions carry stable Champion identity. A switch clears or namespaces transient composer and selection state before enabling submission, then restores only state owned by the selected Champion. Warm caches accelerate return but do not prove authorization or permit data from the previous Champion to flash in the new shell. Cold selection renders the new identity and loading/freshness state before deeper content; it never leaves the previous Champion's strategy or conversation interactive beneath the new label.
+
+**Revisit when:** A deliberate multi-Champion comparison or shared-workspace feature defines an explicit multi-identity scope, authority model, and mutation target; ordinary Champion work remains single-parent scoped.
+
+## D-039 — Use compact semantic status dots in the environment navigator
+
+**Status:** Accepted
+
+**Context:** The Draft/Paper/Live navigator must reveal whether an environment exists and whether a portfolio is operating without spending rail width on repeated badges. Copy such as `Not connected` is unsafe for an empty Live destination because it conflates entity absence with a connection failure on an existing portfolio.
+
+**Decision:** Each environment row pairs its title with a small decorative status dot and persistent secondary status text. The typed row contract distinguishes Draft working/tested state, no portfolio, running portfolio, and an existing but disconnected portfolio. Selection remains a separate border/background treatment with `aria-current`; the dot never represents selection. Empty Paper reads `No portfolios`, empty Live reads `No live portfolio`, and an existing disconnected portfolio retains its entity identity and reports `Disconnected` with freshness when known.
+
+**Reasoning:** The dot supports rapid scanning in very little space, while explicit text preserves financial meaning, accessibility, and lifecycle precision. A semantic API lets future visual customization change the dot treatment without changing feature callers or weakening the status vocabulary.
+
+**Consequences:** Dots are `aria-hidden` and color only reinforces the visible words. Draft is neutral because tested/untested is not a good/bad verdict; confirmed running state may use operational green; empty state uses a neutral hollow mark; attention color is reserved for a real degraded or disconnected state. Paper counts exclude Archived portfolios unless a collection count is explicitly labeled. Compact navigation retains a textual status line and a complete accessible name.
+
+**Revisit when:** Measured scanning or accessibility testing favors another equally compact treatment that preserves typed lifecycle distinctions and visible non-color status text.

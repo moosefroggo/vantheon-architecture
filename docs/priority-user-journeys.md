@@ -17,7 +17,7 @@ Every proposed feature must identify which journey step it improves, which measu
 
 - The Champion is the persistent collaborator across Draft, Paper, and Live.
 - The structured strategy, evidence, and operational surfaces are primary; conversation expresses intent, explains, and preserves provenance.
-- Champion work remains visible as correlated activity and domain results when conversation is collapsed. No journey depends on rereading a transcript to discover what happened.
+- Champion conversation remains visible in its secondary dock, while Champion work also materializes as correlated activity and canonical domain results. No journey depends on rereading a transcript to discover what happened.
 - The next meaningful action is visible in context. Users should not need to understand the entity graph before receiving value.
 - Assumptions, data cutoffs, strategy changes, and test conditions are visible before evidence is presented as meaningful.
 - Paper and Live remain pinned to immutable strategies. New strategy work—whether initiated through conversation or a domain action—targets the current Draft.

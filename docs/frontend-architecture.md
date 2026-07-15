@@ -18,7 +18,7 @@ The architecture therefore optimizes for a persistent Champion workspace, explic
 > Reads arrive as snapshots, queries, and ordered patches. Writes leave the client as typed commands. Only an authoritative server patch changes business truth.
 
 - The structured strategy is canonical; conversation is intent and provenance.
-- Domain surfaces and correlated activity remain complete without the conversation panel; chat never owns work status or result state.
+- Conversation remains persistently docked, while domain surfaces and correlated activity remain independently complete; chat never owns work status or result state.
 - Draft is mutable and revisioned. Paper and Live strategies are immutable.
 - Zustand helps render reality; it does not define financial or strategy reality.
 - A streamed model response, successful HTTP status, or optimistic animation is not proof that a command was applied.
@@ -55,7 +55,7 @@ flowchart LR
     X["External live-data store"]
     IDB["IndexedDB recovery queue"]
     CMD["Typed command client"]
-    CHAT["Complementary conversation stream"]
+    CHAT["Persistent docked conversation stream"]
     WS["Market, portfolio, and Champion WebSocket"]
     HTTP["HTTP snapshots and queries"]
 
@@ -82,13 +82,13 @@ Conversation, Champion activity, and the active domain surface are separate proj
 
 - A stable correlation graph links message or direct action → intent → activity → command/change set or Evaluation → checkpoint/run/outcome.
 - The conversation stream owns provisional tokens and message presentation only. It does not own whether research is running, a command applied, an Evaluation completed, or a portfolio changed.
-- Champion activity and domain status arrive through server read models and ordered events, so they remain visible when conversation is collapsed, virtualized, disconnected, or loading history.
+- Champion activity and domain status arrive through server read models and ordered events, so they remain visible while conversation history is virtualized, disconnected, or loading.
 - Structured message parts contain typed domain references. A reference resolver opens or focuses the canonical Draft section, Evaluation, run, Decision, comparison, eligibility assessment, or deployment review.
 - Domain actions such as `Explain`, `Ask Champion`, and `Improve in Draft` attach the selected object identity, immutable source, data cutoff, and viewed context to the composer.
 - Full semantic diffs, results, charts, positions, orders, and approvals render in domain surfaces. Conversation may show a concise preview, status, and link, but does not maintain a second authoritative copy.
-- Closing or unmounting the conversation subtree never cancels accepted server work. Cancellation uses an explicit domain command with its own status and permission.
+- Reloading or reconnecting the conversation stream never cancels accepted server work. Cancellation uses an explicit domain command with its own status and permission. The dock itself remains mounted and visible throughout supported workspace navigation.
 
-Selection and highlight state may live locally, but the referenced object and its lifecycle remain server-owned. Tests must exercise the same work with conversation expanded, collapsed, reloaded, and temporarily unavailable.
+Selection and highlight state may live locally, but the referenced object and its lifecycle remain server-owned. Tests must exercise the same work with the persistent dock connected, loading history, reloaded, and temporarily unavailable; no test layout substitutes an overlay or closed state.
 
 ## State Ownership
 
@@ -203,7 +203,7 @@ Correlation identifiers connect a message, intent, command/change set, checkpoin
 
 ## Persistent Workspace and Cache Tiers
 
-The Next.js layout keeps Champion identity, workspace navigation, conversation, transport providers, and caches alive while the center surface changes.
+The Next.js shell makes selected Champion identity the parent of workspace navigation, conversation, Draft/Paper/Live context, and domain references. Its persistent providers and caches stay alive while the center surface changes, but every workspace projection is Champion-scoped.
 
 | Tier | Contents | Goal |
 |---|---|---|
@@ -213,6 +213,11 @@ The Next.js layout keeps Champion identity, workspace navigation, conversation, 
 
 The warm count is a starting hypothesis, not a guarantee. Memory measurements determine the final policy.
 
+- A Champion switch commits one parent-context transition: identity, conversation/thread, last active environment, nested selection, mutation target, and attached references change together.
+- Namespace query keys, Zustand interaction slices, IndexedDB recovery entries, external-store subscriptions, chart state, and composer attachments by stable Champion identity.
+- Disable submission during the boundary transition until the selected Champion's mutation target and authorization are resolved. Never reuse the prior Champion's target as a loading placeholder.
+- Restore each Champion's last active environment and eligible local selections from its own warm state. If a referenced object is stale, missing, or unauthorized, render an explicit scoped state rather than falling back to another Champion's object.
+- Clear the previous Champion's transient optimistic projections from the visible shell before binding the new identity. Warm caches may seed last-known values only with that Champion's freshness and reconciliation status.
 - Prefetch likely destinations on explicit intent such as hover, focus, or visible recent items without subscribing every Champion at full resolution.
 - Reuse chart adapters and seed them from cached series rather than rebuilding the full workspace where measurement supports it.
 - Prioritize identity, state labels, last-known summary, and primary action on cold loads; stream deeper history progressively.

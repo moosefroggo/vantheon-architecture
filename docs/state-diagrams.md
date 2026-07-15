@@ -206,13 +206,13 @@ flowchart TD
 
 ## 7. Correlated Champion Work and Command Flow
 
-Conversation is one presentation of work, not its owner. The primary domain surface and activity projection remain current through authoritative events even when conversation is collapsed or unavailable.
+Conversation is one persistent presentation of work, not its owner. Its dock remains visible, while the primary domain surface and activity projection remain current through authoritative events if the conversation stream is loading, reconnecting, or unavailable.
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Surface as Primary domain surface
-    participant Conversation as Conversation panel
+    participant Conversation as Conversation dock
     participant Activity as Champion activity projection
     participant Server as Authoritative server
     participant Champion as Champion runtime
@@ -243,7 +243,7 @@ sequenceDiagram
     end
 ```
 
-The conversation panel may summarize and link to the result, but the result is independently present in the primary surface and activity history. If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
+The conversation dock may summarize and link to the result, but the result is independently present in the primary surface and activity history. If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
 
 ## 8. Portfolio Run Lifecycle
 
@@ -324,6 +324,8 @@ stateDiagram-v2
 ```
 
 Paper archive is deliberately two-step: an Active or Stopping portfolio cannot transition directly to Archived. Unarchive restores discoverability and historical inspection only; a separate explicit resume action is required before any future scheduled run.
+
+The navigation status must preserve both entity existence and the underlying lifecycle through connection loss. `No portfolio` is not a state in this machine because no entity exists yet. `Disconnected` applies only after a portfolio exists and overlays its last confirmed lifecycle; recovery reconciles that same portfolio rather than creating a new one. Compact dots may reinforce these states, but persistent text carries the canonical meaning.
 
 ## 10. Live Emergency Controls
 
@@ -527,6 +529,22 @@ flowchart LR
 
 The active tier receives full visible detail. A bounded set of recently visited Champions stays warm. All others retain only aggregates. Hidden React views must still clean up effects and subscriptions explicitly.
 
+Champion switching is a parent-context transition with a fail-closed interaction boundary:
+
+```mermaid
+stateDiagram-v2
+    [*] --> ChampionAActive
+    ChampionAActive --> Switching: Select Champion B
+    Switching --> BindBIdentity: Clear or namespace A transient state
+    BindBIdentity --> RestoreB: Bind B route, thread, and mutation scope
+    RestoreB --> ReconcileB: Restore B last environment and warm state
+    ReconcileB --> ChampionBActive: Authorization and target resolved
+    ReconcileB --> ChampionBDegraded: Stale, unavailable, or unauthorized reference
+    ChampionBDegraded --> ChampionBActive: Scoped recovery succeeds
+```
+
+While `Switching`, strategy-changing submission is disabled. Champion A's conversation, mutation target, selected objects, optimistic projections, and financial facts cannot appear as Champion B state. `RestoreB` can use only Champion B namespaced state; a missing item becomes an explicit scoped empty/error state rather than a cross-Champion fallback.
+
 ## Diagram Validation Scenarios
 
 The diagrams are internally consistent only if all of these statements remain true:
@@ -536,6 +554,7 @@ The diagrams are internally consistent only if all of these statements remain tr
 - A user can follow Paper V5 evidence into Draft V8 at checkpoint V8.4 and create checkpoint V8.5 without altering or branching V5.
 - A portfolio owns many runs; a run pins the exact deployment and immutable strategy active at its start.
 - No-trade completes a run with durable evidence and no fabricated order.
+- A Champion switch restores only the selected Champion's conversation, last environment, mutation target, and domain references; no prior-Champion interaction state leaks across the boundary.
 - An order may complete after its originating run, and cancellation remains pending until authoritative confirmation.
 - Pausing future executions does not imply that open orders were cancelled, and cancelling orders does not pause future runs.
 - Failed Live activation leaves the previous Live deployment in control.

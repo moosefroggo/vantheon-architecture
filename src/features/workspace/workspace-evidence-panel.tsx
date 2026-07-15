@@ -40,6 +40,7 @@ import type {
 type WorkspaceEvidencePanelProps = {
   checkpoint: string
   evaluation: WorkspaceEvaluationFixture | null
+  evaluations: readonly WorkspaceEvaluationFixture[]
   baseline: WorkspaceEvaluationBaselineFixture
   template: WorkspaceEvaluationTemplate
   authorityError: string | null
@@ -49,13 +50,15 @@ type WorkspaceEvidencePanelProps = {
   onExpandedChange: (expanded: boolean) => void
   forkPending: boolean
   onForkCheckpoint: (checkpoint: string) => void
+  onOpenDryRun: (dryRunId: string) => void
 }
 
-export type WorkspaceEvidenceTab = "problems" | "tests" | "checkpoints" | "data"
+export type WorkspaceEvidenceTab = "problems" | "dry-runs" | "checkpoints" | "data"
 
 export function WorkspaceEvidencePanel({
   checkpoint,
   evaluation,
+  evaluations,
   baseline,
   template,
   authorityError,
@@ -65,6 +68,7 @@ export function WorkspaceEvidencePanel({
   onExpandedChange,
   forkPending,
   onForkCheckpoint,
+  onOpenDryRun,
 }: WorkspaceEvidencePanelProps) {
   const [openedCheckpoint, setOpenedCheckpoint] = useState<string | null>(null)
   const [forkCandidate, setForkCandidate] = useState<string | null>(null)
@@ -84,8 +88,8 @@ export function WorkspaceEvidencePanel({
           <TabsTrigger value="problems" onClick={() => onExpandedChange(true)}>
             Problems
           </TabsTrigger>
-          <TabsTrigger value="tests" onClick={() => onExpandedChange(true)}>
-            Tests
+          <TabsTrigger value="dry-runs" onClick={() => onExpandedChange(true)}>
+            Dry Runs{evaluations.length ? ` (${evaluations.length})` : ""}
           </TabsTrigger>
           <TabsTrigger value="checkpoints" onClick={() => onExpandedChange(true)}>
             Checkpoints
@@ -137,32 +141,51 @@ export function WorkspaceEvidencePanel({
             )}
           </TabsContent>
 
-          <TabsContent value="tests">
+          <TabsContent value="dry-runs">
             <Card size="sm">
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Metric</TableHead>
-                      <TableHead>{checkpoint}</TableHead>
-                      <TableHead>{baseline.checkpoint}</TableHead>
-                      <TableHead>Delta</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(current?.metrics ?? template.metrics).map((metric) => (
-                      <TableRow key={metric.id}>
-                        <TableCell className="font-medium">{metric.label}</TableCell>
-                        <TableCell>{current ? metric.value : "—"}</TableCell>
-                        <TableCell>
-                          {baseline.metrics.find((item) => item.id === metric.id)?.value ??
-                            "—"}
-                        </TableCell>
-                        <TableCell>{current ? metric.delta.value : "—"}</TableCell>
+                {evaluations.length ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Run</TableHead>
+                        <TableHead>Source</TableHead>
+                        <TableHead>Outcome</TableHead>
+                        <TableHead>Completed</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {[...evaluations].reverse().map((run) => (
+                        <TableRow key={run.id}>
+                          <TableCell className="font-medium">{run.label}</TableCell>
+                          <TableCell>Draft · {run.checkpoint}</TableCell>
+                          <TableCell>{run.eligibility.label}</TableCell>
+                          <TableCell>{run.completedAt}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onOpenDryRun(run.id)}
+                            >
+                              Open
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="flex items-center justify-between gap-4 py-2">
+                    <div>
+                      <p className="text-sm font-medium">No Dry Runs yet</p>
+                      <p className="text-xs text-muted-foreground">
+                        Test the current Draft to create the first run.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

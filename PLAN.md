@@ -53,12 +53,15 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 ## Information Architecture
 
 - Persistent Champion shell:
-  - Champion identity and status.
+  - Champion selector as the parent context, with identity and status.
   - Draft/Paper/Live switcher with `Developing` and `Running` state labels.
-  - Persistent contextual conversation.
+  - Desktop workbench organized as environment navigator, primary workbench, contextual inspector, and test/run output tray.
+  - Persistently visible Champion conversation dock, spatially secondary to the primary workbench and continuously correlated with the selected rule, metric, run, order, position, or outcome.
   - Visible viewed-context and Draft-mutation-target labels near the conversation composer.
   - Current Champion activity and notifications.
-  - Collapsible conversation and notification panels for data-dense workspaces.
+  - Conversation remains docked and visible at every supported viewport; notifications and secondary detail may collapse during data-dense work.
+  - Switching Champions atomically switches identity, conversation, Draft/Paper/Live environment, mutation target, and attached references while preserving each Champion's own last active workspace state and warm cache.
+  - No composer attachment, selection, pending interaction, or optimistic projection crosses a Champion boundary.
 - Draft:
   - Strategy as the default creation surface.
   - Inline semantic change review and immediate testing.
@@ -66,7 +69,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
   - Restorable checkpoint history.
   - Advanced data configuration kept secondary.
 - Paper:
-  - Overview centered on evidence and Champion assessment.
+  - Overview centered first on portfolio value, P&L, buying power, exposure, drawdown, freshness, next run, and operational evidence.
   - First-class comparison across Paper V5/V6/V7.
   - Runs before lower-level positions and orders.
   - Read-only frozen strategy with exact source checkpoint.
@@ -141,7 +144,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 ## Accessibility, Motion, and Interaction Safety
 
 - Target WCAG 2.2 AA for the supported demo viewport and document any known exceptions with an owner and revisit trigger.
-- Define keyboard navigation and focus restoration across the persistent shell, Draft/Paper/Live switches, collapsible panels, dialogs, chat, virtualized histories, and React `Activity`-preserved views.
+- Define keyboard navigation and focus movement across the persistent shell, Draft/Paper/Live switches, the always-visible conversation dock, collapsible secondary panels, dialogs, virtualized histories, and React `Activity`-preserved views.
 - Batch and prioritize assistive-technology announcements so high-frequency prices and portfolio changes do not flood live regions. Connection loss, risk changes, command outcomes, and required user action receive distinct announcement treatment.
 - Provide a synchronized textual summary or accessible data table for information otherwise available only through canvas-based charts.
 - Preserve meaningful collection semantics for virtualized tables and histories, including total-size and position information where supported.
@@ -156,6 +159,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 - Maintain visual-regression coverage for domain surfaces carrying financial meaning, focus treatment, responsive behavior, reduced-motion alternatives, degradation, and error states.
 - Test keyboard-only completion of onboarding to Paper and the rigorous iteration loop.
 - Keep deterministic browser performance tests and protocol load tests as complementary layers rather than substitutes for functional, accessibility, security, or visual testing.
+- Pause for hands-on founder testing at the five accepted gates in `docs/development-testing.md`: onboarding to Paper, rigorous iteration, Live trust, live-data performance and recovery, and release-candidate journeys. Each handoff includes a runnable build, task-based script, fixture or scenario identity, known limitations, and explicit acceptance or requested changes before the next major slice.
 
 ## State and Data-Flow Diagrams
 

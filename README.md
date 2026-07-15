@@ -1,6 +1,6 @@
 # Vantheon Product and Frontend Architecture
 
-This repository is the architecture handbook for Vantheon's Champion workspace: an artifact- and evidence-centered environment where users direct a Champion, develop structured strategies, test them in Paper, iterate from outcomes, and deliberately promote Paper-tested strategies to Live capital. Conversation is important, but it is not the application shell or source of truth.
+This repository is the architecture handbook for Vantheon's Champion workspace: an artifact- and evidence-centered research instrument where users direct a Champion, develop structured strategies, test them in Paper, iterate from outcomes, and deliberately promote Paper-tested strategies to Live capital. It is part lab notebook, part version-control client, and part observability tool—not an exchange or chat application. Conversation stays continuously visible in a secondary dock beside the work, but it is not the application shell or source of truth.
 
 The handbook aligns product, design, and frontend engineering. It defines user journeys, information architecture, conceptual entities, client-state ownership, lifecycle behavior, accessibility, performance validation, and the reasoning behind accepted decisions. It intentionally stops short of prescribing production database schemas or exact backend payloads.
 
@@ -40,7 +40,9 @@ flowchart LR
 The essential invariants are:
 
 - A **Champion** is the persistent AI agent identity; its workspace and strategy lineage are related but distinct concepts.
+- Champion selection is the shell-level parent of Draft, Paper, Live, conversation, and domain context; switching restores that Champion's workspace without carrying mutation targets or references across identities.
 - The active strategy, evidence, run, comparison, or risk surface is primary. Conversation directs and explains work but never becomes its only representation.
+- After a structured Draft exists, the desktop shell uses an environment navigator, fluid workbench, contextual inspector, and test/run output tray; onboarding is an empty state rather than the permanent layout.
 - One current `Draft Vn` is mutable. Each accepted semantic Draft change set creates one restorable minor checkpoint such as V5.2, regardless of its authorized initiator.
 - Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft at checkpoint `Vn+1.0` as an exact content clone of the launched checkpoint.
 - Restoring an earlier checkpoint never rewinds history; after review and validation it creates the next checkpoint with the restored content.
@@ -67,7 +69,8 @@ Read in this order when joining the project or making a cross-cutting change:
 9. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
 10. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
 11. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
-12. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
+12. [Development Testing Checkpoints](docs/development-testing.md) — founder test gates for onboarding, iteration, Live safety, performance, and release readiness.
+13. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
 
 [PLAN.md](PLAN.md) is retained as planning history and a traceability checklist. It is not a normative source.
 
@@ -99,6 +102,27 @@ Resolve contradictions by updating all affected documents in the same change.
 - Stock shadcn primitives behind stable system and domain component boundaries.
 - Lightweight Charts for streaming financial series and Visx for bespoke analytical evidence, loaded separately behind semantic domain boundaries.
 - Deterministic backend simulation and real-browser event-to-paint measurement before speculative optimization.
+
+## Frontend development
+
+The production frontend lives at the repository root and follows the accepted `src/` boundaries in this handbook.
+
+```bash
+nvm use
+npm install
+npm run dev
+```
+
+Before committing implementation work, run:
+
+```bash
+npm run check
+npm run build
+```
+
+`npm run charts:check` enforces D-033 by keeping Lightweight Charts and Visx imports inside separate renderer leaf modules. Stock shadcn source lives in `src/components/ui`; feature code composes it through system and domain components rather than placing product behavior in generated primitives.
+
+At the five product checkpoints in `docs/development-testing.md`, development pauses for hands-on founder testing before the next major slice. Each handoff provides a runnable build, a short goal-based test script, deterministic fixture details, and the questions being validated.
 
 ## Scope
 

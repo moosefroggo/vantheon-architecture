@@ -10,6 +10,12 @@ Accepted as the product-level contract for information architecture, design, and
 
 Strategy and configuration changes may be reversible. Executed trades are not. The interface must never describe an executed financial action as if it can simply be undone.
 
+## Product Identity
+
+Vantheon is an **evidence-led research instrument**: part lab notebook, part version-control client, and part observability tool. It is not an exchange, broker dashboard, or general-purpose chat application.
+
+The center object is the strategy artifact and the evidence it produced. Every number traces to a run or declared Evaluation; every material change traces to an authoritative checkpoint; every verdict states its validity envelope. Conversation stays continuously visible in a secondary dock to express intent and interpret evidence, while the full edit → test → compare → launch loop remains materialized and operable in the domain workspace.
+
 ## Planning Priority
 
 Vantheon optimizes two journeys, in order:
@@ -29,7 +35,7 @@ A new user can describe an investment intent, receive a structured strategy, and
 
 Every material result can lead to an explanation, and every explanation can lead to a deliberate improvement proposal. Tests compare the proposal with a relevant baseline and disclose their conditions and limitations.
 
-The structured artifact and evidence remain the center of the experience. Conversation can initiate, explain, or connect work, but users can understand current progress, changes, results, and authority with the conversation panel collapsed.
+The structured artifact and evidence remain the center of the experience. Conversation is persistently docked beside them and can initiate, explain, or connect work, but users understand current progress, changes, results, and authority from canonical domain surfaces rather than relying on transcript prose.
 
 ### 3. Safe separation of development and deployment
 
@@ -164,6 +170,8 @@ Every Champion input is treated as untrusted data, including retrieved news, res
 
 Champion identity, conversation, and useful cached context persist across Draft, Paper, and Live. Every live or cached surface exposes freshness, connection, authorization, and reconciliation state when material.
 
+Champion selection sits above that persistent workspace. Switching Champions changes identity, conversation/thread, Draft/Paper/Live context, mutation target, and selected domain references as one scoped transition. Each Champion restores only its own last active environment and warm state; no pending interaction, composer attachment, optimistic projection, or domain reference crosses the identity boundary.
+
 ### Design for accessible comprehension
 
 Draft, Paper, Live, risk, freshness, and operational states use words and structure, not color or motion alone. Critical journeys target WCAG 2.2 AA, keyboard completion, reduced motion, and meaningful non-canvas chart equivalents.
@@ -232,6 +240,6 @@ Before approving a feature or interaction, answer:
 6. Does failure leave Draft, Paper, Live, and capital in an understandable state?
 7. Does it introduce a concept before the user needs it?
 8. Can it be tested with semantic, accessibility, operational, and performance states?
-9. If conversation is collapsed, can the user still see what is happening, what changed, what evidence exists, and what action is required?
+9. With conversation visible, can the user still identify the canonical work, what changed, what evidence exists, and what action is required without treating transcript prose as authority?
 
 If the answers are unclear, the work is not ready for implementation.

@@ -82,7 +82,8 @@ Contains stable product concepts assembled from shadcn primitives and system com
 Initial domain components should include:
 
 - `ChampionWorkspaceSwitcher`
-- `ContextualChampionPanel`
+- `WorkspaceEnvironmentNavigationItem`
+- `ChampionConversationDock`
 - `ChampionActivityTimeline`
 - `DomainObjectReference`
 - `WorkCorrelationStatus`
@@ -124,6 +125,8 @@ type ConversationContextTargetProps = {
 Feature code should not need to know whether this component currently renders a shadcn `Badge`, `Alert`, `Tooltip`, or a future custom visual treatment.
 
 `PaperLifecycleControls` owns the semantic presentation of `active`, `stopping`, `stopped`, and `archived` Paper states. It receives server-derived permissions and available actions; it does not infer them from button visibility or mutate portfolio state directly. Its contract preserves the separation between `stop`, `archive`, `unarchive`, and any future `resume` command. In particular, `unarchive` returns a portfolio to Stopped and must never be implemented as a resume shortcut.
+
+`WorkspaceEnvironmentNavigationItem` receives a typed status rather than arbitrary visual props or caller-authored sub-copy. Its initial contract distinguishes Draft tested/untested state, empty Paper/Live, running portfolios, and existing-but-disconnected portfolios. The component owns canonical compact copy and the decorative dot treatment; the caller supplies domain state, identity, selection, and navigation behavior. `aria-current` represents selection, while visible sub-copy represents lifecycle and connection state.
 
 ### `features`
 
@@ -216,6 +219,9 @@ Financial values must not be formatted ad hoc inside cards or tables. Use shared
 - Keep chart instances and renderers behind stable domain adapters so a later visual redesign does not change transport, caching, or subscription code.
 - Never import both engines through a barrel used by the persistent shell; load and prefetch engine chunks by chart family.
 - High-frequency updates must reach only subscribed cells or chart series; they must not rerender the entire workspace shell.
+- Do not compose generic KPI-tile walls. Portfolio overview components expose four primary outcome values; operational counts, freshness, schedule, and next run use a compact secondary strip or the domain surface they qualify.
+- Do not expose raw direction as ambient red/green semantics. Delta components remain neutral unless a validated domain verdict or safety state explicitly supplies meaning.
+- Chart domain components require run-, decision-, checkpoint-, or deployment-reference support where material; a visually attractive curve without an evidence path is not an accepted component.
 
 ## Conversation Components
 
@@ -231,7 +237,7 @@ Use shadcn primitives for the composer controls, menus, dialogs, scroll areas, a
 
 Conversation rendering must not directly apply strategy mutations. It renders server-authoritative command and patch states.
 
-Conversation components render compact previews and typed references, not full duplicate implementations of Draft sections, Evaluation results, run traces, portfolio tables, or approval flows. Activating a reference focuses the canonical domain component in the primary workspace. `ContextualChampionPanel` may collapse or unmount without cancelling work; `ChampionActivityTimeline` and the affected domain component continue to expose verified progress and results independently.
+Conversation components render compact previews and typed references, not full duplicate implementations of Draft sections, Evaluation results, run traces, portfolio tables, or approval flows. Activating a reference focuses the canonical domain component in the primary workspace. `ChampionConversationDock` remains mounted and visible throughout the supported workspace, exposes its connection and recovery state in place, and never renders through `Dialog`, `Sheet`, or another overlay primitive. `ChampionActivityTimeline` and the affected domain component continue to expose verified progress and results independently.
 
 ## Customization Path After the Demo
 
@@ -251,7 +257,7 @@ Avoid a broad rewrite. Each stage should be independently reviewable and covered
 - Add Playwright visual snapshots for the Draft, Paper, Live, run-detail, promotion, and emergency-control surfaces.
 - Test light and dark modes even while using stock shadcn tokens.
 - Audit actual stock token contrast, focus-obscuration behavior, and interactive target size before claiming WCAG 2.2 AA; do not assume library defaults establish conformance.
-- Verify narrow and wide layouts, including collapsed and expanded conversation panels.
+- Verify every supported narrow and wide layout with the conversation dock continuously visible, non-obscuring, and correlated to selection; no breakpoint may substitute a sheet, drawer, modal, or overlay.
 - Run the backend stress simulator while exercising domain components to ensure visual customization boundaries do not introduce broad rerenders.
 
 ## MVP Acceptance Criteria

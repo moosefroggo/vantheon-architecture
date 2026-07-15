@@ -50,6 +50,10 @@ import {
   type DraftDecisionSelection,
   type DraftSurfaceTab,
 } from "./draft-strategy-workspace"
+import {
+  DryRunWorkspace,
+  type DryRunTab,
+} from "./dry-run-workspace"
 import { EmptyEnvironmentWorkspace } from "./empty-environment-workspace"
 import {
   PaperPortfolioWorkspace,
@@ -110,6 +114,8 @@ type ChampionSessionState = {
     surface: DraftSurfaceTab
     ruleId: string
     decision: DraftDecisionSelection
+    dryRunId: string | null
+    dryRunTab: DryRunTab
   }
   paperSelection: {
     detailsTab: PaperDetailsTab
@@ -171,8 +177,11 @@ export function ChampionWorkspace() {
   const draftLabel = paperLaunched ? "Draft V2" : workspaceFixture.draft.label
   const checkpoint = draftState.checkpoint
   const currentEvaluation =
-    evaluations.find((evaluation) => evaluation.checkpoint === checkpoint) ?? null
+    evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
+  const selectedDryRun = draftSelection.dryRunId
+    ? evaluations.find((evaluation) => evaluation.id === draftSelection.dryRunId) ?? null
+    : null
   const evaluationComplete = currentEvaluation !== null
   const paperLaunchAvailable =
     !paperLaunched &&
@@ -230,7 +239,9 @@ export function ChampionWorkspace() {
 
   const defaultViewedContext =
     activeContext === "draft"
-      ? `${draftLabel} · ${titleCase(draftSelection.surface)}`
+      ? selectedDryRun
+        ? `${draftLabel} · ${selectedDryRun.label} · ${titleCase(draftSelection.dryRunTab)}`
+        : `${draftLabel} · ${titleCase(draftSelection.surface)}`
       : activeContext === "paper"
         ? paperLaunched
           ? selectedPaperRun
@@ -491,12 +502,16 @@ export function ChampionWorkspace() {
 
       updateChampionSession(sourceChampionId, (current) => ({
         ...current,
-        evaluations: [
-          ...current.evaluations.filter(
-            (evaluation) => evaluation.checkpoint !== result.checkpoint
-          ),
-          result,
-        ],
+        evaluations: [...current.evaluations, result],
+        draftSelection: {
+          ...current.draftSelection,
+          dryRunId: result.id,
+          dryRunTab: "summary",
+        },
+        conversation: {
+          ...current.conversation,
+          context: null,
+        },
       }))
     } catch (error) {
       setAuthorityError(sourceChampionId, authorityErrorMessage(error))
@@ -687,58 +702,98 @@ export function ChampionWorkspace() {
               className="min-h-0 min-w-0 flex-1 outline-none"
             >
               {activeContext === "draft" ? (
-                <DraftStrategyWorkspace
-                  draft={draftView}
-                  evaluation={currentEvaluation}
-                  draftLabel={draftLabel}
-                  checkpoint={checkpoint}
-                  evaluationComplete={evaluationComplete}
-                  confirmedRulePatch={draftState.confirmedPatch}
-                  authorityOperation={authorityOperation}
-                  authorityError={authorityError}
-                  activeTab={draftSelection.surface}
-                  selectedRuleId={draftSelection.ruleId}
-                  selectedDecision={draftSelection.decision}
-                  onRunEvaluation={runEvaluation}
-                  onActiveTabChange={(surface) =>
-                    updateChampionSession(championId, (current) => ({
-                      ...current,
-                      draftSelection: {
-                        ...current.draftSelection,
-                        surface,
-                      },
-                      conversation: {
-                        ...current.conversation,
-                        context: null,
-                      },
-                    }))
-                  }
-                  onApplyRuleChange={applyRuleChange}
-                  onAskAbout={(context) =>
-                    focusChampionConversation(
-                      championId,
-                      `${draftLabel} · ${context}`
-                    )
-                  }
-                  onSelectedRuleChange={(ruleId) =>
-                    updateChampionSession(championId, (current) => ({
-                      ...current,
-                      draftSelection: {
-                        ...current.draftSelection,
-                        ruleId,
-                      },
-                    }))
-                  }
-                  onSelectedDecisionChange={(decision) =>
-                    updateChampionSession(championId, (current) => ({
-                      ...current,
-                      draftSelection: {
-                        ...current.draftSelection,
-                        decision,
-                      },
-                    }))
-                  }
-                />
+                selectedDryRun ? (
+                  <DryRunWorkspace
+                    run={selectedDryRun}
+                    draftLabel={draftLabel}
+                    activeTab={draftSelection.dryRunTab}
+                    onActiveTabChange={(dryRunTab) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        draftSelection: {
+                          ...current.draftSelection,
+                          dryRunTab,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
+                        },
+                      }))
+                    }
+                    onBack={() =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        draftSelection: {
+                          ...current.draftSelection,
+                          dryRunId: null,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
+                        },
+                      }))
+                    }
+                    onAskAtlas={() =>
+                      focusChampionConversation(
+                        championId,
+                        `${draftLabel} · ${selectedDryRun.label}`
+                      )
+                    }
+                  />
+                ) : (
+                  <DraftStrategyWorkspace
+                    draft={draftView}
+                    evaluation={currentEvaluation}
+                    draftLabel={draftLabel}
+                    checkpoint={checkpoint}
+                    evaluationComplete={evaluationComplete}
+                    confirmedRulePatch={draftState.confirmedPatch}
+                    authorityOperation={authorityOperation}
+                    authorityError={authorityError}
+                    activeTab={draftSelection.surface}
+                    selectedRuleId={draftSelection.ruleId}
+                    selectedDecision={draftSelection.decision}
+                    onRunEvaluation={runEvaluation}
+                    onActiveTabChange={(surface) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        draftSelection: {
+                          ...current.draftSelection,
+                          surface,
+                        },
+                        conversation: {
+                          ...current.conversation,
+                          context: null,
+                        },
+                      }))
+                    }
+                    onApplyRuleChange={applyRuleChange}
+                    onAskAbout={(context) =>
+                      focusChampionConversation(
+                        championId,
+                        `${draftLabel} · ${context}`
+                      )
+                    }
+                    onSelectedRuleChange={(ruleId) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        draftSelection: {
+                          ...current.draftSelection,
+                          ruleId,
+                        },
+                      }))
+                    }
+                    onSelectedDecisionChange={(decision) =>
+                      updateChampionSession(championId, (current) => ({
+                        ...current,
+                        draftSelection: {
+                          ...current.draftSelection,
+                          decision,
+                        },
+                      }))
+                    }
+                  />
+                )
               ) : activeContext === "paper" && paperView ? (
                 <div className="h-full overflow-auto p-4 sm:p-5">
                   <PaperPortfolioWorkspace
@@ -820,6 +875,7 @@ export function ChampionWorkspace() {
             <WorkspaceEvidencePanel
               checkpoint={checkpoint}
               evaluation={currentEvaluation}
+              evaluations={evaluations}
               baseline={evidenceBaseline}
               template={workspaceFixture.evaluation}
               authorityError={authorityError}
@@ -833,6 +889,21 @@ export function ChampionWorkspace() {
               }
               forkPending={authorityOperation === "forking-checkpoint"}
               onForkCheckpoint={forkCheckpoint}
+              onOpenDryRun={(dryRunId) =>
+                updateChampionSession(championId, (current) => ({
+                  ...current,
+                  activeContext: "draft",
+                  draftSelection: {
+                    ...current.draftSelection,
+                    dryRunId,
+                    dryRunTab: "summary",
+                  },
+                  conversation: {
+                    ...current.conversation,
+                    context: null,
+                  },
+                }))
+              }
             />
           </div>
 
@@ -937,6 +1008,8 @@ function createChampionSession(
       surface: "summary",
       ruleId: fixture.draft.rules[0]?.id ?? "",
       decision: null,
+      dryRunId: null,
+      dryRunTab: "summary",
     },
     paperSelection: {
       detailsTab: "runs",

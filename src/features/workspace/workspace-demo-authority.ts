@@ -179,6 +179,9 @@ export function createWorkspaceDemoAuthority({
     const rules = cloneRules(authoritativeDraft.rules)
 
     const result: WorkspaceEvaluationFixture = {
+      id: `${championId}-dry-run-${evaluations.length + 1}`,
+      label: `Dry Run ${evaluations.length + 1}`,
+      status: "completed",
       authority: "demo-authority",
       championId,
       checkpoint: request.checkpoint,
@@ -192,12 +195,7 @@ export function createWorkspaceDemoAuthority({
       decisions: buildDecisions(rules, evaluationTemplate),
     }
 
-    evaluations = [
-      ...evaluations.filter(
-        (evaluation) => evaluation.checkpoint !== result.checkpoint
-      ),
-      structuredClone(result),
-    ]
+    evaluations = [...evaluations, structuredClone(result)]
 
     return structuredClone(result)
   }

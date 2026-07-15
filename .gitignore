@@ -5,6 +5,7 @@ gha-creds-*.json
 # Local operating-system and agent process artifacts
 .DS_Store
 .agents/
+.claude/
 
 # Dependencies and package-manager state
 /node_modules

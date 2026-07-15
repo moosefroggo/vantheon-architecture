@@ -62,6 +62,9 @@ export type WorkspaceDecisionFixture = {
 }
 
 export type WorkspaceEvaluationFixture = {
+  id: string
+  label: string
+  status: "completed"
   authority: "demo-authority"
   championId: string
   checkpoint: string
@@ -83,7 +86,7 @@ export type WorkspaceEvaluationFixture = {
 
 export type WorkspaceEvaluationTemplate = Omit<
   WorkspaceEvaluationFixture,
-  "authority" | "championId" | "ruleSnapshot"
+  "id" | "label" | "status" | "authority" | "championId" | "ruleSnapshot"
 >
 
 export type WorkspaceFixture = {

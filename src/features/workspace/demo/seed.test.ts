@@ -11,7 +11,7 @@ describe("normalized workspace demo seed", () => {
     await expect(validateWorkspaceScenario(scenario)).resolves.toEqual([]);
   });
 
-  it("models Iris Paper Strategy V1 from V1.1 and a separate V2.0 Draft clone", async () => {
+  it("models Iris Strategy V1 with one Paper portfolio and a read-only Draft", async () => {
     const scenario = await createWorkspaceDemoSeed();
     const champion = scenario.champions[WORKSPACE_DEMO_IDS.iris.champion];
     const currentDraft = scenario.drafts[champion.currentDraftId];
@@ -19,8 +19,8 @@ describe("normalized workspace demo seed", () => {
       scenario.checkpoints[currentDraft.currentCheckpointId];
     const frozen = scenario.strategies[WORKSPACE_DEMO_IDS.iris.strategyV1];
 
-    expect(currentDraft).toMatchObject({ generation: 2, status: "active" });
-    expect(currentCheckpoint.label).toBe("V2.0");
+    expect(currentDraft).toMatchObject({ generation: 1, status: "launched" });
+    expect(currentCheckpoint.label).toBe("V1.1");
     expect(frozen.label).toBe("Strategy V1");
     expect(frozen.sourceCheckpointId).toBe(
       WORKSPACE_DEMO_IDS.iris.checkpointV11
@@ -28,9 +28,8 @@ describe("normalized workspace demo seed", () => {
     expect(currentCheckpoint.strategyHash).toBe(frozen.strategyHash);
     expect(currentCheckpoint.strategy).toEqual(frozen.strategy);
     expect(currentCheckpoint.strategy).not.toBe(frozen.strategy);
-    expect(scenario.drafts[WORKSPACE_DEMO_IDS.iris.draftV1].status).toBe(
-      "launched"
-    );
+    expect(champion.currentDraftId).toBe(WORKSPACE_DEMO_IDS.iris.draftV1);
+    expect(scenario.drafts[WORKSPACE_DEMO_IDS.iris.draftV2]).toBeUndefined();
   });
 
   it("uses monthly Iris runs and the launch benchmark consistently", async () => {

@@ -126,11 +126,6 @@ export type DraftCheckpointOrigin =
   | {
       kind: "accepted-change-set";
       changeSetId: EntityId<"change-set">;
-    }
-  | {
-      kind: "paper-launch-clone";
-      portfolioId: EntityId<"paper-portfolio">;
-      sourceCheckpointId: EntityId<"draft-checkpoint">;
     };
 
 export interface DraftCheckpointRecord {
@@ -610,8 +605,6 @@ export type WorkspaceCommandResult =
       kind: "paper-launched";
       portfolioId: EntityId<"paper-portfolio">;
       strategyId: EntityId<"immutable-strategy">;
-      nextDraftId: EntityId<"draft">;
-      nextCheckpointId: EntityId<"draft-checkpoint">;
       initialAccountSnapshotId: EntityId<"portfolio-account-snapshot">;
     }
   | {

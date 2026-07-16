@@ -36,10 +36,7 @@ export type DraftStrategyWorkspaceProps = {
   onSelectedRuleChange: (ruleId: string) => void
   onSelectedDecisionChange: (selection: DraftDecisionSelection) => void
   saveStatus?: string
-  checkpointHash?: string
-  checkpointRevision?: string
-  checkpointCreatedAt?: string
-  checkpointActor?: string
+  readOnly?: boolean
 }
 
 export function DraftStrategyWorkspace({
@@ -56,10 +53,7 @@ export function DraftStrategyWorkspace({
   onSelectedRuleChange,
   onSelectedDecisionChange,
   saveStatus,
-  checkpointHash,
-  checkpointRevision,
-  checkpointCreatedAt,
-  checkpointActor,
+  readOnly = false,
 }: DraftStrategyWorkspaceProps) {
   const currentEvaluation =
     evaluationComplete && evaluation?.checkpoint === checkpoint ? evaluation : null
@@ -82,31 +76,25 @@ export function DraftStrategyWorkspace({
         title={draft.title}
         badges={[
           { label: draftLabel },
+          { label: readOnly ? "Drafting · Read only" : "Drafting", variant: "outline" },
           { label: formatCheckpointLabel(checkpoint), variant: "outline" },
           {
             label: currentEvaluation ? "Tested" : "Untested",
             variant: currentEvaluation ? "secondary" : "outline",
           },
         ]}
-        details={
-          <div className="max-w-4xl space-y-1">
-            <span className="block">{draft.objective}</span>
-            <span className="block text-xs">
-              Hash {checkpointHash ?? "Unavailable"} · Revision{" "}
-              {checkpointRevision ?? "Unavailable"} · {checkpointActor ?? "Actor unavailable"} ·{" "}
-              {checkpointCreatedAt ?? "Time unavailable"} · Validation verified
-            </span>
-          </div>
-        }
+        details={draft.objective}
         action={
-          <Button
-            type="button"
-            onClick={onRunEvaluation}
-            disabled={authorityOperation !== null}
-          >
-            <Play />
-            {evaluationPending ? "Running…" : "Dry Run"}
-          </Button>
+          readOnly ? null : (
+            <Button
+              type="button"
+              onClick={onRunEvaluation}
+              disabled={authorityOperation !== null}
+            >
+              <Play />
+              {evaluationPending ? "Running…" : "Dry Run"}
+            </Button>
+          )
         }
         className="px-6 py-4"
       />
@@ -130,6 +118,7 @@ export function DraftStrategyWorkspace({
                 rules={draft.rules}
                 onEditRule={editRule}
                 saveStatus={saveStatus}
+                readOnly={readOnly}
               />
             </TabsContent>
             <TabsContent value="document">

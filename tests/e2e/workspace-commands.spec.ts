@@ -151,7 +151,7 @@ test.describe("Mara command authority", () => {
       /\/champions\/mara\/draft\/checkpoints\/draft_checkpoint_[^/?]+$/,
     );
     await expect(
-      page.getByRole("heading", { name: "Drafting V1 · Checkpoint 3" }),
+      page.getByRole("heading", { name: "Strategy V1 · Checkpoint 3" }),
     ).toBeVisible();
 
     const checkpointId = decodeURIComponent(new URL(page.url()).pathname.split("/").at(-1)!);
@@ -191,7 +191,7 @@ test.describe("Mara command authority", () => {
       new RegExp(`/champions/mara/draft/checkpoints/${checkpointId}$`),
     );
     await expect(
-      page.getByRole("heading", { name: "Drafting V1 · Checkpoint 3" }),
+      page.getByRole("heading", { name: "Strategy V1 · Checkpoint 3" }),
     ).toBeVisible();
     const reloaded = await readAuthority(page);
     expect(recordsForChampion(reloaded.checkpoints, maraId)).toHaveLength(
@@ -246,7 +246,7 @@ test.describe("Mara command authority", () => {
 
       if (run === 0) {
         await page
-          .getByRole("button", { name: "Drafting V1", exact: true })
+          .getByRole("button", { name: "Strategy V1", exact: true })
           .click();
         await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
       }
@@ -266,7 +266,7 @@ test.describe("Mara command authority", () => {
     expectAppliedReceipts(after, "evaluate", 2, "evaluation-completed");
   });
 
-  test("launches two independent Paper portfolios and reaches collection comparison", async ({
+  test("launches one Paper portfolio and freezes the same Strategy Draft", async ({
     page,
     openScenario,
   }) => {
@@ -283,77 +283,27 @@ test.describe("Mara command authority", () => {
     ).toBeVisible();
     await page.getByRole("button", { name: "Open Draft" }).click();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
-    await expect(page.getByText("Drafting V2", { exact: true }).first()).toBeVisible();
-
-    await page.getByRole("button", { name: "Dry Run", exact: true }).click();
-    await page
-      .getByRole("dialog", { name: "Locked Evaluation preflight" })
-      .getByRole("button", { name: "Run Evaluation" })
-      .click();
-    await expect(page).toHaveURL(
-      /\/champions\/mara\/draft\/evaluations\/evaluation_[^/?]+$/,
-    );
-    const secondEvaluationId = decodeURIComponent(
-      new URL(page.url()).pathname.split("/").at(-1)!,
-    );
-    await page
-      .getByRole("button", { name: "Drafting V2", exact: true })
-      .click();
-    await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
-
-    await reviewAndConfirmPaperLaunch(page, secondEvaluationId);
-    await expect(page).toHaveURL(
-      /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
-    );
-    await expect(
-      page.getByRole("heading", { name: "Lower-volatility momentum · Paper 2" }),
-    ).toBeVisible();
+    await expect(page.getByText("Strategy V1", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Drafting · Read only", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(0);
 
     const launched = await readAuthority(page);
     const maraPortfolios = recordsForChampion(launched.portfolios, maraId);
-    expect(maraPortfolios).toHaveLength(2);
-    expect(new Set(maraPortfolios.map((portfolio) => portfolio.id)).size).toBe(2);
-    for (const portfolio of maraPortfolios) {
-      expect(portfolio.id).toMatch(/^paper_portfolio_/);
-      expect(portfolio.state).toBe("active");
-    }
-    expectAppliedReceipts(launched, "launch", 2, "paper-launched");
+    expect(maraPortfolios).toHaveLength(1);
+    expect(maraPortfolios[0]).toMatchObject({ state: "active" });
+    expect(recordsForChampion(launched.drafts, maraId)).toEqual([
+      expect.objectContaining({ generation: 1, status: "launched" }),
+    ]);
+    expectAppliedReceipts(launched, "launch", 1, "paper-launched");
 
     const response = await page.goto("/champions/mara/paper");
     expect(response?.ok()).toBe(true);
-    await expect(page.getByRole("heading", { name: "Paper portfolios" })).toBeVisible();
-    const collection = page.getByRole("region", { name: "Paper portfolios" });
-    await expect(
-      collection.getByRole("button", {
-        name: /Lower-volatility momentum · Paper 1/,
-      }),
-    ).toBeVisible();
-    await expect(
-      collection.getByRole("button", {
-        name: /Lower-volatility momentum · Paper 2/,
-      }),
-    ).toBeVisible();
-
-    await collection.getByRole("button", { name: "Compare two" }).click();
-    await expect(page).toHaveURL(/\/champions\/mara\/paper\/compare\?portfolios=/);
-    await expect(page.getByRole("heading", { name: "Paper comparison" })).toBeVisible();
-    const comparedIds = new URL(page.url()).searchParams
-      .get("portfolios")!
-      .split(",")
-      .sort();
-    expect(comparedIds).toEqual(maraPortfolios.map((portfolio) => portfolio.id).sort());
-    await expect(
-      page.getByRole("button", {
-        name: "Lower-volatility momentum · Paper 1",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", {
-        name: "Lower-volatility momentum · Paper 2",
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(
+      /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
+    );
+    await expect(page.getByRole("heading", { name: "Lower-volatility momentum · Paper 1" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Compare two" })).toHaveCount(0);
   });
 });
 

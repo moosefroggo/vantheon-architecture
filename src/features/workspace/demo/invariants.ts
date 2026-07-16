@@ -103,22 +103,30 @@ export async function validateWorkspaceScenario(
         "Champion current Draft must belong to the same Champion and lineage."
       );
     }
-    if (draft.status !== "active") {
-      add(
-        "inactive-current-draft",
-        `drafts.${draft.id}.status`,
-        "Champion current Draft must be active."
-      );
-    }
     const activeDrafts = Object.values(scenario.drafts).filter(
       (candidate) =>
         candidate.championId === champion.id && candidate.status === "active"
     );
-    if (activeDrafts.length !== 1) {
+    const paperForCurrentDraft = Object.values(scenario.portfolios).find(
+      (portfolio) =>
+        portfolio.championId === champion.id &&
+        portfolio.sourceCheckpointId === draft.currentCheckpointId
+    );
+    const expectedActiveDrafts = draft.status === "active" ? 1 : 0;
+    if (activeDrafts.length !== expectedActiveDrafts) {
       add(
         "active-draft-cardinality",
         `champions.${champion.id}`,
-        "A Champion must have exactly one active Draft."
+        draft.status === "active"
+          ? "An editable Strategy must have exactly one active Draft."
+          : "A Strategy with a Paper portfolio cannot retain an active Draft."
+      );
+    }
+    if (draft.status === "launched" && !paperForCurrentDraft) {
+      add(
+        "launched-draft-without-paper",
+        `drafts.${draft.id}.status`,
+        "A launched read-only Draft must resolve to its one Paper portfolio."
       );
     }
   }
@@ -202,17 +210,6 @@ export async function validateWorkspaceScenario(
             "invalid-change-set-origin",
             `${path}.origin`,
             "Accepted-change origin must resolve to the accepting change set."
-          );
-        }
-      }
-      if (checkpoint.origin.kind === "paper-launch-clone") {
-        const portfolio = scenario.portfolios[checkpoint.origin.portfolioId];
-        const source = scenario.checkpoints[checkpoint.origin.sourceCheckpointId];
-        if (!portfolio || !source || source.strategyHash !== checkpoint.strategyHash) {
-          add(
-            "invalid-paper-clone-origin",
-            `${path}.origin`,
-            "Paper clone must resolve to its portfolio and exact source strategy."
           );
         }
       }

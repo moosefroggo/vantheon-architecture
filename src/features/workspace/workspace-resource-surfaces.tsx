@@ -383,7 +383,7 @@ function formatTimestamp(value: string) {
 }
 
 function checkpointDisplayLabel(checkpoint: DraftCheckpointRecord) {
-  return `Drafting V${checkpoint.generation} · Checkpoint ${checkpoint.ordinal}`
+  return `Strategy V${checkpoint.generation} · Checkpoint ${checkpoint.ordinal}`
 }
 
 function titleCase(value: string) {

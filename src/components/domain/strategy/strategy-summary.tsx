@@ -22,12 +22,14 @@ type StrategySummaryProps = {
   rules: readonly StrategyRuleFixture[]
   onEditRule: (ruleId: string) => void
   saveStatus?: string
+  readOnly?: boolean
 }
 
 export function StrategySummary({
   rules,
   onEditRule,
   saveStatus = "Demo session",
+  readOnly = false,
 }: StrategySummaryProps) {
   return (
     <Card>
@@ -43,9 +45,11 @@ export function StrategySummary({
             <TableRow>
               <TableHead>Section</TableHead>
               <TableHead>Definition</TableHead>
-              <TableHead className="w-20">
-                <span className="sr-only">Actions</span>
-              </TableHead>
+              {!readOnly ? (
+                <TableHead className="w-20">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              ) : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -60,17 +64,19 @@ export function StrategySummary({
                     {rule.constraint}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={`Edit ${rule.group} rule`}
-                    onClick={() => onEditRule(rule.id)}
-                  >
-                    <Pencil />
-                  </Button>
-                </TableCell>
+                {!readOnly ? (
+                  <TableCell>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Edit ${rule.group} rule`}
+                      onClick={() => onEditRule(rule.id)}
+                    >
+                      <Pencil />
+                    </Button>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>

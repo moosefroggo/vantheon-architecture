@@ -125,7 +125,6 @@ import {
   liveHref,
   paperIndexHref,
   paperArchivedHref,
-  paperCompareHref,
   paperPortfolioHref,
   paperRunHref,
   sourceArtifactHref,
@@ -305,6 +304,12 @@ export function ChampionWorkspace() {
     }
   }, [demo.scenario])
 
+  useEffect(() => {
+    if (route.kind === "paper-compare") {
+      router.replace(paperIndexHref(route.championId) as Route)
+    }
+  }, [route, router])
+
   const championId = route.championId
   const requestedWorkspaceFixture = findWorkspaceFixture(championId)
   const workspaceFixture: WorkspaceFixture =
@@ -329,6 +334,7 @@ export function ChampionWorkspace() {
   const checkpoint = draftState.checkpoint
   const paperLaunched = paperPortfolios.length > 0
   const draftLabel = formatDraftLabel(draftLabelFromCheckpoint(checkpoint))
+  const strategyLabel = draftLabel.replace(/^Drafting\s+/, "Strategy ")
   const checkpointLabel = formatCheckpointLabel(checkpoint)
   const activePaperPortfolio = paperPortfolios.find(
     (portfolio) => portfolio.operationalState === "active"
@@ -340,8 +346,9 @@ export function ChampionWorkspace() {
     ? demo.scenario.strategies[activePaperRecord.strategyId]
     : undefined
   const strategySidebarStatus = activePaperPortfolio
-    ? `${activePaperStrategy ? `Paper V${activePaperStrategy.version}` : "Paper"} · Active portfolio`
-    : `${draftLabel.replace(/^Drafting\s+/, "")} · ${checkpointLabel}`
+    ? `${activePaperStrategy ? `Strategy V${activePaperStrategy.version}` : strategyLabel} · Active portfolio`
+    : `${strategyLabel} · ${checkpointLabel}`
+  const draftReadOnly = paperLaunched
   const currentEvaluation =
     evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
@@ -362,6 +369,19 @@ export function ChampionWorkspace() {
     route.kind === "paper-portfolio" || route.kind === "paper-run"
       ? route.portfolioId
       : null
+
+  useEffect(() => {
+    if (route.kind !== "paper-index") return
+    const available = paperPortfolios.filter(
+      (portfolio) => portfolio.operationalState !== "archived"
+    )
+    if (available.length === 1) {
+      router.replace(
+        paperPortfolioHref(route.championId, available[0].id) as Route
+      )
+    }
+  }, [paperPortfolios, route, router])
+
   const paperSnapshot = selectedPortfolioId
     ? paperPortfolios.find((portfolio) => portfolio.id === selectedPortfolioId) ?? null
     : null
@@ -387,15 +407,12 @@ export function ChampionWorkspace() {
     }
   }, [currentEvaluation, latestEvaluation, workspaceFixture.evaluation.baseline])
 
-  const draftView = useMemo(
-    () => ({
-      ...workspaceFixture.draft,
-      label: draftLabel,
-      checkpoint,
-      rules: draftState.rules,
-    }),
-    [checkpoint, draftLabel, draftState.rules, workspaceFixture.draft]
-  )
+  const draftView = {
+    ...workspaceFixture.draft,
+    label: draftLabel,
+    checkpoint,
+    rules: draftState.rules,
+  }
 
   const paperView = useMemo(() => {
     if (!paperSnapshot) return null
@@ -624,6 +641,8 @@ export function ChampionWorkspace() {
     sourceChampionId: string,
     context: WorkspaceContext
   ) {
+    const paperPortfolio = runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios
+      .find((portfolio) => portfolio.operationalState !== "archived")
     updateChampionSession(sourceChampionId, (current) => ({
       ...current,
       conversation: {
@@ -636,7 +655,9 @@ export function ChampionWorkspace() {
       context === "draft"
         ? draftHref(sourceChampionId)
         : context === "paper"
-          ? paperIndexHref(sourceChampionId)
+          ? paperPortfolio
+            ? paperPortfolioHref(sourceChampionId, paperPortfolio.id)
+            : paperIndexHref(sourceChampionId)
           : liveHref(sourceChampionId)
     )
   }
@@ -1317,7 +1338,7 @@ export function ChampionWorkspace() {
           {activeContext === "draft" && selectedDryRun ? (
             <WorkspaceHeaderBreadcrumbs
               items={[
-                { label: draftLabel, onSelect: returnToDraftWorkspace },
+                { label: strategyLabel, onSelect: returnToDraftWorkspace },
                 { label: selectedDryRun.label },
               ]}
             />
@@ -1339,7 +1360,7 @@ export function ChampionWorkspace() {
               }
             >
               <TabsList variant="line">
-                <TabsTrigger value="draft">{draftLabel}</TabsTrigger>
+                <TabsTrigger value="draft">Drafting</TabsTrigger>
                 <TabsTrigger value="paper">Paper</TabsTrigger>
               </TabsList>
             </Tabs>
@@ -1407,7 +1428,11 @@ export function ChampionWorkspace() {
                         evaluation.status === "completed"
                     )}
                     onBack={() => navigate(draftHref(championId))}
-                    onRestore={() => forkCheckpoint(validRoutedCheckpoint.label)}
+                    onRestore={
+                      draftReadOnly
+                        ? undefined
+                        : () => forkCheckpoint(validRoutedCheckpoint.label)
+                    }
                   />
                 ) : (
                   <UnavailableWorkspaceResource
@@ -1477,23 +1502,12 @@ export function ChampionWorkspace() {
                     key={championId}
                     draft={draftView}
                     evaluation={currentEvaluation}
-                    draftLabel={draftLabel}
+                    draftLabel={strategyLabel}
                   checkpoint={checkpoint}
                   evaluationComplete={evaluationComplete}
                   authorityOperation={authorityOperation}
+                  readOnly={draftReadOnly}
                   saveStatus={localSaveStatus}
-                  checkpointHash={scenarioCurrentCheckpoint?.strategyHash}
-                  checkpointRevision={scenarioCurrentCheckpoint?.revision}
-                  checkpointCreatedAt={
-                    scenarioCurrentCheckpoint
-                      ? formatDemoTimestamp(scenarioCurrentCheckpoint.createdAt)
-                      : undefined
-                  }
-                  checkpointActor={
-                    scenarioCurrentCheckpoint
-                      ? `${scenarioCurrentCheckpoint.createdBy.kind} · ${scenarioCurrentCheckpoint.createdBy.id}`
-                      : undefined
-                  }
                   activeTab={draftSurface}
                   onRunEvaluation={() => setEvaluationReviewOpen(true)}
                     onActiveTabChange={(surface) =>
@@ -1535,7 +1549,8 @@ export function ChampionWorkspace() {
                     }
                   />
                 )
-              ) : activeContext === "paper" && route.kind === "paper-index" ? (
+              ) : activeContext === "paper" &&
+                (route.kind === "paper-index" || route.kind === "paper-compare") ? (
                 paperLaunched ? (
                   <PaperCollectionWorkspace
                     title="Paper portfolios"
@@ -1547,9 +1562,6 @@ export function ChampionWorkspace() {
                     ).length}
                     onOpen={(portfolioId) =>
                       navigate(paperPortfolioHref(championId, portfolioId))
-                    }
-                    onCompare={(portfolioIds) =>
-                      navigate(paperCompareHref(championId, portfolioIds))
                     }
                     onOpenArchived={() => navigate(paperArchivedHref(championId))}
                   />
@@ -1584,23 +1596,7 @@ export function ChampionWorkspace() {
                   onOpen={(portfolioId) =>
                     navigate(paperPortfolioHref(championId, portfolioId))
                   }
-                  onCompare={(portfolioIds) =>
-                    navigate(paperCompareHref(championId, portfolioIds))
-                  }
                   onOpenArchived={() => undefined}
-                />
-              ) : activeContext === "paper" && route.kind === "paper-compare" ? (
-                <PaperComparisonWorkspace
-                  portfolios={route.portfolioIds
-                    .map((portfolioId) =>
-                      paperPortfolios.find((portfolio) => portfolio.id === portfolioId)
-                    )
-                    .filter((portfolio): portfolio is PaperLaunchSnapshot => Boolean(portfolio))}
-                  paper={workspaceFixture.paper}
-                  onOpen={(portfolioId) =>
-                    navigate(paperPortfolioHref(championId, portfolioId))
-                  }
-                  onBack={() => navigate(paperIndexHref(championId))}
                 />
               ) : activeContext === "paper" &&
                 route.kind === "paper-run" &&
@@ -1724,6 +1720,7 @@ export function ChampionWorkspace() {
                 }
                 forkPending={authorityOperation === "forking-checkpoint"}
                 onForkCheckpoint={forkCheckpoint}
+                readOnly={draftReadOnly}
                 onOpenCheckpoint={openCheckpointByLabel}
                 checkpoints={checkpointHistory}
                 onOpenDryRun={(dryRunId) =>
@@ -2244,7 +2241,7 @@ function projectPaperPortfolio(
     id: portfolio.id,
     label: portfolio.displayName,
     source: checkpoint
-      ? `Draft V${generation} · Checkpoint ${checkpoint.label}`
+      ? `Strategy V${strategy?.version ?? generation} · Checkpoint ${checkpoint.ordinal}`
       : "Source checkpoint unavailable",
     rules: strategy ? projectStrategyRules(strategy.strategy) : [],
     operationalState: portfolio.state,
@@ -2382,7 +2379,7 @@ function projectPaperWorkspace(
     operationalState: snapshot.operationalState,
     strategy: strategy ? `Running ${strategy.label}` : "Unavailable",
     source: checkpoint
-      ? `Draft V${checkpoint.generation} · Checkpoint ${checkpoint.label}`
+      ? `Strategy V${strategy?.version ?? checkpoint.generation} · Checkpoint ${checkpoint.ordinal}`
       : "Unavailable",
     portfolioValue: account?.accountValue ?? portfolio.simulatedCapital,
     totalReturn: account?.cumulativeTimeWeightedReturn ?? 0,
@@ -2690,7 +2687,7 @@ function createChampionSession(
   return {
     evaluations: [],
     draftState: {
-      checkpoint: initialPaper ? "V2.0" : fixture.draft.checkpoint,
+      checkpoint: fixture.draft.checkpoint,
       rules: fixture.draft.rules.map((rule) => ({ ...rule })),
     },
     paperPortfolios: initialPaper
@@ -2820,7 +2817,6 @@ function PaperCollectionWorkspace({
   archived = false,
   archivedCount,
   onOpen,
-  onCompare,
   onOpenArchived,
 }: {
   title: string
@@ -2828,7 +2824,6 @@ function PaperCollectionWorkspace({
   archived?: boolean
   archivedCount: number
   onOpen: (portfolioId: string) => void
-  onCompare: (portfolioIds: string[]) => void
   onOpenArchived: () => void
 }) {
   const [query, setQuery] = useState("")
@@ -2840,27 +2835,17 @@ function PaperCollectionWorkspace({
           portfolio.source.toLowerCase().includes(normalizedQuery)
       )
     : portfolios
-  const comparisonIds = visiblePortfolios.slice(0, 2).map((portfolio) => portfolio.id)
-
   return (
     <section className="h-full overflow-auto p-4 sm:p-5" aria-label={title}>
       <WorkspacePageHeader
         title={title}
         details={
           archived
-            ? "Stopped portfolios retained for inspection and descriptive comparison."
+            ? "Stopped portfolios retained for inspection."
             : "Independent simulated portfolios pinned to immutable strategies."
         }
         action={
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={comparisonIds.length < 2}
-              onClick={() => onCompare(comparisonIds)}
-            >
-              Compare two
-            </Button>
             {!archived ? (
               <Button type="button" variant="outline" onClick={onOpenArchived}>
                 Archived ({archivedCount})
@@ -2913,85 +2898,6 @@ function PaperCollectionWorkspace({
         </div>
       )}
     </section>
-  )
-}
-
-function PaperComparisonWorkspace({
-  portfolios,
-  paper,
-  onOpen,
-  onBack,
-}: {
-  portfolios: readonly PaperLaunchSnapshot[]
-  paper: WorkspaceFixture["paper"]
-  onOpen: (portfolioId: string) => void
-  onBack: () => void
-}) {
-  return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Paper comparison">
-      <WorkspacePageHeader
-        title="Paper comparison"
-        badges={[{ label: "Insufficient comparable evidence" }]}
-        details="Descriptive only · comparison validity policy is pending. No portfolio is ranked or declared a winner."
-        action={
-          <Button type="button" variant="outline" onClick={onBack}>
-            Back to Paper
-          </Button>
-        }
-      />
-      {portfolios.length === 2 ? (
-        <div className="mt-4 overflow-hidden rounded-lg border">
-          <div className="grid grid-cols-[12rem_repeat(2,minmax(0,1fr))] border-b bg-muted/40 text-sm font-medium">
-            <span className="p-3">Evidence envelope</span>
-            {portfolios.map((portfolio) => (
-              <button
-                key={portfolio.id}
-                type="button"
-                className="border-l p-3 text-left hover:underline"
-                onClick={() => onOpen(portfolio.id)}
-              >
-                {portfolio.label}
-              </button>
-            ))}
-          </div>
-          <ComparisonRow label="Source" values={portfolios.map((item) => formatVersionReference(item.source))} />
-          <ComparisonRow label="Schedule" values={portfolios.map(() => paper.runCadence)} />
-          <ComparisonRow label="Completed runs" values={portfolios.map(() => String(paper.runs?.length ?? 0))} />
-          <ComparisonRow label="Observation window" values={portfolios.map(() => "Completed runs since launch")} />
-          <ComparisonRow label="Data quality" values={portfolios.map(() => "Confirmed demo evidence")} />
-          <ComparisonRow label="Capital assumptions" values={portfolios.map(() => "$100,000 simulated · no external flows")} />
-          <ComparisonRow label="Activity" values={portfolios.map(() => "Trades and no-trade runs disclosed")} />
-          <ComparisonRow
-            label="Strategy differences"
-            values={portfolios.map(
-              (portfolio) =>
-                `${formatVersionReference(portfolio.source)} · ${portfolio.rules.length} frozen rules`
-            )}
-          />
-          <ComparisonRow label="Result" values={portfolios.map(() => "Descriptive only")} />
-        </div>
-      ) : (
-        <div className="mt-4 rounded-lg border border-dashed p-6 text-center">
-          <p className="text-sm font-medium">Select exactly two Paper portfolios</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Launch another tested Draft before comparing independent evidence.
-          </p>
-        </div>
-      )}
-    </section>
-  )
-}
-
-function ComparisonRow({ label, values }: { label: string; values: readonly string[] }) {
-  return (
-    <div className="grid grid-cols-[12rem_repeat(2,minmax(0,1fr))] border-b text-sm last:border-b-0">
-      <span className="p-3 text-muted-foreground">{label}</span>
-      {values.map((value, index) => (
-        <span key={`${label}-${index}`} className="border-l p-3">
-          {value}
-        </span>
-      ))}
-    </div>
   )
 }
 
@@ -3267,7 +3173,7 @@ function PaperLaunchDialog({
           <div className="grid grid-cols-[7rem_1fr]">
             <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Result</span>
             <span className="px-3 py-2 font-medium">
-              Paper runs Strategy V1 · Drafting V2 starts separately
+              Paper runs this Strategy · Draft becomes read-only
             </span>
           </div>
         </div>

@@ -51,6 +51,7 @@ type WorkspaceEvidencePanelProps = {
   onExpandedChange: (expanded: boolean) => void
   forkPending: boolean
   onForkCheckpoint: (checkpoint: string) => void
+  readOnly?: boolean
   onOpenCheckpoint?: (checkpoint: string) => void
   checkpoints?: readonly {
     label: string
@@ -77,6 +78,7 @@ export function WorkspaceEvidencePanel({
   onExpandedChange,
   forkPending,
   onForkCheckpoint,
+  readOnly = false,
   onOpenCheckpoint,
   checkpoints,
   onOpenDryRun,
@@ -270,20 +272,22 @@ export function WorkspaceEvidencePanel({
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {openedCheckpoint === checkpoint
-                          ? "Active Draft · latest checkpoint"
+                          ? `${readOnly ? "Read-only" : "Active"} Draft · latest checkpoint`
                           : "Historical checkpoint · preserved after restore"}
                       </p>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={openedCheckpoint === checkpoint}
-                      onClick={() => setForkCandidate(openedCheckpoint)}
-                    >
-                      <GitFork />
-                      Restore as latest
-                    </Button>
+                    {!readOnly ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={openedCheckpoint === checkpoint}
+                        onClick={() => setForkCandidate(openedCheckpoint)}
+                      >
+                        <GitFork />
+                        Restore as latest
+                      </Button>
+                    ) : null}
                   </div>
                 ) : null}
               </CardContent>
@@ -316,7 +320,7 @@ export function WorkspaceEvidencePanel({
       ) : null}
 
       <Dialog
-        open={forkCandidate !== null}
+        open={!readOnly && forkCandidate !== null}
         onOpenChange={(open) => {
           if (!open && !forkPending) setForkCandidate(null)
         }}

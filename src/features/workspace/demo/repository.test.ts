@@ -272,7 +272,7 @@ describe("in-memory workspace authority", () => {
     );
   });
 
-  it("launches atomically into immutable Paper plus an exact next Draft clone", async () => {
+  it("launches atomically into immutable Paper and freezes the same Draft", async () => {
     const { repository, commandBase } = await createHarness();
     const draft = await requiredCurrentDraft(repository, "mara");
     const checkpoint = await requiredCheckpoint(
@@ -293,8 +293,6 @@ describe("in-memory workspace authority", () => {
     const snapshot = await repository.readSnapshot();
     const portfolio = snapshot.portfolios[result.portfolioId];
     const strategy = snapshot.strategies[result.strategyId];
-    const nextDraft = snapshot.drafts[result.nextDraftId];
-    const nextCheckpoint = snapshot.checkpoints[result.nextCheckpointId];
 
     expect(portfolio).toMatchObject({
       displayName: "Mara momentum paper",
@@ -308,17 +306,6 @@ describe("in-memory workspace authority", () => {
       sourceCheckpointId: checkpoint.id,
       strategyHash: checkpoint.strategyHash,
     });
-    expect(nextDraft).toMatchObject({ generation: 2, status: "active" });
-    expect(nextCheckpoint).toMatchObject({
-      label: "V2.0",
-      strategyHash: checkpoint.strategyHash,
-      origin: {
-        kind: "paper-launch-clone",
-        portfolioId: portfolio.id,
-        sourceCheckpointId: checkpoint.id,
-      },
-    });
-    expect(nextCheckpoint.strategy).toEqual(checkpoint.strategy);
     expect(snapshot.accountSnapshots[result.initialAccountSnapshotId]).toMatchObject({
       portfolioId: portfolio.id,
       cash: 125_000,
@@ -330,18 +317,21 @@ describe("in-memory workspace authority", () => {
       result.initialAccountSnapshotId
     );
     expect(snapshot.drafts[draft.id].status).toBe("launched");
-    expect(snapshot.champions[draft.championId].currentDraftId).toBe(nextDraft.id);
+    expect(snapshot.champions[draft.championId].currentDraftId).toBe(draft.id);
+    expect(Object.values(snapshot.drafts).filter(
+      (candidate) => candidate.championId === draft.championId
+    )).toHaveLength(1);
     await expect(validateWorkspaceScenario(snapshot)).resolves.toEqual([]);
   });
 
-  it("creates independent Paper portfolios across successive Draft generations", async () => {
+  it("rejects a second Paper portfolio after the Strategy Draft is frozen", async () => {
     const { repository, commandBase } = await createHarness();
     const firstDraft = await requiredCurrentDraft(repository, "mara");
     const firstCheckpoint = await requiredCheckpoint(
       repository,
       firstDraft.currentCheckpointId
     );
-    await repository.launch({
+    const first = await repository.launch({
       ...commandBase("launch", 1),
       draftId: firstDraft.id,
       expectedDraftRevision: firstDraft.revision,
@@ -351,26 +341,20 @@ describe("in-memory workspace authority", () => {
       simulatedCapital: 100_000,
     });
 
-    const secondDraft = await requiredCurrentDraft(repository, "mara");
-    const secondCheckpoint = await requiredCheckpoint(
-      repository,
-      secondDraft.currentCheckpointId
-    );
-    const evaluation = await repository.evaluate({
-      ...commandBase("evaluate", 2),
-      draftId: secondDraft.id,
-      expectedDraftRevision: secondDraft.revision,
-      checkpointId: secondCheckpoint.id,
-      setup: evaluationSetup("mara"),
-    });
-    await repository.launch({
-      ...commandBase("launch", 3),
-      draftId: secondDraft.id,
-      expectedDraftRevision: secondDraft.revision,
-      checkpointId: secondCheckpoint.id,
-      evaluationId: evaluation.result!.evaluationId,
+    expect(first.outcome).toBe("applied");
+    const frozenDraft = await requiredCurrentDraft(repository, "mara");
+    const second = await repository.launch({
+      ...commandBase("launch", 2),
+      draftId: frozenDraft.id,
+      expectedDraftRevision: frozenDraft.revision,
+      checkpointId: firstCheckpoint.id,
+      evaluationId: WORKSPACE_DEMO_IDS.mara.evaluation,
       portfolioName: "Mara paper two",
       simulatedCapital: 150_000,
+    });
+    expect(second).toMatchObject({
+      outcome: "rejected",
+      failure: { code: "invalid-state" },
     });
 
     const portfolios = await repository.listPortfolios(
@@ -378,15 +362,9 @@ describe("in-memory workspace authority", () => {
     );
     expect(portfolios.map((portfolio) => portfolio.displayName)).toEqual([
       "Mara paper one",
-      "Mara paper two",
     ]);
-    expect(new Set(portfolios.map((portfolio) => portfolio.id)).size).toBe(2);
     const currentDraft = await requiredCurrentDraft(repository, "mara");
-    expect(currentDraft.generation).toBe(3);
-    expect(
-      (await requiredCheckpoint(repository, currentDraft.currentCheckpointId))
-        .label
-    ).toBe("V3.0");
+    expect(currentDraft).toMatchObject({ generation: 1, status: "launched" });
     await expect(
       validateWorkspaceScenario(await repository.readSnapshot())
     ).resolves.toEqual([]);

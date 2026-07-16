@@ -357,7 +357,7 @@ const maraWorkspaceFixture = {
     label: "Paper V1",
     status: "Running",
     strategy: "Strategy V1",
-    source: "Draft V1 · checkpoint V1.2",
+    source: "Strategy V1 · Checkpoint 2",
     portfolioValue: 100_000,
     totalReturn: 0,
     dailyPnl: 0,
@@ -387,8 +387,8 @@ const irisWorkspaceFixture = {
     workspace: "Quality income compounders",
   },
   draft: {
-    label: "Draft V2",
-    checkpoint: "V2.0",
+    label: "Draft V1",
+    checkpoint: "V1.1",
     title: "Quality income compounders",
     state: "Saved",
     objective:
@@ -463,7 +463,7 @@ const irisWorkspaceFixture = {
     ] satisfies StrategyRuleFixture[],
   },
   evaluation: {
-    checkpoint: "V2.0",
+    checkpoint: "V1.1",
     completedAt: "Jul 14, 2026 · 3:31 PM CT",
     duration: "21s",
     setup: [
@@ -534,7 +534,7 @@ const irisWorkspaceFixture = {
     label: "Paper V1",
     status: "Running",
     strategy: "Strategy V1",
-    source: "Draft V1 · checkpoint V1.1",
+    source: "Strategy V1 · Checkpoint 1",
     portfolioValue: 103_800,
     totalReturn: 0.038,
     dailyPnl: 220,

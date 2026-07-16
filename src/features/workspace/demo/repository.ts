@@ -662,8 +662,6 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
         const initialAccountSnapshotId = this.runtime.createId(
           "portfolio-account-snapshot"
         );
-        const nextDraftId = this.runtime.createId("draft");
-        const nextCheckpointId = this.runtime.createId("draft-checkpoint");
         const strategyVersion =
           Math.max(
             0,
@@ -671,8 +669,6 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
               .filter((strategy) => strategy.lineageId === draft.lineageId)
               .map((strategy) => strategy.version)
           ) + 1;
-        const nextGeneration = draft.generation + 1;
-
         scenario.strategies[strategyId] = {
           id: strategyId,
           championId: draft.championId,
@@ -737,49 +733,13 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
           cumulativeTimeWeightedReturn: 0,
           revision: initialRevision(),
         };
-        scenario.checkpoints[nextCheckpointId] = {
-          id: nextCheckpointId,
-          championId: draft.championId,
-          draftId: nextDraftId,
-          generation: nextGeneration,
-          ordinal: 0,
-          label: `V${nextGeneration}.0`,
-          origin: {
-            kind: "paper-launch-clone",
-            portfolioId,
-            sourceCheckpointId: checkpoint.id,
-          },
-          strategy: structuredClone(checkpoint.strategy),
-          strategyHash: checkpoint.strategyHash,
-          createdBy: command.actor,
-          createdAt: now,
-          revision: initialRevision(),
-        };
-        scenario.drafts[nextDraftId] = {
-          id: nextDraftId,
-          championId: draft.championId,
-          lineageId: draft.lineageId,
-          generation: nextGeneration,
-          status: "active",
-          currentCheckpointId: nextCheckpointId,
-          revision: initialRevision(),
-          createdAt: now,
-        };
         draft.status = "launched";
         draft.revision = incrementRevision(draft.revision);
-        const champion = scenario.champions[draft.championId];
-        if (!champion) {
-          reject("unknown-entity", "Draft Champion does not exist.");
-        }
-        champion.currentDraftId = nextDraftId;
-        champion.revision = incrementRevision(champion.revision);
 
         return {
           kind: "paper-launched",
           portfolioId,
           strategyId,
-          nextDraftId,
-          nextCheckpointId,
           initialAccountSnapshotId,
         };
       }

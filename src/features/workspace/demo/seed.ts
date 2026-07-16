@@ -23,9 +23,9 @@ import type {
   WorkspaceScenario,
 } from "./types";
 
-export const WORKSPACE_DEMO_SEED_VERSION = 3;
+export const WORKSPACE_DEMO_SEED_VERSION = 4;
 export const WORKSPACE_DEMO_SCHEMA_VERSION = schemaVersion(
-  "workspace-demo-scenario/v3"
+  "workspace-demo-scenario/v4"
 );
 const STRATEGY_SCHEMA_VERSION = schemaVersion("structured-strategy/v1");
 const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
@@ -125,25 +125,6 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
     createdAt: isoTimestamp("2026-01-15T21:35:00.000Z"),
     revision: revision(1),
   };
-  const irisCheckpointV20: DraftCheckpointRecord = {
-    id: WORKSPACE_DEMO_IDS.iris.checkpointV20,
-    championId: WORKSPACE_DEMO_IDS.iris.champion,
-    draftId: WORKSPACE_DEMO_IDS.iris.draftV2,
-    generation: 2,
-    ordinal: 0,
-    label: "V2.0",
-    origin: {
-      kind: "paper-launch-clone",
-      portfolioId: WORKSPACE_DEMO_IDS.iris.portfolio,
-      sourceCheckpointId: WORKSPACE_DEMO_IDS.iris.checkpointV11,
-    },
-    strategy: structuredClone(irisV11),
-    strategyHash: irisV11Hash,
-    createdBy: actor,
-    createdAt: isoTimestamp("2026-01-16T14:00:00.000Z"),
-    revision: revision(1),
-  };
-
   const sourceArtifacts = [
     {
       id: WORKSPACE_DEMO_IDS.mara.source,
@@ -201,7 +182,7 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         initials: "IR",
         workspaceTitle: "Quality income compounders",
         lineageId: WORKSPACE_DEMO_IDS.iris.lineage,
-        currentDraftId: WORKSPACE_DEMO_IDS.iris.draftV2,
+        currentDraftId: WORKSPACE_DEMO_IDS.iris.draftV1,
         revision: revision(1),
       },
     ]),
@@ -226,21 +207,10 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         revision: revision(2),
         createdAt: isoTimestamp("2026-01-10T15:00:00.000Z"),
       },
-      {
-        id: WORKSPACE_DEMO_IDS.iris.draftV2,
-        championId: WORKSPACE_DEMO_IDS.iris.champion,
-        lineageId: WORKSPACE_DEMO_IDS.iris.lineage,
-        generation: 2,
-        status: "active",
-        currentCheckpointId: WORKSPACE_DEMO_IDS.iris.checkpointV20,
-        revision: revision(1),
-        createdAt: isoTimestamp("2026-01-16T14:00:00.000Z"),
-      },
     ]),
     checkpoints: table([
       ...maraCheckpoints,
       irisCheckpointV11,
-      irisCheckpointV20,
     ]),
     strategies: table([
       {

@@ -139,7 +139,7 @@ async function waitForScenarioProjection(page: Page) {
   if (pathname.startsWith("/champions/iris/")) {
     await expect(
       navigation.getByRole("button", {
-        name: /Quality income compounders.*Paper V1.*Active portfolio/,
+        name: /Quality income compounders.*Strategy V1.*Active portfolio/,
       }),
     ).toBeVisible();
   }

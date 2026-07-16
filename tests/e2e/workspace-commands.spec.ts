@@ -150,7 +150,9 @@ test.describe("Mara command authority", () => {
     await expect(page).toHaveURL(
       /\/champions\/mara\/draft\/checkpoints\/draft_checkpoint_[^/?]+$/,
     );
-    await expect(page.getByRole("heading", { name: "V1.3 checkpoint" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Drafting V1 · Checkpoint 3" }),
+    ).toBeVisible();
 
     const checkpointId = decodeURIComponent(new URL(page.url()).pathname.split("/").at(-1)!);
     expect(checkpointId).toMatch(/^draft_checkpoint_/);
@@ -188,7 +190,9 @@ test.describe("Mara command authority", () => {
     await expect(page).toHaveURL(
       new RegExp(`/champions/mara/draft/checkpoints/${checkpointId}$`),
     );
-    await expect(page.getByRole("heading", { name: "V1.3 checkpoint" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Drafting V1 · Checkpoint 3" }),
+    ).toBeVisible();
     const reloaded = await readAuthority(page);
     expect(recordsForChampion(reloaded.checkpoints, maraId)).toHaveLength(
       checkpointCount + 1,

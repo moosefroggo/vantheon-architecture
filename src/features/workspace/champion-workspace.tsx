@@ -177,6 +177,8 @@ type DraftRuntimeState = {
 type PaperLaunchSnapshot = {
   id: string
   label: string
+  strategyTitle: string
+  strategyVersion: number
   source: string
   rules: StrategyRuleFixture[]
   operationalState: "active" | "stopping" | "stopped" | "archived"
@@ -697,9 +699,6 @@ export function ChampionWorkspace() {
                 },
               ],
               motivation: request,
-              evidenceRefs: [attachedContext],
-              expectedBenefit: "Implements the explicit attached strategy intent.",
-              downside: "Requires a new Evaluation before the revised checkpoint can launch.",
             },
           })
           const result = requireAppliedResult(receipt, "change-set-created")
@@ -1225,9 +1224,7 @@ export function ChampionWorkspace() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     size="lg"
-                    isActive={
-                      activeContext !== "live" && route.kind !== "paper-archived"
-                    }
+                    isActive={activeContext === "draft"}
                     onClick={() => selectWorkspaceContext(championId, "draft")}
                   >
                     <NotebookTabs />
@@ -1240,6 +1237,41 @@ export function ChampionWorkspace() {
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                {paperPortfolios
+                  .filter((portfolio) => portfolio.operationalState !== "archived")
+                  .map((portfolio) => (
+                    <SidebarMenuItem key={portfolio.id}>
+                      <SidebarMenuButton
+                        size="lg"
+                        isActive={
+                          selectedPortfolioId === portfolio.id ||
+                          (route.kind === "paper-index" &&
+                            paperPortfolios.filter(
+                              (candidate) => candidate.operationalState !== "archived"
+                            ).length === 1)
+                        }
+                        onClick={() =>
+                          navigate(paperPortfolioHref(championId, portfolio.id))
+                        }
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={
+                            portfolio.operationalState === "active"
+                              ? "size-1.5 shrink-0 rounded-full bg-emerald-600"
+                              : "size-1.5 shrink-0 rounded-full border border-muted-foreground/55"
+                          }
+                        />
+                        <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                          <span className="truncate">{portfolio.strategyTitle}</span>
+                          <span className="truncate text-xs text-foreground">
+                            Paper V{portfolio.strategyVersion} ·{" "}
+                            {paperOperationalLabel(portfolio.operationalState)}
+                          </span>
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -2235,6 +2267,8 @@ function projectPaperPortfolio(
   return {
     id: portfolio.id,
     label: portfolio.displayName,
+    strategyTitle: strategy?.strategy.title ?? portfolio.displayName,
+    strategyVersion: strategy?.version ?? generation,
     source: checkpoint
       ? `Draft V${generation} · Checkpoint ${checkpoint.label}`
       : "Source checkpoint unavailable",
@@ -2690,6 +2724,8 @@ function createChampionSession(
           {
             id: `${fixture.champion.id}-paper-1`,
             label: `${fixture.draft.title} · Paper 1`,
+            strategyTitle: fixture.draft.title,
+            strategyVersion: 1,
             source: fixture.paper.source,
             rules: fixture.draft.rules.map((rule) => ({ ...rule })),
             operationalState: "active",

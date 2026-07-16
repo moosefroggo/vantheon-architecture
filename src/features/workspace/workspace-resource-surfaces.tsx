@@ -46,6 +46,7 @@ export function ChangeSetReviewWorkspace({
 }) {
   const reviewable = changeSet.status === "proposed"
   const stale = currentCheckpoint.id !== changeSet.baseCheckpointId
+  const baseLabel = checkpointDisplayLabel(baseCheckpoint)
 
   return (
     <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Change set review">
@@ -53,9 +54,9 @@ export function ChangeSetReviewWorkspace({
         title={changeSet.kind === "restore" ? "Restore proposal" : "Strategy change proposal"}
         badges={[
           { label: titleCase(changeSet.status) },
-          { label: baseCheckpoint.label, variant: "outline" },
+          { label: baseLabel, variant: "outline" },
         ]}
-        details="Review the semantic delta. Accepting is the only action that creates a checkpoint."
+        details="Review the exact rule change. Only Accept creates the next checkpoint."
         action={
           <Button type="button" variant="outline" onClick={onBack}>
             Back to Draft
@@ -103,28 +104,20 @@ export function ChangeSetReviewWorkspace({
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <ReviewFact label="Motivation" value={changeSet.motivation} />
-            <ReviewFact
-              label="Evidence"
-              value={changeSet.evidenceRefs.length ? changeSet.evidenceRefs.join(" · ") : "Unavailable"}
-            />
-            <ReviewFact label="Expected benefit" value={changeSet.expectedBenefit ?? "Unavailable"} />
-            <ReviewFact label="Downside" value={changeSet.downside ?? "Unavailable"} />
-          </div>
+          <ReviewFact label="Your request" value={changeSet.motivation} />
         </div>
 
         <aside className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Authority boundary</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Change scope</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <ReviewLine label="Exact base" value={baseCheckpoint.label} />
-              <ReviewLine label="Content hash" value={baseCheckpoint.strategyHash} mono />
+              <ReviewLine label="Base" value={baseLabel} />
+              <ReviewLine label="Rules changed" value={String(changeSet.changes.length)} />
               <ReviewLine label="Unchanged rules" value={String(changeSet.unchangedRuleIds.length)} />
-              <ReviewLine label="Required next" value="Completed Evaluation" />
-              <ReviewLine label="Revision" value={changeSet.revision} />
+              <ReviewLine
+                label="After acceptance"
+                value="Run a new Evaluation before Paper"
+              />
             </CardContent>
           </Card>
           {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
@@ -164,12 +157,12 @@ export function CheckpointDetailWorkspace({
   return (
     <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Checkpoint detail">
       <WorkspacePageHeader
-        title={`${checkpoint.label} checkpoint`}
+        title={checkpointDisplayLabel(checkpoint)}
         badges={[
           { label: evaluation ? "Tested" : "Untested", variant: evaluation ? "secondary" : "outline" },
           { label: "Saved locally", variant: "outline" },
         ]}
-        details="Historical snapshots are immutable. Restores create a reviewed proposal and append a new checkpoint."
+        details={`Saved ${formatTimestamp(checkpoint.createdAt)}. Restoring creates a reviewed proposal and a new checkpoint; history never rewinds.`}
         action={
           <div className="flex gap-2">
             {!isCurrent && onRestore ? (
@@ -179,22 +172,7 @@ export function CheckpointDetailWorkspace({
           </div>
         }
       />
-      <div className="mt-4 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
-        <Card>
-          <CardHeader><CardTitle>Provenance</CardTitle></CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <ReviewLine label="Content hash" value={checkpoint.strategyHash} mono />
-            <ReviewLine label="Revision" value={checkpoint.revision} />
-            <ReviewLine label="Actor" value={`${checkpoint.createdBy.kind} · ${checkpoint.createdBy.id}`} />
-            <ReviewLine label="Created" value={formatTimestamp(checkpoint.createdAt)} />
-            <ReviewLine label="Validation" value="Canonical strategy hash verified" />
-            <ReviewLine
-              label="Origin"
-              value={checkpoint.origin.kind.replaceAll("-", " ")}
-            />
-            <ReviewLine label="Evaluation" value={evaluation?.id ?? "Unavailable"} />
-          </CardContent>
-        </Card>
+      <div className="mt-4">
         <Card>
           <CardHeader><CardTitle>{checkpoint.strategy.title}</CardTitle></CardHeader>
           <CardContent>
@@ -211,7 +189,7 @@ export function CheckpointDetailWorkspace({
                   dataRequirementIds: rule.dataRequirementIds,
                 }))
               )}
-              thesis={`This immutable snapshot encodes ${checkpoint.strategy.title} at ${checkpoint.label}.`}
+              thesis={`This immutable snapshot records ${checkpoint.strategy.title} at ${checkpointDisplayLabel(checkpoint)}.`}
               sizingExample="Sizing follows the recorded portfolio rule and simulated-capital assumptions."
               rulePrecedence={checkpoint.strategy.sections.map((section) => section.title)}
               assumptions={checkpoint.strategy.assumptions}
@@ -402,6 +380,10 @@ function ReviewLine({ label, value, mono = false }: { label: string; value: stri
 
 function formatTimestamp(value: string) {
   return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
+}
+
+function checkpointDisplayLabel(checkpoint: DraftCheckpointRecord) {
+  return `Drafting V${checkpoint.generation} · Checkpoint ${checkpoint.ordinal}`
 }
 
 function titleCase(value: string) {

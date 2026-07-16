@@ -2395,7 +2395,7 @@ function projectPaperWorkspace(
     label: portfolio.displayName,
     status: paperOperationalLabel(snapshot.operationalState),
     operationalState: snapshot.operationalState,
-    strategy: strategy?.label ?? "Unavailable",
+    strategy: strategy ? `Running ${strategy.label}` : "Unavailable",
     source: checkpoint
       ? `Draft V${checkpoint.generation} · Checkpoint ${checkpoint.label}`
       : "Unavailable",

@@ -1,5 +1,6 @@
-import { ChampionWorkspace } from "@/features/workspace/champion-workspace"
+import type { Route } from "next"
+import { redirect } from "next/navigation"
 
 export default function Home() {
-  return <ChampionWorkspace />
+  redirect("/champions/mara/draft" as Route)
 }

@@ -287,7 +287,7 @@ test.describe("Mara command authority", () => {
         }),
     ).toBeVisible();
     await expect(page.getByText("Read only", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(0);
 
     const launched = await readAuthority(page);

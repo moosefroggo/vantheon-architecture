@@ -486,7 +486,7 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
       command,
       async (scenario, now) => {
         const draft = requireDraft(scenario, command.draftId);
-        requireActiveDraft(draft);
+        requireEvaluableDraft(draft);
         requireRevision(
           draft.revision,
           command.expectedDraftRevision,
@@ -987,6 +987,12 @@ function requireChangeSet(
 function requireActiveDraft(draft: DraftRecord) {
   if (draft.status !== "active") {
     reject("invalid-state", "Command target must be the active Draft.");
+  }
+}
+
+function requireEvaluableDraft(draft: DraftRecord) {
+  if (draft.status !== "active" && draft.status !== "launched") {
+    reject("invalid-state", "Command target must be an active or launched Draft.");
   }
 }
 

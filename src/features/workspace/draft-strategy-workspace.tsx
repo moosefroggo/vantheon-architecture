@@ -88,7 +88,6 @@ export function DraftStrategyWorkspace({
               <GitFork />
               Fork strategy
             </Button>
-            {!readOnly ? (
             <Button
               type="button"
               onClick={onRunEvaluation}
@@ -97,7 +96,6 @@ export function DraftStrategyWorkspace({
               <Play />
               {evaluationPending ? "Running…" : "Dry Run"}
             </Button>
-            ) : null}
           </div>
         }
         className="px-6 py-4"

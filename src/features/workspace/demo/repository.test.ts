@@ -279,6 +279,9 @@ describe("in-memory workspace authority", () => {
       repository,
       draft.currentCheckpointId
     );
+    const evaluationCount = (
+      await repository.listEvaluations(WORKSPACE_DEMO_IDS.mara.champion)
+    ).length;
     const receipt = await repository.launchPaper({
       ...commandBase("launch", 1),
       draftId: draft.id,
@@ -321,7 +324,22 @@ describe("in-memory workspace authority", () => {
     expect(Object.values(snapshot.drafts).filter(
       (candidate) => candidate.championId === draft.championId
     )).toHaveLength(1);
-    await expect(validateWorkspaceScenario(snapshot)).resolves.toEqual([]);
+
+    const launchedDraft = await requiredCurrentDraft(repository, "mara");
+    const reevaluation = await repository.runEvaluation({
+      ...commandBase("evaluate", 2),
+      draftId: launchedDraft.id,
+      expectedDraftRevision: launchedDraft.revision,
+      checkpointId: checkpoint.id,
+      setup: evaluationSetup("mara"),
+    } satisfies EvaluateDraftCommand);
+    expect(reevaluation.outcome).toBe("applied");
+    expect(
+      await repository.listEvaluations(WORKSPACE_DEMO_IDS.mara.champion)
+    ).toHaveLength(evaluationCount + 1);
+    await expect(
+      validateWorkspaceScenario(await repository.readSnapshot())
+    ).resolves.toEqual([]);
   });
 
   it("rejects a second Paper portfolio after the Strategy Draft is frozen", async () => {

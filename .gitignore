@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.pem
+
+# Private downloaded Vantheon evidence. Only authored audit metadata is tracked.
+/site-mirror/*
+!/site-mirror/COVERAGE.md
+!/site-mirror/audit/
+!/site-mirror/audit/**

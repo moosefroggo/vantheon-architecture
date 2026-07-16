@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    "site-mirror/**",
     ".agents/**",
     ".claude/**",
     "next-env.d.ts",

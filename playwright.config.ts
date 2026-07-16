@@ -9,6 +9,8 @@ export default defineConfig({
   reporter: process.env.CI ? [["html", { open: "never" }], ["github"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:3000",
+    serviceWorkers: "block",
+    storageState: { cookies: [], origins: [] },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -16,11 +18,15 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 1000 },
+      },
     },
   ],
   webServer: {
     command: "npm run dev",
+    env: { NEXT_TELEMETRY_DISABLED: "1" },
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

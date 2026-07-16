@@ -1,0 +1,1810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Strategy Compact Workspace</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;background:inherit}iframe{display:block;width:100%;height:100vh;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Strategy Compact Workspace" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Strategy Compact Workspace&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(--background) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: light-dark(rgb(255 255 255), rgb(24 24 24));
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 12.5px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--viz-font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed=&quot;true&quot;],
+    [aria-selected=&quot;true&quot;],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;strategy-compact-workspace&quot;&gt;
+  &lt;div class=&quot;scw-shell&quot; aria-label=&quot;Champion strategy and portfolio workspace&quot;&gt;
+    &lt;header class=&quot;scw-topbar&quot;&gt;
+      &lt;strong class=&quot;scw-brand&quot;&gt;VANTHEON&lt;/strong&gt;
+      &lt;label class=&quot;form-label scw-champion-field&quot;&gt;
+        &lt;span class=&quot;sr-only&quot;&gt;Champion&lt;/span&gt;
+        &lt;select class=&quot;form-select&quot; id=&quot;scw-champion&quot; aria-label=&quot;Champion&quot;&gt;
+          &lt;option value=&quot;mara&quot;&gt;Mara&lt;/option&gt;
+          &lt;option value=&quot;iris&quot;&gt;Iris&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/label&gt;
+      &lt;span class=&quot;text-small text-muted scw-top-state&quot; id=&quot;scw-top-state&quot;&gt;Momentum · Draft V6.4 · Overview&lt;/span&gt;
+    &lt;/header&gt;
+
+    &lt;aside class=&quot;scw-sidebar&quot; aria-label=&quot;Champion navigation&quot;&gt;
+      &lt;div class=&quot;text-small text-muted scw-label&quot;&gt;Capital&lt;/div&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn btn-block scw-side-button&quot; id=&quot;scw-live&quot;&gt;&lt;/button&gt;
+
+      &lt;div class=&quot;scw-side-heading&quot;&gt;
+        &lt;span&gt;Strategies&lt;/span&gt;
+        &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; id=&quot;scw-new-strategy&quot;&gt;New&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;nav class=&quot;scw-strategy-list&quot; id=&quot;scw-strategies&quot; aria-label=&quot;Strategies&quot;&gt;&lt;/nav&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost btn-block scw-archive-row&quot;&gt;
+        &lt;span&gt;Archived&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/aside&gt;
+
+    &lt;main class=&quot;scw-main&quot; id=&quot;scw-main&quot; aria-live=&quot;polite&quot;&gt;&lt;/main&gt;
+
+    &lt;aside class=&quot;scw-chat&quot; aria-label=&quot;Champion conversation&quot;&gt;
+      &lt;div class=&quot;scw-chat-head&quot;&gt;
+        &lt;strong id=&quot;scw-chat-name&quot;&gt;Mara&lt;/strong&gt;
+        &lt;span class=&quot;scw-status&quot;&gt;&lt;span class=&quot;scw-dot scw-dot-active&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;Active&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;scw-chat-context&quot;&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;Viewing&lt;/span&gt;
+        &lt;span id=&quot;scw-viewing&quot;&gt;Momentum · Draft V6.4 · Overview&lt;/span&gt;
+        &lt;span class=&quot;text-small text-muted scw-context-gap&quot;&gt;Changes go to&lt;/span&gt;
+        &lt;span id=&quot;scw-write-target&quot;&gt;Momentum · Draft V6.4&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;scw-chat-log&quot; id=&quot;scw-chat-log&quot;&gt;
+        &lt;div class=&quot;scw-message scw-message-user&quot;&gt;What changed since the strategy running in Paper?&lt;/div&gt;
+        &lt;div class=&quot;scw-message&quot;&gt;Draft V6 tightens concentration, raises the cash floor, and shortens the trailing stop. Paper remains on immutable Strategy V5.&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;form class=&quot;scw-composer&quot; id=&quot;scw-composer&quot;&gt;
+        &lt;label class=&quot;sr-only&quot; for=&quot;scw-message&quot;&gt;Message Champion&lt;/label&gt;
+        &lt;textarea class=&quot;form-control&quot; id=&quot;scw-message&quot; rows=&quot;2&quot; placeholder=&quot;Ask about this strategy…&quot;&gt;&lt;/textarea&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Send&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/aside&gt;
+
+    &lt;footer class=&quot;scw-statusbar&quot; aria-label=&quot;Workspace status&quot;&gt;
+      &lt;span&gt;&lt;strong&gt;Target&lt;/strong&gt; &lt;span id=&quot;scw-footer-target&quot;&gt;Momentum · Draft V6.4&lt;/span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;strong&gt;Live&lt;/strong&gt; &lt;span id=&quot;scw-footer-live&quot;&gt;Momentum Strategy V4 · $48,200&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;text-muted&quot;&gt;Data current · Jul 15, 3:28 PM CT&lt;/span&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  #strategy-compact-workspace { color: var(--foreground); }
+
+  #strategy-compact-workspace .scw-shell {
+    display: grid;
+    grid-template-columns: minmax(180px, .22fr) minmax(470px, 1fr) minmax(240px, .31fr);
+    grid-template-areas: &quot;top top top&quot; &quot;sidebar main chat&quot; &quot;foot foot foot&quot;;
+    grid-template-rows: auto 1fr auto;
+    min-height: 820px;
+    border: 1px solid var(--border);
+    background: var(--background);
+  }
+
+  #strategy-compact-workspace .scw-topbar {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 11px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-brand { letter-spacing: .14em; }
+  #strategy-compact-workspace .scw-champion-field { margin: 0; }
+  #strategy-compact-workspace .scw-top-state { margin-left: auto; text-align: right; }
+
+  #strategy-compact-workspace .scw-sidebar {
+    grid-area: sidebar;
+    min-width: 0;
+    padding: 10px;
+    border-right: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-main {
+    grid-area: main;
+    min-width: 0;
+    padding: 12px 15px 20px;
+  }
+
+  #strategy-compact-workspace .scw-chat {
+    grid-area: chat;
+    min-width: 0;
+    display: grid;
+    grid-template-rows: auto auto minmax(210px, 1fr) auto;
+    border-left: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-chat-head,
+  #strategy-compact-workspace .scw-chat-context,
+  #strategy-compact-workspace .scw-chat-log,
+  #strategy-compact-workspace .scw-composer { padding: 10px; }
+
+  #strategy-compact-workspace .scw-chat-head,
+  #strategy-compact-workspace .scw-chat-context,
+  #strategy-compact-workspace .scw-chat-log { border-bottom: 1px solid var(--border); }
+
+  #strategy-compact-workspace .scw-chat-head,
+  #strategy-compact-workspace .scw-side-heading,
+  #strategy-compact-workspace .scw-archive-row,
+  #strategy-compact-workspace .scw-title-row,
+  #strategy-compact-workspace .scw-section-head,
+  #strategy-compact-workspace .scw-run-head,
+  #strategy-compact-workspace .scw-trace-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px;
+  }
+
+  #strategy-compact-workspace .scw-chat-context,
+  #strategy-compact-workspace .scw-chat-log,
+  #strategy-compact-workspace .scw-composer {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+  }
+
+  #strategy-compact-workspace .scw-status,
+  #strategy-compact-workspace .scw-inline,
+  #strategy-compact-workspace .scw-meta,
+  #strategy-compact-workspace .scw-trail,
+  #strategy-compact-workspace .scw-run-controls {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  #strategy-compact-workspace .scw-context-gap { margin-top: 5px; }
+  #strategy-compact-workspace .scw-message { max-width: 92%; padding-block: 7px; border-bottom: 1px solid var(--border); }
+  #strategy-compact-workspace .scw-message-user { justify-self: end; text-align: right; }
+  #strategy-compact-workspace .scw-label { margin-bottom: 5px; }
+  #strategy-compact-workspace .scw-side-heading { margin-top: 15px; }
+
+  #strategy-compact-workspace .scw-side-button,
+  #strategy-compact-workspace .scw-strategy-button {
+    justify-content: flex-start;
+    text-align: left;
+    white-space: normal;
+  }
+
+  #strategy-compact-workspace .scw-nav-copy {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  #strategy-compact-workspace .scw-strategy-list { display: grid; gap: 4px; margin-top: 8px; }
+  #strategy-compact-workspace .scw-archive-row { margin-top: 12px; }
+
+  #strategy-compact-workspace .scw-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border: 1px solid var(--muted-foreground);
+    border-radius: 999px;
+  }
+
+  #strategy-compact-workspace .scw-dot-active { border-color: var(--viz-series-1); background: var(--viz-series-1); }
+  #strategy-compact-workspace .scw-dot-idle { border-color: var(--muted-foreground); background: transparent; }
+
+  #strategy-compact-workspace .scw-title-row { align-items: flex-start; margin-bottom: 9px; }
+  #strategy-compact-workspace .scw-title-row p,
+  #strategy-compact-workspace .scw-title-row h2,
+  #strategy-compact-workspace .scw-section-head p,
+  #strategy-compact-workspace .scw-section-head h3 { margin: 0; }
+
+  #strategy-compact-workspace .scw-environments {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding-block: 9px;
+    border-block: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-env-button {
+    display: grid;
+    justify-items: start;
+    gap: 1px;
+    text-align: left;
+    white-space: normal;
+  }
+
+  #strategy-compact-workspace .scw-local-nav,
+  #strategy-compact-workspace .scw-run-nav,
+  #strategy-compact-workspace .scw-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding-block: 9px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-run-nav { justify-content: space-between; }
+  #strategy-compact-workspace .scw-run-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+  #strategy-compact-workspace .scw-pane { padding-top: 13px; }
+
+  #strategy-compact-workspace .scw-provenance {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-block: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 13px;
+    border-block: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-stat { padding: 9px 10px 9px 0; }
+  #strategy-compact-workspace .scw-stat + .scw-stat { padding-left: 10px; border-left: 1px solid var(--border); }
+  #strategy-compact-workspace .scw-stat strong { display: block; margin-top: 2px; }
+
+  #strategy-compact-workspace .scw-evidence-chart { margin-block: 14px 7px; }
+  #strategy-compact-workspace .scw-evidence-chart svg { display: block; width: 100%; height: auto; color: var(--viz-series-1); }
+  #strategy-compact-workspace .scw-gridline { stroke: var(--border); }
+  #strategy-compact-workspace .scw-account-line { fill: none; stroke: currentColor; stroke-width: 2; }
+  #strategy-compact-workspace .scw-benchmark-line { fill: none; stroke: var(--muted-foreground); stroke-width: 1.25; stroke-dasharray: 4 4; }
+  #strategy-compact-workspace .scw-marker { fill: var(--background); stroke: currentColor; stroke-width: 2; }
+  #strategy-compact-workspace .scw-marker-muted { fill: var(--background); stroke: var(--muted-foreground); stroke-width: 1.25; }
+
+  #strategy-compact-workspace .scw-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(220px, .9fr);
+    gap: 0 18px;
+  }
+
+  #strategy-compact-workspace .scw-section {
+    min-width: 0;
+    padding-block: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-section-wide { grid-column: 1 / -1; }
+  #strategy-compact-workspace .scw-section-head { align-items: flex-start; margin-bottom: 7px; }
+  #strategy-compact-workspace .scw-decision { display: grid; gap: 5px; }
+  #strategy-compact-workspace .scw-decision strong { font-size: 1.06em; }
+  #strategy-compact-workspace .scw-rule-result { display: flex; justify-content: space-between; gap: 12px; padding-block: 5px; border-top: 1px solid var(--border); }
+
+  #strategy-compact-workspace .scw-table { width: 100%; border-collapse: collapse; }
+  #strategy-compact-workspace .scw-table th,
+  #strategy-compact-workspace .scw-table td { padding: 7px 6px; border-top: 1px solid var(--border); text-align: left; vertical-align: top; }
+  #strategy-compact-workspace .scw-table th { font-weight: 500; }
+  #strategy-compact-workspace .scw-table th:first-child,
+  #strategy-compact-workspace .scw-table td:first-child { padding-left: 0; }
+  #strategy-compact-workspace .scw-table th:last-child,
+  #strategy-compact-workspace .scw-table td:last-child { padding-right: 0; text-align: right; }
+
+  #strategy-compact-workspace .scw-row-button {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #strategy-compact-workspace .scw-run-head { align-items: flex-start; margin-bottom: 8px; }
+  #strategy-compact-workspace .scw-run-title { display: grid; gap: 3px; }
+  #strategy-compact-workspace .scw-run-title h2 { margin: 0; }
+  #strategy-compact-workspace .scw-run-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; }
+
+  #strategy-compact-workspace .scw-verdict {
+    display: grid;
+    grid-template-columns: minmax(170px, .7fr) minmax(250px, 1.3fr);
+    gap: 18px;
+    padding-block: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-verdict-main { display: grid; align-content: start; gap: 5px; }
+  #strategy-compact-workspace .scw-verdict-main strong { font-size: 1.15em; }
+  #strategy-compact-workspace .scw-trace { display: grid; gap: 0; }
+  #strategy-compact-workspace .scw-trace-row { display: grid; grid-template-columns: 76px 16px minmax(0, 1fr); gap: 7px; padding-block: 8px; border-top: 1px solid var(--border); }
+  #strategy-compact-workspace .scw-trace-mark { color: var(--muted-foreground); }
+  #strategy-compact-workspace .scw-trace-copy { display: grid; gap: 2px; }
+  #strategy-compact-workspace .scw-trace-detail { margin-top: 6px; padding: 8px 0 0; border-top: 1px solid var(--border); }
+
+  #strategy-compact-workspace .scw-editor { width: 100%; border-collapse: collapse; }
+  #strategy-compact-workspace .scw-editor th,
+  #strategy-compact-workspace .scw-editor td { padding: 8px 6px; border-top: 1px solid var(--border); text-align: left; vertical-align: top; }
+  #strategy-compact-workspace .scw-line { width: 28px; color: var(--muted-foreground); text-align: right !important; }
+  #strategy-compact-workspace .scw-evidence { width: 25%; }
+
+  #strategy-compact-workspace .scw-statusbar {
+    grid-area: foot;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding: 6px 11px;
+    border-top: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-primary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-block: 7px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-primary-tabs,
+  #strategy-compact-workspace .scw-primary-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  #strategy-compact-workspace .scw-overview-pane {
+    padding-top: 10px;
+  }
+
+  #strategy-compact-workspace .scw-overview-pane &gt; .scw-stats:first-child {
+    margin-top: 0;
+  }
+
+  #strategy-compact-workspace .scw-dock {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-dock-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-block: 7px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-dock-body {
+    min-height: 132px;
+    padding-top: 7px;
+  }
+
+  #strategy-compact-workspace .scw-problem-row {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding-block: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-document-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-document-column {
+    min-width: 0;
+    padding-top: 10px;
+  }
+
+  #strategy-compact-workspace .scw-document-column + .scw-document-column {
+    margin-left: 14px;
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+  }
+
+  #strategy-compact-workspace .scw-strategy-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  #strategy-compact-workspace .scw-test-scheme {
+    max-width: 220px;
+  }
+
+  @media (max-width: 900px) {
+    #strategy-compact-workspace .scw-shell {
+      grid-template-columns: minmax(160px, .27fr) minmax(390px, 1fr);
+      grid-template-areas: &quot;top top&quot; &quot;sidebar main&quot; &quot;chat chat&quot; &quot;foot foot&quot;;
+    }
+    #strategy-compact-workspace .scw-chat { border-left: 0; border-top: 1px solid var(--border); grid-template-columns: minmax(160px, .35fr) 1fr; grid-template-rows: auto minmax(150px, 1fr) auto; }
+    #strategy-compact-workspace .scw-chat-head { grid-column: 1; }
+    #strategy-compact-workspace .scw-chat-context { grid-column: 1; border-bottom: 0; }
+    #strategy-compact-workspace .scw-chat-log { grid-column: 2; grid-row: 1 / 3; border-left: 1px solid var(--border); }
+    #strategy-compact-workspace .scw-composer { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 650px) {
+    #strategy-compact-workspace .scw-shell { grid-template-columns: 1fr; grid-template-areas: &quot;top&quot; &quot;sidebar&quot; &quot;main&quot; &quot;chat&quot; &quot;foot&quot;; }
+    #strategy-compact-workspace .scw-sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+    #strategy-compact-workspace .scw-strategy-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #strategy-compact-workspace .scw-chat { display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto minmax(170px, 1fr) auto; }
+    #strategy-compact-workspace .scw-chat-head,
+    #strategy-compact-workspace .scw-chat-context,
+    #strategy-compact-workspace .scw-chat-log,
+    #strategy-compact-workspace .scw-composer { grid-column: 1; grid-row: auto; border-left: 0; }
+    #strategy-compact-workspace .scw-overview-grid,
+    #strategy-compact-workspace .scw-verdict,
+    #strategy-compact-workspace .scw-document-grid { grid-template-columns: 1fr; }
+    #strategy-compact-workspace .scw-document-column + .scw-document-column {
+      margin-left: 0;
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+    #strategy-compact-workspace .scw-section-wide { grid-column: auto; }
+  }
+
+  @media (max-width: 430px) {
+    #strategy-compact-workspace .scw-main { padding-inline: 10px; }
+    #strategy-compact-workspace .scw-strategy-list,
+    #strategy-compact-workspace .scw-stats { grid-template-columns: 1fr 1fr; }
+    #strategy-compact-workspace .scw-stat:nth-child(3) { border-left: 0; }
+    #strategy-compact-workspace .scw-title-row,
+    #strategy-compact-workspace .scw-section-head,
+    #strategy-compact-workspace .scw-run-head { align-items: stretch; flex-direction: column; }
+    #strategy-compact-workspace .scw-top-state { display: none; }
+    #strategy-compact-workspace .scw-trace-row { grid-template-columns: 64px 14px minmax(0, 1fr); }
+  }
+&lt;/style&gt;
+
+&lt;script&gt;
+  (function () {
+    var root = document.getElementById(&quot;strategy-compact-workspace&quot;);
+    if (!root) return;
+
+    var main = root.querySelector(&quot;#scw-main&quot;);
+    var strategyList = root.querySelector(&quot;#scw-strategies&quot;);
+    var liveButton = root.querySelector(&quot;#scw-live&quot;);
+    var topState = root.querySelector(&quot;#scw-top-state&quot;);
+    var viewing = root.querySelector(&quot;#scw-viewing&quot;);
+    var writeTarget = root.querySelector(&quot;#scw-write-target&quot;);
+
+    var champions = {
+      mara: {
+        name: &quot;Mara&quot;,
+        live: { value: &quot;$48,200&quot;, change: &quot;+4.8%&quot;, exposure: &quot;71%&quot;, drawdown: &quot;−2.6%&quot;, strategy: &quot;Momentum&quot;, strategyVersion: &quot;V4&quot;, checkpoint: &quot;V4.6&quot;, runs: 32 },
+        strategies: [
+          { id: &quot;momentum&quot;, name: &quot;Momentum&quot;, title: &quot;Lower-volatility momentum&quot;, draft: &quot;Draft V6&quot;, checkpoint: &quot;V6.4&quot;, pending: 3,
+            papers: [
+              { id: &quot;growth&quot;, name: &quot;Growth test&quot;, state: &quot;Running&quot;, version: &quot;V5&quot;, source: &quot;V5.7&quot;, value: &quot;$105,480&quot;, change: &quot;+5.5%&quot;, exposure: &quot;64%&quot;, drawdown: &quot;−3.2%&quot;, runs: 18 },
+              { id: &quot;baseline&quot;, name: &quot;Baseline&quot;, state: &quot;Paused&quot;, version: &quot;V4&quot;, source: &quot;V4.6&quot;, value: &quot;$102,140&quot;, change: &quot;+2.1%&quot;, exposure: &quot;42%&quot;, drawdown: &quot;−4.0%&quot;, runs: 12 }
+            ] },
+          { id: &quot;defensive&quot;, name: &quot;Defensive quality&quot;, title: &quot;Defensive quality compounders&quot;, draft: &quot;Draft V3&quot;, checkpoint: &quot;V3.2&quot;, pending: 1, papers: [{ id: &quot;low-dd&quot;, name: &quot;Low drawdown&quot;, state: &quot;Running&quot;, version: &quot;V2&quot;, source: &quot;V2.5&quot;, value: &quot;$101,920&quot;, change: &quot;+1.9%&quot;, exposure: &quot;58%&quot;, drawdown: &quot;−1.7%&quot;, runs: 9 }] },
+          { id: &quot;income&quot;, name: &quot;Income&quot;, title: &quot;Quality income&quot;, draft: &quot;Draft V1&quot;, checkpoint: &quot;V1.1&quot;, pending: 0, papers: [] }
+        ]
+      },
+      iris: {
+        name: &quot;Iris&quot;,
+        live: { value: &quot;—&quot;, change: &quot;—&quot;, exposure: &quot;0%&quot;, drawdown: &quot;—&quot;, strategy: null, strategyVersion: null, checkpoint: null, runs: 0 },
+        strategies: [
+          { id: &quot;dividend&quot;, name: &quot;Dividend quality&quot;, title: &quot;Dividend quality&quot;, draft: &quot;Draft V2&quot;, checkpoint: &quot;V2.1&quot;, pending: 2, papers: [{ id: &quot;yield&quot;, name: &quot;Yield test&quot;, state: &quot;Running&quot;, version: &quot;V1&quot;, source: &quot;V1.4&quot;, value: &quot;$50,940&quot;, change: &quot;+1.9%&quot;, exposure: &quot;67%&quot;, drawdown: &quot;−1.4%&quot;, runs: 7 }] },
+          { id: &quot;hedge&quot;, name: &quot;Macro hedge&quot;, title: &quot;Macro hedge&quot;, draft: &quot;Draft V1&quot;, checkpoint: &quot;V1.0&quot;, pending: 0, papers: [] }
+        ]
+      }
+    };
+
+    var championId = &quot;mara&quot;;
+    var selectedStrategyId = &quot;momentum&quot;;
+    var environment = { kind: &quot;draft&quot;, paperId: null };
+    var localView = &quot;overview&quot;;
+    var runDetail = null;
+    var runTab = &quot;summary&quot;;
+    var dockTab = &quot;problems&quot;;
+    var compareMode = false;
+
+    function champion() { return champions[championId]; }
+    function selectedStrategy() { return champion().strategies.find(function (item) { return item.id === selectedStrategyId; }); }
+    function selectedPaper() {
+      var item = selectedStrategy();
+      return item &amp;&amp; environment.paperId ? item.papers.find(function (paper) { return paper.id === environment.paperId; }) : null;
+    }
+
+    function dot(active) { return &#x27;&lt;span class=&quot;scw-dot &#x27; + (active ? &quot;scw-dot-active&quot; : &quot;scw-dot-idle&quot;) + &#x27;&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&#x27;; }
+    function button(name, label, selected) { return &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-local=&quot;&#x27; + name + &#x27;&quot; aria-pressed=&quot;&#x27; + (selected ? &quot;true&quot; : &quot;false&quot;) + &#x27;&quot;&gt;&#x27; + label + &#x27;&lt;/button&gt;&#x27;; }
+    function table(headers, rows, caption) {
+      return &#x27;&lt;table class=&quot;scw-table&quot;&gt;&lt;caption class=&quot;sr-only&quot;&gt;&#x27; + caption + &#x27;&lt;/caption&gt;&lt;thead&gt;&lt;tr&gt;&#x27; + headers.map(function (head) { return &#x27;&lt;th scope=&quot;col&quot;&gt;&#x27; + head + &#x27;&lt;/th&gt;&#x27;; }).join(&quot;&quot;) + &#x27;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&#x27; + rows.map(function (row) { return &#x27;&lt;tr&gt;&#x27; + row.map(function (cell, index) { return index === 0 ? &#x27;&lt;th scope=&quot;row&quot;&gt;&#x27; + cell + &#x27;&lt;/th&gt;&#x27; : &#x27;&lt;td&gt;&#x27; + cell + &#x27;&lt;/td&gt;&#x27;; }).join(&quot;&quot;) + &#x27;&lt;/tr&gt;&#x27;; }).join(&quot;&quot;) + &#x27;&lt;/tbody&gt;&lt;/table&gt;&#x27;;
+    }
+
+    function renderSidebar() {
+      var current = champion();
+      var live = current.live;
+      liveButton.setAttribute(&quot;aria-pressed&quot;, environment.kind === &quot;live&quot; ? &quot;true&quot; : &quot;false&quot;);
+      liveButton.innerHTML = dot(live.strategy !== null) + &#x27;&lt;span class=&quot;scw-nav-copy&quot;&gt;&lt;span&gt;Live portfolio&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + (live.strategy ? live.strategy + &#x27; &#x27; + live.strategyVersion + &#x27; · &#x27; + live.value : &#x27;Not activated&#x27;) + &#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;
+      strategyList.innerHTML = &quot;&quot;;
+      current.strategies.forEach(function (item) {
+        var control = document.createElement(&quot;button&quot;);
+        control.type = &quot;button&quot;;
+        control.className = &quot;btn btn-block scw-strategy-button&quot;;
+        control.setAttribute(&quot;aria-pressed&quot;, environment.kind !== &quot;live&quot; &amp;&amp; item.id === selectedStrategyId ? &quot;true&quot; : &quot;false&quot;);
+        control.innerHTML = dot(item.id === selectedStrategyId) + &#x27;&lt;span class=&quot;scw-nav-copy&quot;&gt;&lt;span&gt;&#x27; + item.name + &#x27;&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.draft + &#x27; · &#x27; + (item.pending ? item.pending + &#x27; changes&#x27; : &#x27;Tested&#x27;) + &#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;
+        control.addEventListener(&quot;click&quot;, function () {
+          selectedStrategyId = item.id;
+          environment = { kind: &quot;draft&quot;, paperId: null };
+          localView = &quot;overview&quot;;
+          compareMode = false;
+          dockTab = &quot;problems&quot;;
+          runDetail = null;
+          render();
+        });
+        strategyList.appendChild(control);
+      });
+      root.querySelector(&quot;#scw-chat-name&quot;).textContent = current.name;
+    }
+
+    function renderStrategyHeader(item) {
+      var tools = environment.kind === &quot;draft&quot; ? &#x27;&lt;div class=&quot;scw-strategy-tools&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.title + &#x27;&lt;/span&gt;&lt;select class=&quot;form-select scw-test-scheme&quot; aria-label=&quot;Test scheme&quot;&gt;&lt;option&gt;2019–2026 · SPY · $100k&lt;/option&gt;&lt;option&gt;COVID stress · SPY · $100k&lt;/option&gt;&lt;/select&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot; data-dock=&quot;tests&quot;&gt;Test&lt;/button&gt;&lt;/div&gt;&#x27; : &#x27;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.title + &#x27;&lt;/span&gt;&#x27;;
+      return &#x27;&lt;div class=&quot;scw-title-row&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Strategy workspace&lt;/p&gt;&lt;h2&gt;&#x27; + item.name + &#x27;&lt;/h2&gt;&lt;/div&gt;&#x27; + tools + &#x27;&lt;/div&gt;&#x27;;
+    }
+
+    function renderEnvironments(item) {
+      var html = &#x27;&lt;nav class=&quot;scw-environments&quot; aria-label=&quot;Draft and paper portfolios&quot;&gt;&#x27;;
+      html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn scw-env-button&quot; data-env=&quot;draft&quot; aria-pressed=&quot;&#x27; + (environment.kind === &quot;draft&quot; ? &quot;true&quot; : &quot;false&quot;) + &#x27;&quot;&gt;&lt;span class=&quot;scw-inline&quot;&gt;&#x27; + dot(true) + &#x27;Draft&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.draft + &#x27; · &#x27; + item.checkpoint + &#x27;&lt;/span&gt;&lt;/button&gt;&#x27;;
+      item.papers.forEach(function (paper) {
+        html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn scw-env-button&quot; data-env=&quot;paper&quot; data-paper=&quot;&#x27; + paper.id + &#x27;&quot; aria-pressed=&quot;&#x27; + (environment.kind === &quot;paper&quot; &amp;&amp; environment.paperId === paper.id ? &quot;true&quot; : &quot;false&quot;) + &#x27;&quot;&gt;&lt;span class=&quot;scw-inline&quot;&gt;&#x27; + dot(paper.state === &quot;Running&quot;) + &#x27;Paper · &#x27; + paper.name + &#x27;&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + paper.version + &#x27; · &#x27; + paper.state + &#x27;&lt;/span&gt;&lt;/button&gt;&#x27;;
+      });
+      html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;New Paper&lt;/button&gt;&lt;/nav&gt;&#x27;;
+      return html;
+    }
+
+    function renderPortfolioNav(isLive) {
+      var items = button(&quot;overview&quot;, &quot;Overview&quot;, localView === &quot;overview&quot;) + button(&quot;positions&quot;, &quot;Positions&quot;, localView === &quot;positions&quot;) + button(&quot;orders&quot;, &quot;Orders&quot;, localView === &quot;orders&quot;) + button(&quot;runs&quot;, &quot;Runs&quot;, localView === &quot;runs&quot;);
+      if (isLive) items += button(&quot;risk&quot;, &quot;Risk&quot;, localView === &quot;risk&quot;);
+      return &#x27;&lt;nav class=&quot;scw-local-nav&quot; aria-label=&quot;Portfolio sections&quot;&gt;&#x27; + items + &#x27;&lt;/nav&gt;&#x27;;
+    }
+
+    function renderDraftNav(item) {
+      var compare = item.papers.length ? &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-compare&gt;&#x27; + (compareMode ? &quot;Close comparison&quot; : &quot;Compare &quot; + item.papers[0].version) + &#x27;&lt;/button&gt;&#x27; : &#x27;&#x27;;
+      return &#x27;&lt;div class=&quot;scw-primary-bar&quot;&gt;&lt;nav class=&quot;scw-primary-tabs&quot; aria-label=&quot;Strategy views&quot;&gt;&#x27; + button(&quot;overview&quot;, &quot;Overview&quot;, localView === &quot;overview&quot;) + button(&quot;document&quot;, &quot;Document&quot;, localView === &quot;document&quot;) + &#x27;&lt;/nav&gt;&lt;div class=&quot;scw-primary-actions&quot;&gt;&#x27; + compare + &#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
+    }
+
+    function evidenceChart(runs) {
+      var first = Math.max(1, runs - 7);
+      return &#x27;&lt;div class=&quot;scw-evidence-chart&quot;&gt;&lt;svg viewBox=&quot;0 0 640 155&quot; role=&quot;img&quot; aria-label=&quot;Portfolio value and benchmark measured at completed runs&quot;&gt;&lt;title&gt;Portfolio value at completed runs&lt;/title&gt;&lt;desc&gt;Eight discrete completed-run observations. Run markers open their decision trace.&lt;/desc&gt;&lt;line class=&quot;scw-gridline&quot; x1=&quot;8&quot; y1=&quot;114&quot; x2=&quot;632&quot; y2=&quot;114&quot;&gt;&lt;/line&gt;&lt;line class=&quot;scw-gridline&quot; x1=&quot;8&quot; y1=&quot;62&quot; x2=&quot;632&quot; y2=&quot;62&quot;&gt;&lt;/line&gt;&lt;path class=&quot;scw-benchmark-line&quot; d=&quot;M12 111 L100 106 L188 101 L276 96 L364 92 L452 85 L540 78 L628 74&quot;&gt;&lt;/path&gt;&lt;path class=&quot;scw-account-line&quot; d=&quot;M12 112 L100 103 L188 105 L276 88 L364 92 L452 68 L540 57 L628 43&quot;&gt;&lt;/path&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;12&quot; cy=&quot;112&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;100&quot; cy=&quot;103&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;188&quot; cy=&quot;105&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;276&quot; cy=&quot;88&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;364&quot; cy=&quot;92&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;452&quot; cy=&quot;68&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;540&quot; cy=&quot;57&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;scw-marker&quot; cx=&quot;628&quot; cy=&quot;43&quot; r=&quot;5&quot;&gt;&lt;/circle&gt;&lt;text x=&quot;12&quot; y=&quot;140&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;Run &#x27; + first + &#x27;&lt;/text&gt;&lt;text x=&quot;283&quot; y=&quot;140&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;completed-run observations&lt;/text&gt;&lt;text x=&quot;582&quot; y=&quot;140&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;Run &#x27; + runs + &#x27;&lt;/text&gt;&lt;/svg&gt;&lt;/div&gt;&#x27;;
+    }
+
+    function renderStats(portfolio) {
+      return &#x27;&lt;div class=&quot;scw-stats&quot;&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Value&lt;/span&gt;&lt;strong&gt;&#x27; + portfolio.value + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Return&lt;/span&gt;&lt;strong&gt;&#x27; + portfolio.change + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Exposure&lt;/span&gt;&lt;strong&gt;&#x27; + portfolio.exposure + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Max drawdown&lt;/span&gt;&lt;strong&gt;&#x27; + portfolio.drawdown + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
+    }
+
+    function renderOverview(portfolio, isLive) {
+      var run = portfolio.runs || 0;
+      return renderStats(portfolio) + evidenceChart(run) + &#x27;&lt;div class=&quot;scw-overview-grid&quot;&gt;&#x27; +
+        &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Latest run · #&#x27; + run + &#x27;&lt;/span&gt;&lt;h3&gt;No order&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-open-run=&quot;&#x27; + run + &#x27;&quot;&gt;Open trace&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;scw-decision&quot;&gt;&lt;span&gt;3 candidates reached portfolio checks.&lt;/span&gt;&lt;div class=&quot;scw-rule-result&quot;&gt;&lt;span&gt;Position cap&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;2 blocked&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;scw-rule-result&quot;&gt;&lt;span&gt;Earnings window&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;1 blocked&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Account and positions unchanged.&lt;/span&gt;&lt;/div&gt;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Next run&lt;/span&gt;&lt;h3&gt;Friday · 3:00 PM&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;Edit&lt;/button&gt;&lt;/div&gt;&lt;p&gt;Weekly at market close&lt;/p&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Buying power $37,970 · 36% cash&lt;/p&gt;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Positions · 6&lt;/span&gt;&lt;h3&gt;Current exposure&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-jump=&quot;positions&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&quot;Symbol&quot;, &quot;Weight&quot;, &quot;P&amp;L&quot;], [[&quot;MSFT&quot;, &quot;18.2%&quot;, &quot;+4.1%&quot;], [&quot;NVDA&quot;, &quot;14.7%&quot;, &quot;+1.8%&quot;], [&quot;GOOGL&quot;, &quot;11.3%&quot;, &quot;+2.6%&quot;]], &quot;Position preview&quot;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Orders&lt;/span&gt;&lt;h3&gt;Nothing pending&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-jump=&quot;orders&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&quot;Run&quot;, &quot;Decision&quot;, &quot;State&quot;], [[&quot;#&#x27; + run + &#x27;&quot;, &quot;No order&quot;, &quot;Rules held&quot;], [&quot;#&#x27; + Math.max(1, run - 1) + &#x27;&quot;, &quot;Sell 4 MSFT&quot;, &quot;Filled&quot;]], &quot;Order preview&quot;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;scw-section scw-section-wide&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Recent runs&lt;/span&gt;&lt;h3&gt;Decision evidence&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-jump=&quot;runs&quot;&gt;All runs&lt;/button&gt;&lt;/div&gt;&#x27; + table([&quot;Run&quot;, &quot;Completed&quot;, &quot;Outcome&quot;, &quot;Orders&quot;], [[&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + run + &#x27;&quot;&gt;Run &#x27; + run + &#x27;&lt;/button&gt;&#x27;, &quot;Today · 3:09 PM&quot;, &quot;No order · constraints held&quot;, &quot;0&quot;], [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + Math.max(1, run - 1) + &#x27;&quot;&gt;Run &#x27; + Math.max(1, run - 1) + &#x27;&lt;/button&gt;&#x27;, &quot;Jul 11 · 3:08 PM&quot;, &quot;Rebalanced 2 positions&quot;, &quot;2&quot;]], &quot;Recent runs&quot;) + &#x27;&lt;/section&gt;&lt;/div&gt;&#x27;;
+    }
+
+    function renderPositions() {
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Positions · 6&lt;/span&gt;&lt;h3&gt;Holdings&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;64% deployed&lt;/span&gt;&lt;/div&gt;&#x27; + table([&quot;Symbol&quot;, &quot;Shares&quot;, &quot;Market value&quot;, &quot;Weight&quot;, &quot;P&amp;L&quot;], [[&quot;MSFT&quot;, &quot;48&quot;, &quot;$19,196&quot;, &quot;18.2%&quot;, &quot;+4.1%&quot;], [&quot;NVDA&quot;, &quot;102&quot;, &quot;$15,505&quot;, &quot;14.7%&quot;, &quot;+1.8%&quot;], [&quot;GOOGL&quot;, &quot;61&quot;, &quot;$11,919&quot;, &quot;11.3%&quot;, &quot;+2.6%&quot;], [&quot;COST&quot;, &quot;9&quot;, &quot;$8,544&quot;, &quot;8.1%&quot;, &quot;+0.7%&quot;], [&quot;META&quot;, &quot;15&quot;, &quot;$7,702&quot;, &quot;7.3%&quot;, &quot;−0.4%&quot;], [&quot;Cash&quot;, &quot;—&quot;, &quot;$37,970&quot;, &quot;36.0%&quot;, &quot;—&quot;]], &quot;Portfolio positions&quot;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function renderOrders() {
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Order ledger&lt;/span&gt;&lt;h3&gt;Orders&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;0 pending&lt;/span&gt;&lt;/div&gt;&#x27; + table([&quot;Run&quot;, &quot;Submitted&quot;, &quot;Order&quot;, &quot;Status&quot;, &quot;Fill&quot;], [[&quot;18&quot;, &quot;Today · 3:09 PM&quot;, &quot;No order&quot;, &quot;Rules held&quot;, &quot;—&quot;], [&quot;17&quot;, &quot;Jul 11 · 3:08 PM&quot;, &quot;SELL 4 MSFT&quot;, &quot;Filled&quot;, &quot;$399.92&quot;], [&quot;17&quot;, &quot;Jul 11 · 3:08 PM&quot;, &quot;BUY 12 GOOGL&quot;, &quot;Filled&quot;, &quot;$195.39&quot;], [&quot;16&quot;, &quot;Jul 4 · 3:07 PM&quot;, &quot;No order&quot;, &quot;Rules held&quot;, &quot;—&quot;]], &quot;Order history&quot;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function renderRuns(portfolio, type) {
+      var run = portfolio.runs || 0;
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + type + &#x27; execution history&lt;/span&gt;&lt;h3&gt;Runs&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + run + &#x27; retained&lt;/span&gt;&lt;/div&gt;&#x27; + table([&quot;Run&quot;, &quot;Completed&quot;, &quot;Duration&quot;, &quot;Outcome&quot;, &quot;Orders&quot;], [
+        [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + run + &#x27;&quot;&gt;Run &#x27; + run + &#x27;&lt;/button&gt;&#x27;, &quot;Today · 3:09 PM&quot;, &quot;8m 54s&quot;, &quot;No order · constraints held&quot;, &quot;0&quot;],
+        [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + Math.max(1, run - 1) + &#x27;&quot;&gt;Run &#x27; + Math.max(1, run - 1) + &#x27;&lt;/button&gt;&#x27;, &quot;Jul 11 · 3:08 PM&quot;, &quot;8m 21s&quot;, &quot;Rebalanced 2 positions&quot;, &quot;2&quot;],
+        [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + Math.max(1, run - 2) + &#x27;&quot;&gt;Run &#x27; + Math.max(1, run - 2) + &#x27;&lt;/button&gt;&#x27;, &quot;Jul 4 · 3:07 PM&quot;, &quot;7m 49s&quot;, &quot;No order · constraints held&quot;, &quot;0&quot;],
+        [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-run=&quot;&#x27; + Math.max(1, run - 3) + &#x27;&quot;&gt;Run &#x27; + Math.max(1, run - 3) + &#x27;&lt;/button&gt;&#x27;, &quot;Jun 27 · 3:11 PM&quot;, &quot;9m 03s&quot;, &quot;Opened NVDA&quot;, &quot;1&quot;]
+      ], &quot;Portfolio runs&quot;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function renderRisk() {
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Live controls&lt;/span&gt;&lt;h3&gt;Risk&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;viz-badge&quot;&gt;Within limits&lt;/span&gt;&lt;/div&gt;&#x27; + table([&quot;Control&quot;, &quot;Current&quot;, &quot;Limit&quot;, &quot;State&quot;], [[&quot;Single asset&quot;, &quot;18.2%&quot;, &quot;20%&quot;, &quot;Within&quot;], [&quot;Gross exposure&quot;, &quot;71%&quot;, &quot;80%&quot;, &quot;Within&quot;], [&quot;Cash floor&quot;, &quot;29%&quot;, &quot;10%&quot;, &quot;Within&quot;], [&quot;Data freshness&quot;, &quot;43s&quot;, &quot;2m&quot;, &quot;Current&quot;]], &quot;Live risk controls&quot;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function renderRunDetail(context) {
+      var isDry = context.type === &quot;dry&quot;;
+      var running = isDry &amp;&amp; context.id === 13;
+      var parent = isDry ? selectedStrategy().draft + &#x27; / Tests&#x27; : context.parent;
+      var status = running ? &quot;Running&quot; : &quot;Completed&quot;;
+      var breadcrumb = &#x27;&lt;div class=&quot;scw-breadcrumb&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-back-run&gt;‹ &#x27; + parent + &#x27;&lt;/button&gt;&lt;span class=&quot;text-muted&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&#x27; + (isDry ? &#x27;Dry Run &#x27; : &#x27;Run &#x27;) + context.id + &#x27;&lt;/strong&gt;&lt;/div&gt;&#x27;;
+      var nav = &#x27;&lt;nav class=&quot;scw-run-nav&quot; aria-label=&quot;Run views&quot;&gt;&lt;div class=&quot;scw-run-tabs&quot;&gt;&#x27; + button(&quot;run-summary&quot;, &quot;Summary&quot;, runTab === &quot;summary&quot;) + button(&quot;run-activity&quot;, &quot;Activity&quot;, runTab === &quot;activity&quot;) + &#x27;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Execution evidence · read-only&lt;/span&gt;&lt;/nav&gt;&#x27;;
+      var stop = running ? &#x27;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;scw-stop&quot;&gt;Stop&lt;/button&gt;&#x27; : &#x27;&#x27;;
+      var header = &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-run-head&quot;&gt;&lt;div class=&quot;scw-run-title&quot;&gt;&lt;span class=&quot;scw-inline&quot;&gt;&#x27; + dot(running) + &#x27;&lt;span&gt;&#x27; + status + &#x27;&lt;/span&gt;&lt;/span&gt;&lt;h2&gt;&#x27; + (isDry ? &#x27;Dry Run &#x27; : &#x27;Run &#x27;) + context.id + &#x27;&lt;/h2&gt;&lt;/div&gt;&lt;div class=&quot;scw-run-controls&quot;&gt;&#x27; + stop + &#x27;&lt;button type=&quot;button&quot; class=&quot;btn&quot;&gt;Improve in Draft&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;scw-run-meta&quot;&gt;&lt;span&gt;&#x27; + (running ? &#x27;7s elapsed&#x27; : &#x27;8m 54s elapsed&#x27;) + &#x27;&lt;/span&gt;&lt;span&gt;&#x27; + (running ? &#x27;—&#x27; : &#x27;0&#x27;) + &#x27; orders&lt;/span&gt;&lt;span&gt;$&#x27; + (isDry ? &#x27;10,000&#x27; : &#x27;37,970&#x27;) + &#x27; buying power&lt;/span&gt;&lt;span&gt;Strategy &#x27; + (isDry ? &#x27;Draft V6.4&#x27; : &#x27;V5&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;/section&gt;&#x27;;
+      return breadcrumb + nav + header + (runTab === &quot;activity&quot; ? renderActivity(isDry, running) : renderRunSummary(isDry, running));
+    }
+
+    function renderRunSummary(isDry, running) {
+      if (running) return &#x27;&lt;section class=&quot;scw-verdict&quot;&gt;&lt;div class=&quot;scw-verdict-main&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Current stage&lt;/span&gt;&lt;strong&gt;Loading market evidence&lt;/strong&gt;&lt;span&gt;2 skills discovered · portfolio snapshot queued&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&#x27; + table([&quot;Input&quot;, &quot;State&quot;, &quot;Cutoff&quot;], [[&quot;Buying power&quot;, &quot;$10,000&quot;, &quot;Current&quot;], [&quot;Positions&quot;, &quot;0&quot;, &quot;Current&quot;], [&quot;Fundamentals&quot;, &quot;Loading&quot;, &quot;—&quot;]], &quot;Dry run inputs&quot;) + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+      return &#x27;&lt;section class=&quot;scw-verdict&quot;&gt;&lt;div class=&quot;scw-verdict-main&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Outcome&lt;/span&gt;&lt;strong&gt;No order&lt;/strong&gt;&lt;span&gt;Three candidates reached portfolio checks. Existing constraints blocked all three.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Portfolio impact · $0 · positions unchanged&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;scw-trace-head&quot;&gt;&lt;strong&gt;Decision trace&lt;/strong&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;40 → 3 → 0&lt;/span&gt;&lt;/div&gt;&#x27; + table([&quot;Candidate&quot;, &quot;Passed&quot;, &quot;Blocked by&quot;], [[&quot;MSFT&quot;, &quot;Entry&quot;, &quot;20% position cap&quot;], [&quot;NVDA&quot;, &quot;Entry&quot;, &quot;Earnings window&quot;], [&quot;GOOGL&quot;, &quot;Entry&quot;, &quot;Cash floor&quot;]], &quot;Decision trace&quot;) + &#x27;&lt;/div&gt;&lt;/section&gt;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Provenance&lt;/span&gt;&lt;h3&gt;Exact inputs&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;Open Strategy V5&lt;/button&gt;&lt;/div&gt;&#x27; + table([&quot;Source&quot;, &quot;Identity&quot;, &quot;Cutoff&quot;], [[&quot;Strategy&quot;, isDry ? &quot;Draft V6 · checkpoint V6.4&quot; : &quot;Immutable Strategy V5 · source V5.7&quot;, &quot;Frozen at start&quot;], [&quot;Market data&quot;, &quot;Daily adjusted bars&quot;, &quot;Jul 15 · 3:00 PM&quot;], [&quot;Portfolio&quot;, isDry ? &quot;Dry-run sandbox&quot; : &quot;Growth test&quot;, &quot;Run start&quot;]], &quot;Run provenance&quot;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function renderActivity(isDry, running) {
+      var events = running ? [
+        [&quot;00:00&quot;, &quot;○&quot;, &quot;Run started&quot;, &quot;Draft V6 · checkpoint V6.4 pinned&quot;],
+        [&quot;00:01&quot;, &quot;○&quot;, &quot;Skills discovered&quot;, &quot;market-data · trade-execution&quot;],
+        [&quot;00:03&quot;, &quot;○&quot;, &quot;Buying power read&quot;, &quot;$10,000 available&quot;],
+        [&quot;00:07&quot;, &quot;◌&quot;, &quot;Market data&quot;, &quot;Loading daily bars…&quot;]
+      ] : [
+        [&quot;15:00:00&quot;, &quot;○&quot;, &quot;Run started&quot;, &quot;Strategy V5 and Growth test snapshot pinned&quot;],
+        [&quot;15:00:01&quot;, &quot;○&quot;, &quot;Skills discovered&quot;, &quot;market-data.md · trade-execution.md&quot;],
+        [&quot;15:00:03&quot;, &quot;○&quot;, &quot;Buying power read&quot;, &quot;$37,970 available to deploy&quot;],
+        [&quot;15:00:04&quot;, &quot;○&quot;, &quot;Positions read&quot;, &quot;6 open positions · 64% deployed&quot;],
+        [&quot;15:01:12&quot;, &quot;○&quot;, &quot;Fundamentals loaded&quot;, &quot;40 / 40 universe members&quot;],
+        [&quot;15:05:46&quot;, &quot;○&quot;, &quot;Candidate screen&quot;, &quot;3 passed entry rules&quot;],
+        [&quot;15:08:41&quot;, &quot;○&quot;, &quot;Decision&quot;, &quot;No order · constraints held&quot;],
+        [&quot;15:08:54&quot;, &quot;○&quot;, &quot;Completed&quot;, &quot;Portfolio unchanged&quot;]
+      ];
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-trace-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Authoritative execution log&lt;/span&gt;&lt;h3&gt;Activity&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + (running ? &#x27;Streaming&#x27; : &#x27;Complete&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;scw-trace&quot;&gt;&#x27; + events.map(function (event) { return &#x27;&lt;div class=&quot;scw-trace-row&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + event[0] + &#x27;&lt;/span&gt;&lt;span class=&quot;scw-trace-mark&quot;&gt;&#x27; + event[1] + &#x27;&lt;/span&gt;&lt;div class=&quot;scw-trace-copy&quot;&gt;&lt;strong&gt;&#x27; + event[2] + &#x27;&lt;/strong&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + event[3] + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&#x27;; }).join(&quot;&quot;) + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+
+    function renderStrategyOverview(item) {
+      var current = champion();
+      var liveLinked = current.live.strategy === item.name;
+      var deploymentRows = [];
+      if (liveLinked) deploymentRows.push([&quot;Live&quot;, &quot;Strategy &quot; + current.live.strategyVersion, &quot;Active · &quot; + current.live.value]);
+      item.papers.forEach(function (paper) { deploymentRows.push([&quot;Paper · &quot; + paper.name, &quot;Strategy &quot; + paper.version, paper.state + &quot; · &quot; + paper.runs + &quot; runs&quot;]); });
+      if (!deploymentRows.length) deploymentRows.push([&quot;None&quot;, &quot;Draft only&quot;, &quot;Not deployed&quot;]);
+
+      return &#x27;&lt;section class=&quot;scw-pane scw-overview-pane&quot;&gt;&lt;div class=&quot;scw-stats&quot;&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Pending changes&lt;/span&gt;&lt;strong&gt;&#x27; + item.pending + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Evidence&lt;/span&gt;&lt;strong&gt;3 / 5 sections&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Paper portfolios&lt;/span&gt;&lt;strong&gt;&#x27; + item.papers.length + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;scw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Live&lt;/span&gt;&lt;strong&gt;&#x27; + (liveLinked ? current.live.strategyVersion : &quot;Not deployed&quot;) + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&#x27; +
+        &#x27;&lt;div class=&quot;scw-overview-grid&quot;&gt;&#x27; +
+          &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Since Strategy V5&lt;/span&gt;&lt;h3&gt;What changed&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;checkpoints&quot;&gt;History&lt;/button&gt;&lt;/div&gt;&#x27; +
+            table([&quot;Rule&quot;, &quot;From&quot;, &quot;Draft&quot;], [[&quot;Position cap&quot;, &quot;15%&quot;, &quot;12%&quot;], [&quot;Cash floor&quot;, &quot;8%&quot;, &quot;10%&quot;], [&quot;Trailing stop&quot;, &quot;10%&quot;, &quot;9%&quot;]], &quot;Draft changes&quot;) +
+          &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Latest evaluation&lt;/span&gt;&lt;h3&gt;Dry Run 12&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;tests&quot;&gt;All tests&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;scw-decision&quot;&gt;&lt;strong&gt;No trade · constraints held&lt;/strong&gt;&lt;span&gt;Entry, portfolio, and exit sections passed.&lt;/span&gt;&lt;div class=&quot;scw-rule-result&quot;&gt;&lt;span&gt;Entry&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;Untested change&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;scw-rule-result&quot;&gt;&lt;span&gt;Risk&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;Untested change&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;scw-section scw-section-wide&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Detailed document&lt;/span&gt;&lt;h3&gt;Strategy structure&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; +
+            table([&quot;Section&quot;, &quot;Current definition&quot;, &quot;Evidence&quot;], [[&quot;Universe&quot;, &quot;40 liquid U.S. large-cap equities&quot;, &quot;BT-18 · passed&quot;], [&quot;Entry&quot;, &quot;Top quartile · 6-month momentum&quot;, &quot;Untested&quot;], [&quot;Portfolio&quot;, &quot;Equal weight · 8 positions maximum&quot;, &quot;DR-12 · passed&quot;], [&quot;Risk&quot;, &quot;12% per asset · 10% minimum cash&quot;, &quot;Untested&quot;], [&quot;Exit&quot;, &quot;Momentum reversal or 9% trailing stop&quot;, &quot;BT-18 · passed&quot;]], &quot;Strategy structure&quot;) +
+          &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Immutable versions&lt;/span&gt;&lt;h3&gt;Deployments&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&quot;Environment&quot;, &quot;Version&quot;, &quot;State&quot;], deploymentRows, &quot;Strategy deployments&quot;) + &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;scw-section&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Inputs&lt;/span&gt;&lt;h3&gt;Data&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;data&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&quot;Dataset&quot;, &quot;Latest&quot;, &quot;Use&quot;], [[&quot;Daily prices&quot;, &quot;Jul 15&quot;, &quot;Signals&quot;], [&quot;Fundamentals&quot;, &quot;Q1&quot;, &quot;Filters&quot;], [&quot;S&amp;P 500&quot;, &quot;Jul 15&quot;, &quot;Benchmark&quot;]], &quot;Strategy data summary&quot;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+
+    function documentRows(frozen) {
+      return frozen ? [
+        [&quot;Universe&quot;, &quot;40 liquid U.S. large-cap equities&quot;, &quot;BT-18 · passed&quot;],
+        [&quot;Entry&quot;, &quot;Top quartile · 6-month momentum&quot;, &quot;BT-18 · passed&quot;],
+        [&quot;Portfolio&quot;, &quot;Equal weight · 8 positions · 15% per asset&quot;, &quot;DR-11 · passed&quot;],
+        [&quot;Risk&quot;, &quot;8% minimum cash · stale-data orders blocked&quot;, &quot;DR-11 · passed&quot;],
+        [&quot;Exit&quot;, &quot;Momentum reversal or 10% trailing stop&quot;, &quot;BT-18 · passed&quot;]
+      ] : [
+        [&quot;Universe&quot;, &quot;40 liquid U.S. large-cap equities&quot;, &quot;BT-18 · passed&quot;],
+        [&quot;Entry&quot;, &quot;Top quartile · 6-month momentum&quot;, &quot;Untested&quot;],
+        [&quot;Portfolio&quot;, &quot;Equal weight · 8 positions · 12% per asset&quot;, &quot;DR-12 · passed&quot;],
+        [&quot;Risk&quot;, &quot;10% minimum cash · stale-data orders blocked&quot;, &quot;Untested&quot;],
+        [&quot;Exit&quot;, &quot;Momentum reversal or 9% trailing stop&quot;, &quot;BT-18 · passed&quot;]
+      ];
+    }
+
+    function renderDocument(item) {
+      var currentDoc = &#x27;&lt;section class=&quot;scw-document-column&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Editable · autosaved · &#x27; + item.checkpoint + &#x27;&lt;/span&gt;&lt;h3&gt;&#x27; + item.draft + &#x27;&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&quot;Section&quot;, &quot;Definition&quot;, &quot;Evidence&quot;], documentRows(false), &quot;Current strategy document&quot;) + &#x27;&lt;/section&gt;&#x27;;
+      if (!compareMode) return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&#x27; + currentDoc + &#x27;&lt;/section&gt;&#x27;;
+      var frozenDoc = &#x27;&lt;section class=&quot;scw-document-column&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Frozen · read-only · running in Growth test&lt;/span&gt;&lt;h3&gt;Strategy V5&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&quot;Section&quot;, &quot;Definition&quot;, &quot;Evidence&quot;], documentRows(true), &quot;Frozen Strategy V5 document&quot;) + &#x27;&lt;/section&gt;&#x27;;
+      return &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-document-grid&quot;&gt;&#x27; + currentDoc + frozenDoc + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+
+    function renderEvidenceDock(item) {
+      var content;
+      if (dockTab === &quot;tests&quot;) {
+        content = table([&quot;Evaluation&quot;, &quot;State&quot;, &quot;Started&quot;, &quot;Outcome&quot;], [
+          [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-dry=&quot;13&quot;&gt;Dry Run 13&lt;/button&gt;&#x27;, &quot;Running&quot;, &quot;7s ago&quot;, &quot;Loading evidence&quot;],
+          [&#x27;&lt;button type=&quot;button&quot; class=&quot;scw-row-button&quot; data-open-dry=&quot;12&quot;&gt;Dry Run 12&lt;/button&gt;&#x27;, &quot;Completed&quot;, &quot;Yesterday&quot;, &quot;No trade · constraints held&quot;],
+          [&quot;Backtest 18&quot;, &quot;Completed&quot;, &quot;Jul 14&quot;, &quot;+11.8% · drawdown 8.4%&quot;]
+        ], &quot;Draft evaluations&quot;);
+      } else if (dockTab === &quot;checkpoints&quot;) {
+        content = table([&quot;Checkpoint&quot;, &quot;Created&quot;, &quot;Change&quot;, &quot;Evidence&quot;], [[&quot;V6.4&quot;, &quot;Today&quot;, &quot;3 current changes&quot;, &quot;Untested&quot;], [&quot;V6.3&quot;, &quot;Jul 14&quot;, &quot;Concentration limits&quot;, &quot;Dry Run 12&quot;], [&quot;V6.0&quot;, &quot;Base&quot;, &quot;Cloned from Strategy V5&quot;, &quot;V5.7&quot;]], &quot;Draft checkpoints&quot;);
+      } else if (dockTab === &quot;data&quot;) {
+        content = table([&quot;Dataset&quot;, &quot;Coverage&quot;, &quot;Latest&quot;, &quot;Use&quot;], [[&quot;Daily prices&quot;, &quot;Adjusted OHLCV&quot;, &quot;Jul 15&quot;, &quot;Signals&quot;], [&quot;Fundamentals&quot;, &quot;Quarterly company data&quot;, &quot;Q1&quot;, &quot;Filters&quot;], [&quot;Benchmark&quot;, &quot;S&amp;P 500 total return&quot;, &quot;Jul 15&quot;, &quot;Comparison&quot;]], &quot;Strategy datasets&quot;);
+      } else {
+        content = &#x27;&lt;div class=&quot;scw-problem-row&quot;&gt;&lt;span&gt;●&lt;/span&gt;&lt;span&gt;Unresolved assumption — dividend handling is not specified in exit behavior.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Document · Exit&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;scw-problem-row&quot;&gt;&lt;span&gt;●&lt;/span&gt;&lt;span&gt;Eligibility — no completed evaluation for &#x27; + item.checkpoint + &#x27;. Launch to Paper remains unavailable.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.checkpoint + &#x27; × scheme&lt;/span&gt;&lt;/div&gt;&#x27;;
+      }
+      function dockButton(name, label) {
+        return &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;&#x27; + name + &#x27;&quot; aria-pressed=&quot;&#x27; + (dockTab === name ? &quot;true&quot; : &quot;false&quot;) + &#x27;&quot;&gt;&#x27; + label + &#x27;&lt;/button&gt;&#x27;;
+      }
+      return &#x27;&lt;section class=&quot;scw-dock&quot;&gt;&lt;nav class=&quot;scw-dock-tabs&quot; aria-label=&quot;Strategy evidence&quot;&gt;&#x27; + dockButton(&quot;problems&quot;, &quot;Problems · 2&quot;) + dockButton(&quot;tests&quot;, &quot;Tests&quot;) + dockButton(&quot;checkpoints&quot;, &quot;Checkpoints&quot;) + dockButton(&quot;data&quot;, &quot;Data&quot;) + &#x27;&lt;/nav&gt;&lt;div class=&quot;scw-dock-body&quot;&gt;&#x27; + content + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+
+    function renderDraft(item) {
+      if (runDetail) return renderRunDetail(runDetail);
+      var body = localView === &quot;document&quot; ? renderDocument(item) : renderStrategyOverview(item);
+      return renderDraftNav(item) + body + renderEvidenceDock(item);
+    }
+
+    function renderPortfolio(portfolio, isLive, strategy) {
+      if (runDetail) return renderRunDetail(runDetail);
+      var identity = isLive ? &#x27;Live portfolio&#x27; : &#x27;Paper · &#x27; + portfolio.name;
+      var version = isLive ? portfolio.strategyVersion : portfolio.version;
+      var source = isLive ? portfolio.checkpoint : portfolio.source;
+      var title = &#x27;&lt;div class=&quot;scw-title-row&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;&#x27; + identity + &#x27;&lt;/p&gt;&lt;h2&gt;&#x27; + (isLive ? &#x27;Live portfolio&#x27; : portfolio.name) + &#x27;&lt;/h2&gt;&lt;/div&gt;&lt;span class=&quot;scw-inline&quot;&gt;&#x27; + dot(isLive || portfolio.state === &quot;Running&quot;) + (isLive ? &#x27;Active&#x27; : portfolio.state) + &#x27;&lt;/span&gt;&lt;/div&gt;&#x27;;
+      var provenance = &#x27;&lt;div class=&quot;scw-provenance&quot;&gt;&lt;div class=&quot;scw-trail&quot;&gt;&lt;strong&gt;&#x27; + (isLive ? portfolio.strategy : strategy.name) + &#x27; Strategy &#x27; + version + &#x27;&lt;/strong&gt;&lt;span class=&quot;text-muted&quot;&gt;←&lt;/span&gt;&lt;span&gt;Draft checkpoint &#x27; + source + &#x27;&lt;/span&gt;&lt;span class=&quot;viz-badge&quot;&gt;&#x27; + (isLive ? &#x27;Live capital&#x27; : &#x27;Simulated&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;Open frozen strategy&lt;/button&gt;&lt;/div&gt;&#x27;;
+      var body = localView === &quot;positions&quot; ? renderPositions() : localView === &quot;orders&quot; ? renderOrders() : localView === &quot;runs&quot; ? renderRuns(portfolio, isLive ? &quot;Live&quot; : &quot;Paper&quot;) : localView === &quot;risk&quot; ? renderRisk() : renderOverview(portfolio, isLive);
+      return title + provenance + renderPortfolioNav(isLive) + &#x27;&lt;section class=&quot;scw-pane&quot;&gt;&#x27; + body + &#x27;&lt;/section&gt;&#x27;;
+    }
+
+    function attachEvents() {
+      root.querySelectorAll(&quot;[data-env]&quot;).forEach(function (control) {
+        control.addEventListener(&quot;click&quot;, function () {
+          var kind = control.getAttribute(&quot;data-env&quot;);
+          environment = kind === &quot;draft&quot; ? { kind: &quot;draft&quot;, paperId: null } : { kind: &quot;paper&quot;, paperId: control.getAttribute(&quot;data-paper&quot;) };
+          localView = &quot;overview&quot;;
+          compareMode = false;
+          dockTab = &quot;problems&quot;;
+          runDetail = null;
+          render();
+        });
+      });
+      root.querySelectorAll(&quot;[data-local]&quot;).forEach(function (control) {
+        control.addEventListener(&quot;click&quot;, function () {
+          var next = control.getAttribute(&quot;data-local&quot;);
+          if (next === &quot;run-summary&quot; || next === &quot;run-activity&quot;) runTab = next === &quot;run-summary&quot; ? &quot;summary&quot; : &quot;activity&quot;;
+          else localView = next;
+          render();
+        });
+      });
+      root.querySelectorAll(&quot;[data-jump]&quot;).forEach(function (control) { control.addEventListener(&quot;click&quot;, function () { localView = control.getAttribute(&quot;data-jump&quot;); render(); }); });
+      root.querySelectorAll(&quot;[data-dock]&quot;).forEach(function (control) { control.addEventListener(&quot;click&quot;, function () { dockTab = control.getAttribute(&quot;data-dock&quot;); render(); }); });
+      root.querySelectorAll(&quot;[data-compare]&quot;).forEach(function (control) { control.addEventListener(&quot;click&quot;, function () { compareMode = !compareMode; localView = &quot;document&quot;; render(); }); });
+      root.querySelectorAll(&quot;[data-open-run]&quot;).forEach(function (control) { control.addEventListener(&quot;click&quot;, function () { runDetail = { type: environment.kind === &quot;live&quot; ? &quot;live&quot; : &quot;paper&quot;, id: Number(control.getAttribute(&quot;data-open-run&quot;)), parent: environment.kind === &quot;live&quot; ? &quot;Live / Runs&quot; : selectedPaper().name + &quot; / Runs&quot; }; runTab = &quot;summary&quot;; render(); }); });
+      root.querySelectorAll(&quot;[data-open-dry]&quot;).forEach(function (control) { control.addEventListener(&quot;click&quot;, function () { runDetail = { type: &quot;dry&quot;, id: Number(control.getAttribute(&quot;data-open-dry&quot;)) }; runTab = &quot;summary&quot;; render(); }); });
+      var back = root.querySelector(&quot;[data-back-run]&quot;);
+      if (back) back.addEventListener(&quot;click&quot;, function () { if (runDetail.type === &quot;dry&quot;) { localView = &quot;overview&quot;; dockTab = &quot;tests&quot;; } else { localView = &quot;runs&quot;; } runDetail = null; render(); });
+      var stop = root.querySelector(&quot;#scw-stop&quot;);
+      if (stop) stop.addEventListener(&quot;click&quot;, function () { stop.textContent = &quot;Stopping…&quot;; stop.disabled = true; });
+    }
+
+    function render() {
+      renderSidebar();
+      var current = champion();
+      var item = selectedStrategy();
+      writeTarget.textContent = item.name + &#x27; · &#x27; + item.draft + &#x27; · &#x27; + item.checkpoint;
+      root.querySelector(&quot;#scw-footer-target&quot;).textContent = item.name + &quot; · &quot; + item.draft + &quot; · &quot; + item.checkpoint;
+      root.querySelector(&quot;#scw-footer-live&quot;).textContent = current.live.strategy ? current.live.strategy + &quot; Strategy &quot; + current.live.strategyVersion + &quot; · &quot; + current.live.value : &quot;Not activated&quot;;
+      var html;
+      if (environment.kind === &quot;live&quot;) {
+        if (!current.live.strategy) {
+          html = &#x27;&lt;div class=&quot;scw-title-row&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Champion capital&lt;/p&gt;&lt;h2&gt;Live portfolio&lt;/h2&gt;&lt;/div&gt;&lt;span class=&quot;scw-inline&quot;&gt;&#x27; + dot(false) + &#x27;Not activated&lt;/span&gt;&lt;/div&gt;&lt;section class=&quot;scw-pane&quot;&gt;&lt;div class=&quot;scw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;No deployment&lt;/span&gt;&lt;h3&gt;$0 at risk&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot;&gt;Review Paper evidence&lt;/button&gt;&lt;/div&gt;&lt;/section&gt;&#x27;;
+          viewing.textContent = &#x27;Live · Not activated&#x27;;
+          topState.textContent = &#x27;Live · Not activated&#x27;;
+        } else {
+          html = renderPortfolio(current.live, true, item);
+          viewing.textContent = runDetail ? &#x27;Live · Run &#x27; + runDetail.id : &#x27;Live · &#x27; + current.live.strategy + &#x27; &#x27; + current.live.strategyVersion;
+          topState.textContent = viewing.textContent;
+        }
+      } else {
+        html = renderStrategyHeader(item) + renderEnvironments(item);
+        if (environment.kind === &quot;draft&quot;) {
+          html += renderDraft(item);
+          viewing.textContent = runDetail ? item.name + &#x27; · Dry Run &#x27; + runDetail.id : item.name + &#x27; · &#x27; + item.draft + &#x27; · &#x27; + item.checkpoint;
+        } else {
+          var paper = selectedPaper();
+          html += renderPortfolio(paper, false, item);
+          viewing.textContent = runDetail ? paper.name + &#x27; · Run &#x27; + runDetail.id : &#x27;Paper · &#x27; + paper.name + &#x27; · Strategy &#x27; + paper.version;
+        }
+        topState.textContent = viewing.textContent;
+      }
+      main.innerHTML = html;
+      attachEvents();
+    }
+
+    liveButton.addEventListener(&quot;click&quot;, function () { environment = { kind: &quot;live&quot;, paperId: null }; localView = &quot;overview&quot;; compareMode = false; dockTab = &quot;problems&quot;; runDetail = null; render(); });
+    root.querySelector(&quot;#scw-champion&quot;).addEventListener(&quot;change&quot;, function (event) {
+      championId = event.target.value;
+      selectedStrategyId = champion().strategies[0].id;
+      environment = { kind: &quot;draft&quot;, paperId: null };
+      localView = &quot;overview&quot;;
+      runDetail = null;
+      render();
+    });
+    root.querySelector(&quot;#scw-new-strategy&quot;).addEventListener(&quot;click&quot;, function () { selectedStrategyId = champion().strategies[champion().strategies.length - 1].id; environment = { kind: &quot;draft&quot;, paperId: null }; localView = &quot;overview&quot;; compareMode = false; dockTab = &quot;problems&quot;; runDetail = null; render(); });
+    root.querySelector(&quot;#scw-composer&quot;).addEventListener(&quot;submit&quot;, function (event) {
+      event.preventDefault();
+      var field = root.querySelector(&quot;#scw-message&quot;);
+      if (!field.value.trim()) return;
+      var message = document.createElement(&quot;div&quot;);
+      message.className = &quot;scw-message scw-message-user&quot;;
+      message.textContent = field.value.trim();
+      root.querySelector(&quot;#scw-chat-log&quot;).appendChild(message);
+      field.value = &quot;&quot;;
+    });
+
+    render();
+  })();
+&lt;/script&gt;
+
+
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

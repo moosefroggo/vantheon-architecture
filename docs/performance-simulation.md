@@ -319,7 +319,7 @@ Build the simulator through the same vertical slices as the product (D-031), not
 
 1. **Onboarding slice:** define the minimum versioned contract facade and deterministic scenario required for intent → Draft → evaluation → Paper, with an expected-state oracle and browser timing marks.
 2. **Iteration slice:** add Paper runs, contextual improvement, command delay, comparison validity, and version-conflict scenarios.
-3. **Live-safety slice:** add eligibility, authorization/session changes, risk review, pending commands, and emergency-control scenarios before any Live-capital implementation.
+3. **Live-safety slice:** add Live eligibility, authorization/session changes, risk review, pending commands, and emergency-control scenarios before any Live-capital implementation.
 4. **Scale slice:** add market-open, volatility, cold/warm switching, reconnect/backfill, large-history, and accessibility-under-load profiles.
 5. Add k6 protocol pressure and scheduled browser regression runs.
 6. Measure representative baselines, record reviewed budgets, then enable performance gates.
@@ -342,7 +342,8 @@ Build the simulator through the same vertical slices as the product (D-031), not
 - All named profiles produce correctness-oracle results as well as performance metrics.
 - Reconnect runs converge to uninterrupted state with no duplicate effects.
 - Browser tests exercise chat, editing, navigation, virtualization, and chart alternatives while streams are active.
-- Champion work and authoritative results remain visible and correct when conversation is collapsed, unmounted, reloaded, or temporarily disconnected.
+- The conversation dock remains mounted and visible while its history is virtualized, reloaded, or temporarily disconnected; Champion work and authoritative results remain visible and correct in their canonical surfaces throughout.
+- Active, warm, and cold Champion switches restore the selected Champion's own last environment and conversation without displaying or enabling the previous Champion's mutation target, domain references, optimistic projections, or financial state.
 - Playwright and k6 results are reported as distinct forms of evidence.
 - Pull requests run a bounded deterministic smoke suite; broader profiles and soak tests run at appropriate CI tiers.
 - Budgets are derived from recorded representative baselines and cannot be silently re-baselined.

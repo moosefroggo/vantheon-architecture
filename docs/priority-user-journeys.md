@@ -17,7 +17,7 @@ Every proposed feature must identify which journey step it improves, which measu
 
 - The Champion is the persistent collaborator across Draft, Paper, and Live.
 - The structured strategy, evidence, and operational surfaces are primary; conversation expresses intent, explains, and preserves provenance.
-- Champion work remains visible as correlated activity and domain results when conversation is collapsed. No journey depends on rereading a transcript to discover what happened.
+- Champion conversation remains visible in its secondary dock, while Champion work also materializes as correlated activity and canonical domain results. No journey depends on rereading a transcript to discover what happened.
 - The next meaningful action is visible in context. Users should not need to understand the entity graph before receiving value.
 - Assumptions, data cutoffs, strategy changes, and test conditions are visible before evidence is presented as meaningful.
 - Paper and Live remain pinned to immutable strategies. New strategy work—whether initiated through conversation or a domain action—targets the current Draft.
@@ -123,7 +123,7 @@ The evaluation returns more than a performance number. It shows:
 - What it would have done.
 - What it rejected and why.
 - Risk and drawdown behavior.
-- The D-027 Paper eligibility criteria and whether revision is required.
+- Whether the Dry Run exposed a strategy, data, or setup problem worth revising before Paper.
 
 Success state:
 
@@ -144,7 +144,7 @@ Draft V1 from checkpoint V1.x
 
 The confirmation shows the exact checkpoint, key assumptions, evaluation result, schedule, and simulated capital. It explicitly states that no real capital is involved.
 
-The server eligibility assessment requires a structurally valid Draft, defined risk constraints and schedule, available data dependencies, disclosed assumptions, and at least one successfully completed transparent Evaluation. Zero trades do not block Paper because Paper exists to gather evidence.
+Paper has no eligibility assessment. The launch command validates the selected Draft snapshot, supported schedule and simulated-capital setup, authorization, and destination before explicit confirmation. The onboarding flow places a transparent Dry Run first so the user can inspect behavior, but a zero-trade result is evidence—not an eligibility outcome.
 
 After launch:
 
@@ -264,14 +264,13 @@ When the user selects `Improve in Draft`, carry:
 - Relevant rule evaluations and market-data cutoff.
 - The user's selected observation or question.
 
-The composer displays both:
+The composer keeps the evidence attached:
 
 ```text
-Viewing: Paper V5 · Run 42
-Changes go to: Draft V8 · checkpoint V8.4
+Paper V5 · Run 42
 ```
 
-The user must never infer that conversation changed Paper V5 or Live V5.
+If the request becomes a strategy change, Atlas names `Draft V8 · checkpoint V8.4` in its interpretation and the proposal review repeats that target. The user must never infer that conversation changed Paper V5 or Live V5.
 
 ### Stage 3: Resolve version drift
 

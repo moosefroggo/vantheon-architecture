@@ -16,11 +16,12 @@ The active domain surface—not the transcript—is the center of the workspace.
 
 ## Persistent Champion Workspace
 
-The Champion workspace persists while the selected Draft, Paper portfolio, Live surface, or detail view changes.
+Champion selection is the shell-level parent context. One selected Champion owns the visible workspace, conversation, Draft/Paper/Live hierarchy, mutation target, and attached domain references. Within that scope, the Champion workspace persists while the selected Draft, Paper portfolio, Live surface, or detail view changes.
 
 ```mermaid
 flowchart TB
-    W[Champion workspace] --> S[Persistent shell]
+    CS[Champion selector] --> W[Champion workspace]
+    W --> S[Persistent shell]
     S --> I[Champion identity and status]
     S --> N[Draft / Paper / Live switcher]
     S --> M[Primary domain surface]
@@ -41,17 +42,38 @@ flowchart TB
 
 ### Persistent shell responsibilities
 
-- Champion identity, availability, and current activity.
+- Champion selector plus the selected Champion's identity, availability, and current activity.
 - Draft/Paper/Live switcher with explicit `Developing` and `Running` labels.
 - Current operational, freshness, and authorization status when material.
 - A primary domain surface whose identity, status, current work, and next meaningful action remain legible without conversation.
-- Complementary conversation whose prompt, references, and attached context adapt to the viewed surface.
+- Persistently visible docked conversation whose prompt, references, and attached context adapt to the viewed surface.
 - Correlated Champion activity that exposes verified work phases and resulting domain objects outside prose.
-- Viewed-context and Draft-mutation-target labels adjacent to the composer.
-- Notifications and activity that can collapse during data-dense work.
+- A compact selected-context attachment immediately above the composer when a rule, run, position, order, or other object is carried into conversation.
+- Notifications and secondary detail that can collapse during data-dense work; conversation remains visible.
 - Stable navigation and useful cached state while nested content changes.
 
-The shell must not remount the Champion, reset conversation, reconnect transports solely because of navigation, or imply that changing views changes the strategy controlling a portfolio.
+Within one selected Champion, the shell must not reset conversation, reconnect transports solely because of Draft/Paper/Live navigation, or imply that changing views changes the strategy controlling a portfolio. Champion selection follows the scoped transition below.
+
+### Champion selection and restoration
+
+Switching Champions is one scoped workspace transition, not a collection of independent panel changes:
+
+```text
+Select Champion B
+→ bind shell identity to Champion B
+→ restore Champion B conversation/thread
+→ restore Champion B last active Draft/Paper/Live environment
+→ restore only Champion B selections and attached domain references
+→ reconcile Champion B authorization, freshness, and warm/cold cache state
+→ enable Champion B interactions
+```
+
+- Each Champion preserves its own last active environment, nested portfolio/run/rule selection, conversation position, and eligible warm-cache state.
+- The shell changes identity before showing loading or restored content; the prior Champion's strategy, messages, financial values, and controls never remain interactive under the new identity.
+- Composer attachments, Draft mutation targets, local edits, pending UI actions, optimistic projections, and domain references are cleared or restored by Champion-scoped keys. They never transfer implicitly.
+- A warm return may restore useful last-known state immediately with visible freshness and reconciliation status. A cold selection progressively loads after the new Champion identity is established.
+- Deep links name the Champion scope explicitly. Unauthorized or missing cross-Champion references fail closed inside the selected shell rather than resolving against another Champion with a matching display label.
+- Cross-Champion comparison, if added later, is an explicit multi-scope surface. It cannot reuse an ordinary single-Champion composer or mutation target.
 
 ## Workspace Attention and Correlation Model
 
@@ -61,7 +83,7 @@ The layout must not resemble a general-purpose chat application with an attached
 2. **Correlated work and activity:** what the Champion or system is doing, which object it affects, what completed, and what requires attention.
 3. **Conversation:** intent, clarification, explanation, and contextual requests.
 
-On wide supported viewports, conversation may remain beside the primary surface, but the primary surface receives the majority of usable workspace and first focus. When space is constrained, conversation collapses into a restorable panel or drawer before domain identity, evidence, or consequential controls are reduced. Exact dimensions remain P-001.
+At every supported viewport, conversation remains docked beside the primary surface. The primary surface receives the majority of usable workspace and first focus, while the dock retains a usable composer, selected context, connection state, and relevant history. The current Draft mutation target remains resolved independently and is named when Atlas interprets a strategy-changing request or presents a semantic proposal; it is not repeated as permanent composer guidance. Conversation never becomes an overlay, sheet, modal, transient drawer, or separate route. If a viewport cannot preserve both regions without obscuring domain identity, evidence, or consequential controls, its full-workspace support must be resolved under P-001 rather than by covering the work with chat.
 
 ### Bidirectional correlation
 
@@ -75,50 +97,83 @@ Message or direct workspace action
 → visible artifact, evidence, or outcome
 ```
 
-- A message that initiates work shows typed references to its activity, change set, Evaluation, run, or eligibility result.
+- A message that initiates work shows typed references to its activity, change set, Evaluation, run, or Live eligibility result.
 - Champion progress appears in the activity system and on the affected domain surface, not only as streaming prose.
 - A completed result materializes in its canonical surface. Chat summarizes and links to it instead of becoming the only place it can be inspected.
 - Selecting a reference in conversation opens, focuses, or highlights the corresponding object in the primary surface.
 - `Ask Champion`, `Explain`, and `Improve in Draft` actions launched from an object attach that exact object, immutable source, and data cutoff to conversation.
 - Semantic changes highlight the affected structured strategy sections and remain in History even if the originating message is not visible.
-- Collapsing, virtualizing, reconnecting, or failing conversation does not hide or cancel accepted work; authoritative status comes from domain events and queries.
+- Virtualizing, reconnecting, or failing conversation does not hide or cancel accepted work; authoritative status comes from domain events and queries, and the persistent dock exposes its degraded state in place.
 
 Chat is never a top-level route, the sole progress indicator, the only approval surface, or the only record that a change, Evaluation, run, order, or deployment occurred.
+
+## Desktop Workbench Pattern
+
+After a structured Draft exists, the Champion workspace uses an operational workbench rather than an onboarding page:
+
+```text
+┌──────────────────────────── Global toolbar ─────────────────────────────┐
+├─ Environment ─┬──── Primary workbench ────┬─ Inspector ─┬─ Conversation ┤
+│ Draft Vn      │ Strategy / portfolio /    │ Rule, run,  │ Context +     │
+│ Paper         │ run / risk surface        │ evidence    │ mutation      │
+│ Live          │                           │             │ target        │
+├───────────────┴────── Test / run output tray ────────────┴──────────────┤
+```
+
+- **Environment navigator:** Draft, active and stopped Paper portfolios, Archived Paper, and Live. Each row pairs a compact semantic status dot with explicit sub-copy such as checkpoint state, `No portfolios`, `Running`, or a risk/connection state. The dot supports scanning but never replaces the words.
+- **Primary workbench:** the actual structured strategy, portfolio, run, comparison, or Live control surface. It is fluid and receives most usable space; it is not placed inside a centered hero card.
+- **Contextual inspector:** parameters, constraints, evidence, provenance, and actions for the selected rule, metric, chart point, position, order, run, or decision.
+- **Output tray:** Evaluation, backtest, portfolio-run, decision, order, and failure output remains correlated with the artifact without replacing it.
+- **Champion conversation dock:** always visible, non-modal, and spatially secondary. `Discuss`, `Explain`, or `Improve in Draft` focuses its composer with the selected object attached; normal selection keeps its viewed context synchronized without covering the canonical object.
+
+The Draft workbench composes one permanent circuit rather than scattering workflow verbs across tabs:
+
+```text
+checkpoint + independent test state → Dry Run → evidence versus baseline → optional Paper launch review
+```
+
+`Dry Run` remains available in every Draft state. `Review Paper launch` may appear after the onboarding Dry Run completes; it is a workflow action, not an eligibility verdict, and it never replaces Dry Run. The output tray exposes a named `Dry Runs` collection rather than a generic `Tests` bucket. Its rows identify each immutable Evaluation and its exact Draft checkpoint, outcome, and completion time; selecting a row opens the Dry Run as a dedicated workbench page with `Summary` and `Activity` views. Strategy rules carry latest-evidence references; selecting a rule filters its decisions, and selecting a decision focuses the responsible rule.
+
+The developer-workflow analogy is intentional: the navigator selects an environment or artifact, the workbench exposes its source of record, the output tray presents evidence, and the Champion helps interpret or propose a change against the current Draft.
+
+Empty-Draft onboarding may temporarily combine intent capture, transparent starters, and an emerging artifact. As soon as a structured Draft exists, onboarding chrome and teaching copy yield to this workbench. Paper and Live remain navigable before creation through compact readiness states; they are not disabled simply because they are empty.
 
 ## Conceptual Navigation Hierarchy
 
 ```text
 Champions
-└── Champion Workspace
-    ├── Draft Vn · Developing
-    │   ├── Strategy                  default
-    │   ├── Experiments               evaluations and backtests
-    │   ├── History                   checkpoints and immutable versions
-    │   └── Data                      advanced
-    ├── Paper
-    │   ├── Active and stopped portfolio selector
-    │   ├── Compare portfolios
-    │   ├── Archived portfolios      secondary searchable collection
-    │   └── Selected Paper Vn · Running
-    │       ├── Overview              default
-    │       ├── Runs
-    │       ├── Positions
-    │       ├── Orders
-    │       └── Strategy Vn           read-only, exact source checkpoint
-    └── Live · Running Vn
-        ├── Overview                  default
-        ├── Risk
-        ├── Positions
-        ├── Orders
-        ├── Runs
-        └── Strategy Vn               read-only
+└── Selected Champion
+    └── Champion Workspace
+        ├── Draft Vn · Developing
+        │   ├── Strategy                  default
+        │   ├── Experiments               evaluations and backtests
+        │   ├── History                   checkpoints and immutable versions
+        │   └── Data                      advanced
+        ├── Paper
+        │   ├── Active and stopped portfolio selector
+        │   ├── Compare portfolios
+        │   ├── Archived portfolios      secondary searchable collection
+        │   └── Selected Paper Vn · Running
+        │       ├── Overview              default
+        │       ├── Runs
+        │       ├── Positions
+        │       ├── Orders
+        │       └── Strategy Vn           read-only, exact source checkpoint
+        └── Live · Running Vn
+            ├── Overview                  default
+            ├── Risk
+            ├── Positions
+            ├── Orders
+            ├── Runs
+            └── Strategy Vn               read-only
 ```
 
 One Live destination is shown per Champion in the initial IA. This does not establish a permanent backend limit. Multiple Paper portfolios are first-class and remain independently selectable and comparable.
 
 ### Route identity rules
 
-- Use stable Champion, portfolio, run, and experiment identifiers for routing; display labels such as `Paper V5` are not entity identifiers.
+- Use stable Champion, portfolio, run, and experiment identifiers for routing; portfolio names and `Running Strategy V5` are display labels, not entity identifiers.
+- Champion identity is the parent route and cache namespace for Draft, Paper, Live, conversation, and nested domain references.
 - Keep Draft, Paper, and Live routes beneath the persistent Champion layout.
 - A selected Paper portfolio remains addressable so run, decision, and comparison context can be shared or restored.
 - Deep links restore the viewed context and then resolve the current Draft mutation target independently.
@@ -132,36 +187,39 @@ The switcher answers three questions without opening another view:
 
 | Item | Primary label | Required secondary state | Behavior |
 |---|---|---|---|
-| Draft | `Draft V8` | `Developing · checkpoint V8.4` | Opens the current mutable Draft. |
-| Paper | `Paper` or selected `Paper V5` | `Running V5` plus operational state | Opens the selected/recent Paper; exposes all Paper portfolios and comparison. |
-| Live | `Live` | `Running V3` plus risk/operational state | Opens Live overview or readiness state if Live does not exist. |
+| Draft | `Drafting V8` | `Checkpoint 4 · Untested` or `Checkpoint 4 · Tested` | Opens the active Draft, which is always the latest authoritative checkpoint. |
+| Paper | `Paper` or a portfolio name | `No portfolios` or `Running Strategy V5` | Opens the selected/recent Paper; exposes all Paper portfolios and comparison. |
+| Live | `Live` | `No live portfolio` or the existing portfolio's strategy plus risk/operational state | Opens Live overview or readiness state if Live does not exist. |
 
-The number communicates strategy generation; the state word communicates what is happening. Draft, Paper, and Live must remain distinguishable without custom color.
+The number communicates strategy generation; the state words communicate what exists and what is happening. A neutral/active/attention dot may reinforce that meaning, but it is decorative and never carries status alone. Selection uses structure and `aria-current`, not the status dot. `No live portfolio` is entity absence; `Disconnected` applies only to an existing portfolio whose current stream cannot be confirmed. Draft, Paper, and Live must remain distinguishable without custom color.
 
 ## Draft Workspace: Create and Test
 
 ### Default information order
 
-1. Draft identity, checkpoint, and validation state.
-2. Strategy objective, structured content, and correlated Champion explanation.
+1. Loop bar: active Draft and latest checkpoint, independent Dry Run status, permanent Dry Run action, and optional Paper launch review.
+2. Strategy objective and structured content with rule-targeted Edit affordances. Edit attaches the exact rule above the Atlas composer and focuses the dock; it never opens an isolated modal or changes the Draft by itself.
 3. Universe, entry/exit behavior, sizing, risk, schedule, assumptions, and exclusions.
-4. Most recent semantic change set.
-5. Immediate evaluation or backtest action.
-6. Recent evidence and comparison with its baseline.
+4. Rule-linked evidence from the latest matching Evaluation.
+5. Evidence ledger with evaluated checkpoint, baseline, neutral deltas, assumptions, cutoff, and limitations.
+6. Most recent semantic change set and provenance.
 7. Advanced configuration and raw detail.
 
 ### Primary actions
 
 - Empty/new Draft: `Describe what you want` or select a transparent starter.
-- Coherent Draft without evidence: `Test Draft Vn`.
+- Active Draft without a completed run: `Dry Run`.
 - Changed Draft with prior evidence: `Evaluate changes`.
-- Paper eligibility satisfied under D-027: `Launch Draft Vn to Paper`.
+- Completed onboarding Dry Run: `Review Paper launch`; no `Paper eligible` state is shown.
+
+Test is permanent. `Evaluate changes` is contextual wording for the same Test capability; Paper launch is an additional action, never its replacement.
 
 Strategy review and the first evaluation result remain inline on the default Strategy surface. Experiments provides history and depth; it must not be a required detour for the core loop.
 
 ### Secondary destinations
 
-- **Experiments:** quick evaluations, dry runs, backtests, assumptions, results, and comparison.
+- **Dry Runs:** always discoverable in the sticky output tray. `Dry Run` creates and opens a new immutable run; completed runs remain reopenable. Summary contains the outcome, simulated-order breakdown, near misses, data-integrity result, takeaway, and baseline comparison. Activity contains coarse verified phases, condition evaluations, observed values, sources, freshness, assumptions, and resulting orders—not hidden chain-of-thought or internal file paths.
+- **Experiments:** the deeper collection for Dry Runs, backtests, assumptions, results, and comparison when the output tray no longer provides enough history.
 - **History:** restorable checkpoints, immutable strategies, semantic changes, and provenance. Selecting `Restore checkpoint V8.2` opens a semantic restore review against the current checkpoint; acceptance creates the next checkpoint rather than rewinding history.
 - **Data:** datasets, universes, benchmarks, and advanced assumptions. Keep secondary during onboarding.
 
@@ -172,12 +230,12 @@ Paper is a persistent simulated portfolio, not a run. It is optimized for unders
 ### Overview information order
 
 1. `Paper Vn`, simulated-capital label, exact immutable strategy, and source checkpoint.
-2. Operational state, freshness, schedule, and next expected run.
-3. Champion assessment with evidence links.
-4. Performance, drawdown, exposure, activity, inactivity, and limitations.
-5. Latest meaningful run or event.
-6. Comparison entry point.
-7. Positions and orders summaries.
+2. Four money-first statistics: portfolio value, total P&L with return, buying power, and dollars deployed with exposure.
+3. Cadence-honest evidence curve or truthful first-run placeholder.
+4. Latest meaningful run or event, visible above the fold on the accepted desktop viewport.
+5. Operational facts: drawdown, positions, orders, freshness, schedule, and next expected run.
+6. Performance limitations, evidence-linked Champion assessment, and comparison entry point.
+7. Positions, orders, and read-only strategy detail.
 
 ### Paper navigation
 
@@ -269,7 +327,7 @@ The onboarding route keeps the core sequence on the Draft default surface until 
 |---|---|---|---|---|
 | Orientation | Empty Draft | Champion capability, no-money-at-risk state, intent prompt, transparent starters | Describe intent / choose starter | Clear Paper versus Live language |
 | Intent | Conversation + Draft shell | Material questions and declared defaults | Create Draft | No portfolio created |
-| Understand | Draft Strategy | Structured rules, risks, assumptions, exclusions, explanation | Test Draft | Current Draft/checkpoint visible |
+| Understand | Draft Strategy | Structured rules, risks, assumptions, exclusions, explanation | Dry Run | Active Draft/checkpoint visible |
 | Evidence | Inline evaluation | Actions, rejections, risk, window, benchmark, capital, cutoff, limitations | Revise or launch Paper | Infrastructure failure separated from poor performance |
 | Paper review | Paper launch review | Exact checkpoint, immutable snapshot, schedule, simulated capital | Confirm Paper launch | Explicitly no real capital |
 | Activated | Paper Overview | Running Paper V1, frozen strategy, first useful next action | Review first/latest run | Draft V2 shown separately |
@@ -284,7 +342,7 @@ Iteration begins from evidence and returns to evidence; it does not begin from a
 |---|---|---|---|
 | Observe | Paper/Live overview, comparison, run, decision, order, risk, or no-trade | Exact portfolio, strategy, run, cutoff, and selected observation | Explanation in place |
 | Trace | Run decision trace | Rule evaluations, action/rejection, immutable rule, source checkpoint | `Improve in Draft Vn` |
-| Transfer | Original evidence remains attached to conversation | `Viewing … · Changes go to Draft Vn · checkpoint Vn.x` | Current Draft semantic proposal |
+| Transfer | Original evidence remains attached to conversation | Selected evidence stays attached; Atlas names `Draft Vn · checkpoint Vn.x` when proposing a change | Current Draft semantic proposal |
 | Resolve drift | Source version compared with current Draft | Compatible application or domain-language conflict choices | Server-validatable proposal |
 | Review change | Draft Strategy | Motivation, change, benefit, downside, unchanged constraints, provenance | Accept/reject change set |
 | Test | Inline evaluation/Experiments | Baseline, assumptions, risk, behavior, limitations | Revise or launch new Paper |
@@ -305,15 +363,15 @@ The source remains immutable. If it differs materially from the current Draft, s
 
 ## Viewed Context Versus Mutation Target
 
-This distinction is persistent, not a one-time warning.
+This distinction is persistent in the domain model, but it does not require a permanent explanatory line beneath the composer. Context is attached directly; the target is named when a strategy-changing request is interpreted and again before acceptance.
 
 | Viewed surface | Analysis context | Strategy mutation target | Required composer treatment |
 |---|---|---|---|
-| Draft V8 · checkpoint V8.4 | Current Draft | Draft V8 · checkpoint V8.4 | `Developing Draft V8 · checkpoint V8.4` |
-| Paper V5 overview | Paper V5 evidence | Draft V8 · checkpoint V8.4 | `Viewing Paper V5 · Changes go to Draft V8 · checkpoint V8.4` |
-| Paper V5 Run 42 | Run 42 and Strategy V5 | Draft V8 · checkpoint V8.4 | Preserve the run reference visibly |
-| Live V3 | Live V3 evidence and risk | Draft V8 · checkpoint V8.4 | `Viewing Live V3 · Changes go to Draft V8 · checkpoint V8.4` |
-| Paper comparison | Selected immutable portfolios | Draft V8 · checkpoint V8.4 | List compared versions; one Draft target |
+| Draft V8 · checkpoint V8.4 | Current Draft | Draft V8 · checkpoint V8.4 | Attach the selected strategy section above the composer. |
+| Paper V5 overview | Paper V5 evidence | Draft V8 · checkpoint V8.4 | Keep Paper context in the workspace; name Draft V8 only when a change is interpreted or proposed. |
+| Paper V5 Run 42 | Run 42 and Strategy V5 | Draft V8 · checkpoint V8.4 | Attach the run or decision visibly above the composer. |
+| Live V3 | Live V3 evidence and risk | Draft V8 · checkpoint V8.4 | Preserve Live context; name Draft V8 before proposing any strategy change. |
+| Paper comparison | Selected immutable portfolios | Draft V8 · checkpoint V8.4 | Attach compared versions; name the one Draft target at proposal time. |
 
 An explanatory question does not create a checkpoint. When the Champion proposes a strategy change, the semantic change-review surface identifies the target again before acceptance. Server validation and the authoritative patch determine whether the Draft changed.
 
@@ -342,11 +400,13 @@ When old evidence or offline work conflicts with the current Draft, show:
 
 Do not expose silent overwrite, raw JSON merge, or a second active Draft branch as an MVP choice.
 
-### Eligibility review
+### Paper launch and Live eligibility review
 
-Paper launch and Live promotion render the versioned server eligibility assessment rather than inferring readiness in the browser. Show:
+Paper launch renders a concise setup and confirmation review. It has no readiness score or eligibility result. Show the exact Draft checkpoint, immutable snapshot to be created, schedule, simulated capital, destination, validation errors, and the fact that no real capital is involved.
 
-- Policy version and exact Draft checkpoint or Paper strategy assessed.
+Live promotion renders the versioned server eligibility assessment rather than inferring readiness in the browser. Show:
+
+- Policy version and exact Paper strategy assessed.
 - Satisfied, missing, failed, stale, and advisory criteria.
 - The evidence, data cutoff, authorization, risk, and operational input behind each criterion.
 - Whether reassessment is required before confirmation.
@@ -394,10 +454,10 @@ Progressive disclosure must not hide material assumptions, warnings, capital imp
 
 ### Proposed behavior
 
-- **Wide desktop:** persistent Champion/navigation region, primary workspace, and contextual conversation can appear simultaneously.
-- **Constrained desktop:** preserve the primary workspace; collapse conversation into a restorable panel and reduce navigation to a compact rail before removing financial context.
-- Conversation, notifications, and secondary detail may collapse, but Draft/Paper/Live identity, operational state, freshness, and consequential-action feedback remain visible.
-- Opening and closing panels restores focus predictably and preserves conversation/context.
+- **Wide desktop:** persistent Champion/navigation region, primary workspace, and docked contextual conversation appear simultaneously.
+- **Constrained supported desktop:** preserve both the majority-width primary workspace and a usable conversation dock; reduce navigation to a compact rail and collapse secondary detail before reducing either canonical financial context or the dock's context/composer contract.
+- Notifications and secondary detail may collapse, but conversation, Draft/Paper/Live identity, operational state, freshness, and consequential-action feedback remain visible. Widths that cannot safely preserve this contract require an explicit P-001 support decision and do not fall back to an overlay.
+- Resizing secondary regions or moving focus between the workspace and conversation preserves selection and context predictably.
 - Dense tables and charts adapt or scroll without clipping risk, order, version, or confirmation information.
 
 ### Decisions required before layout implementation is accepted
@@ -442,8 +502,8 @@ Until these are recorded in the decision ledger, “responsive” must not be us
 - A user can distinguish Draft Vn, Paper Vn, and Live Vn without color.
 - Every Paper and Live view exposes the exact immutable strategy in control and its source checkpoint.
 - A Paper or Live observation can reach `Improve in Draft` without losing its run and rule context.
-- The composer always exposes viewed context and mutation target when they differ.
-- Collapsing conversation leaves Champion activity, current work, domain results, authority, and the next meaningful action visible in the primary surface.
+- The composer exposes selected context without instructional copy; Atlas and every semantic proposal identify the exact Draft target before a strategy change can be accepted.
+- Persistent conversation does not duplicate or replace Champion activity, current work, domain results, authority, or the next meaningful action in the primary surface.
 - Paper navigation prioritizes runs and learning; Live navigation prioritizes risk and control.
 - Active Paper can be stopped from its detail context; only Stopped Paper can be archived; Archived Paper is discoverable outside the everyday selector and unarchives without resuming.
 - No-trade, stale, degraded, disconnected, unauthorized, and failed states remain understandable and actionable.

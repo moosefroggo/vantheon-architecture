@@ -1,0 +1,1404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Complete Champion Workspace</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;background:inherit}iframe{display:block;width:100%;height:100vh;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Complete Champion Workspace" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Complete Champion Workspace&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(--background) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: light-dark(rgb(255 255 255), rgb(24 24 24));
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 12.5px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--viz-font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed=&quot;true&quot;],
+    [aria-selected=&quot;true&quot;],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;complete-champion-workspace&quot;&gt;
+  &lt;div class=&quot;cw-shell&quot; aria-label=&quot;Champion research workspace&quot;&gt;
+    &lt;aside class=&quot;cw-sidebar&quot; aria-label=&quot;Primary navigation&quot;&gt;
+      &lt;div class=&quot;cw-identity&quot;&gt;
+        &lt;strong&gt;VANTHEON&lt;/strong&gt;
+        &lt;label class=&quot;form-label&quot;&gt;
+          &lt;span class=&quot;sr-only&quot;&gt;Champion&lt;/span&gt;
+          &lt;select class=&quot;form-select&quot; id=&quot;cw-champion&quot; aria-label=&quot;Champion&quot;&gt;
+            &lt;option value=&quot;mara&quot;&gt;Mara&lt;/option&gt;
+            &lt;option value=&quot;iris&quot;&gt;Iris&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;text-small text-muted cw-kicker&quot;&gt;CAPITAL&lt;/div&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn btn-block cw-side-item&quot; id=&quot;cw-live&quot;&gt;&lt;/button&gt;
+      &lt;div class=&quot;cw-side-title&quot;&gt;&lt;span&gt;Strategies&lt;/span&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; id=&quot;cw-new&quot;&gt;New&lt;/button&gt;&lt;/div&gt;
+      &lt;nav class=&quot;cw-strategies&quot; id=&quot;cw-strategies&quot; aria-label=&quot;Strategies&quot;&gt;&lt;/nav&gt;
+      &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost btn-block cw-archive&quot;&gt;&lt;span&gt;Archived&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;/button&gt;
+    &lt;/aside&gt;
+
+    &lt;main class=&quot;cw-main&quot; id=&quot;cw-main&quot; aria-live=&quot;polite&quot;&gt;&lt;/main&gt;
+
+    &lt;aside class=&quot;cw-chat&quot; aria-label=&quot;Champion conversation&quot;&gt;
+      &lt;div class=&quot;cw-chat-head&quot;&gt;&lt;strong id=&quot;cw-chat-name&quot;&gt;Mara&lt;/strong&gt;&lt;span class=&quot;cw-inline&quot;&gt;&lt;span class=&quot;cw-dot is-active&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;Active&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;cw-context&quot;&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;Viewing&lt;/span&gt;&lt;span id=&quot;cw-viewing&quot;&gt;Momentum · Draft V6.4&lt;/span&gt;
+        &lt;span class=&quot;text-small text-muted&quot;&gt;Writes to&lt;/span&gt;&lt;span id=&quot;cw-target&quot;&gt;Momentum · Draft V6.4&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;cw-chat-log&quot; id=&quot;cw-chat-log&quot;&gt;
+        &lt;div class=&quot;cw-message is-user&quot;&gt;Why did the last Paper run place no order?&lt;/div&gt;
+        &lt;div class=&quot;cw-message&quot;&gt;All three candidates passed entry rules. Portfolio constraints blocked two; the earnings window blocked one.&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;form class=&quot;cw-composer&quot; id=&quot;cw-composer&quot;&gt;
+        &lt;label class=&quot;sr-only&quot; for=&quot;cw-message&quot;&gt;Message Champion&lt;/label&gt;
+        &lt;textarea class=&quot;form-control&quot; id=&quot;cw-message&quot; rows=&quot;2&quot; placeholder=&quot;Ask about this work…&quot;&gt;&lt;/textarea&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot;&gt;Send&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/aside&gt;
+
+    &lt;footer class=&quot;cw-statusbar&quot; aria-label=&quot;Workspace status&quot;&gt;
+      &lt;span&gt;&lt;strong&gt;Editing&lt;/strong&gt; &lt;span id=&quot;cw-footer-target&quot;&gt;Momentum · Draft V6.4&lt;/span&gt;&lt;/span&gt;
+      &lt;span&gt;&lt;strong&gt;Live&lt;/strong&gt; &lt;span id=&quot;cw-footer-live&quot;&gt;Momentum V4 · $48,200&lt;/span&gt;&lt;/span&gt;
+      &lt;span class=&quot;text-muted&quot;&gt;Market data current · Jul 15, 3:28 PM CT&lt;/span&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  #complete-champion-workspace { color: var(--foreground); }
+  #complete-champion-workspace strong { font-weight: 500; }
+  #complete-champion-workspace .cw-shell {
+    display: grid;
+    grid-template-columns: minmax(190px, .22fr) minmax(500px, 1fr) minmax(250px, .31fr);
+    grid-template-areas: &quot;sidebar main chat&quot; &quot;status status status&quot;;
+    grid-template-rows: minmax(800px, 1fr) auto;
+    border: 1px solid var(--border);
+    background: var(--background);
+  }
+  #complete-champion-workspace .cw-sidebar { grid-area: sidebar; min-width: 0; padding: 10px; border-right: 1px solid var(--border); }
+  #complete-champion-workspace .cw-main { grid-area: main; min-width: 0; padding: 12px 15px 20px; }
+  #complete-champion-workspace .cw-chat { grid-area: chat; min-width: 0; display: grid; grid-template-rows: auto auto minmax(220px, 1fr) auto; border-left: 1px solid var(--border); }
+  #complete-champion-workspace .cw-statusbar { grid-area: status; display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 6px 11px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-identity,
+  #complete-champion-workspace .cw-side-title,
+  #complete-champion-workspace .cw-archive,
+  #complete-champion-workspace .cw-chat-head,
+  #complete-champion-workspace .cw-title,
+  #complete-champion-workspace .cw-toolbar,
+  #complete-champion-workspace .cw-section-head,
+  #complete-champion-workspace .cw-run-head,
+  #complete-champion-workspace .cw-provenance { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  #complete-champion-workspace .cw-identity { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-identity &gt; strong { letter-spacing: .12em; }
+  #complete-champion-workspace .cw-identity .form-label { margin: 0; }
+  #complete-champion-workspace .cw-kicker { margin-bottom: 5px; }
+  #complete-champion-workspace .cw-side-title { margin-top: 15px; }
+  #complete-champion-workspace .cw-strategies { display: grid; gap: 4px; margin-top: 8px; }
+  #complete-champion-workspace .cw-archive { margin-top: 12px; }
+  #complete-champion-workspace .cw-side-item,
+  #complete-champion-workspace .cw-strategy-item { justify-content: flex-start; text-align: left; white-space: normal; }
+  #complete-champion-workspace .cw-nav-copy { display: grid; gap: 1px; min-width: 0; }
+  #complete-champion-workspace .cw-dot { width: 7px; height: 7px; border: 1px solid var(--muted-foreground); border-radius: 999px; flex: 0 0 auto; }
+  #complete-champion-workspace .cw-dot.is-active { background: var(--viz-series-1); border-color: var(--viz-series-1); }
+  #complete-champion-workspace .cw-inline,
+  #complete-champion-workspace .cw-tabs,
+  #complete-champion-workspace .cw-actions,
+  #complete-champion-workspace .cw-run-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  #complete-champion-workspace .cw-title { align-items: flex-start; margin-bottom: 8px; }
+  #complete-champion-workspace .cw-title h2,
+  #complete-champion-workspace .cw-title p,
+  #complete-champion-workspace .cw-section-head h3,
+  #complete-champion-workspace .cw-section-head p,
+  #complete-champion-workspace .cw-run-head h2 { margin: 0; }
+  #complete-champion-workspace .cw-environments { display: flex; flex-wrap: wrap; gap: 5px; padding-block: 9px; border-block: 1px solid var(--border); }
+  #complete-champion-workspace .cw-env { display: grid; justify-items: start; gap: 1px; text-align: left; white-space: normal; }
+  #complete-champion-workspace .cw-toolbar { flex-wrap: wrap; padding-block: 7px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-provenance { flex-wrap: wrap; padding-block: 8px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-pane { padding-top: 12px; }
+  #complete-champion-workspace .cw-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--border); }
+  #complete-champion-workspace .cw-stat { padding: 9px 10px 9px 0; }
+  #complete-champion-workspace .cw-stat + .cw-stat { padding-left: 10px; border-left: 1px solid var(--border); }
+  #complete-champion-workspace .cw-stat strong { display: block; margin-top: 2px; }
+  #complete-champion-workspace .cw-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .85fr); gap: 0 18px; }
+  #complete-champion-workspace .cw-section { min-width: 0; padding-block: 13px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-section-wide { grid-column: 1 / -1; }
+  #complete-champion-workspace .cw-section-head { align-items: flex-start; margin-bottom: 7px; }
+  #complete-champion-workspace .cw-rule { display: flex; justify-content: space-between; gap: 12px; padding-block: 5px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-table { width: 100%; border-collapse: collapse; }
+  #complete-champion-workspace .cw-table th,
+  #complete-champion-workspace .cw-table td { padding: 7px 6px; border-top: 1px solid var(--border); text-align: left; vertical-align: top; }
+  #complete-champion-workspace .cw-table th { font-weight: 500; }
+  #complete-champion-workspace .cw-table th:first-child,
+  #complete-champion-workspace .cw-table td:first-child { padding-left: 0; }
+  #complete-champion-workspace .cw-table th:last-child,
+  #complete-champion-workspace .cw-table td:last-child { padding-right: 0; text-align: right; }
+  #complete-champion-workspace .cw-row-button { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  #complete-champion-workspace .cw-chart { margin-block: 14px 6px; }
+  #complete-champion-workspace .cw-chart svg { display: block; width: 100%; height: auto; color: var(--viz-series-1); }
+  #complete-champion-workspace .cw-gridline { stroke: var(--border); }
+  #complete-champion-workspace .cw-account { fill: none; stroke: currentColor; stroke-width: 2; }
+  #complete-champion-workspace .cw-benchmark { fill: none; stroke: var(--muted-foreground); stroke-width: 1.25; stroke-dasharray: 4 4; }
+  #complete-champion-workspace .cw-mark { fill: var(--background); stroke: currentColor; stroke-width: 2; }
+  #complete-champion-workspace .cw-dock { margin-top: 15px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-dock-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding-block: 7px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-dock-body { min-height: 125px; padding-top: 7px; }
+  #complete-champion-workspace .cw-problem { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 8px; padding-block: 8px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-run-head { align-items: flex-start; }
+  #complete-champion-workspace .cw-run-meta { gap: 14px; margin-top: 8px; }
+  #complete-champion-workspace .cw-verdict { display: grid; grid-template-columns: minmax(180px, .7fr) minmax(270px, 1.3fr); gap: 18px; padding-block: 13px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-verdict-main { display: grid; align-content: start; gap: 5px; }
+  #complete-champion-workspace .cw-trace { display: grid; }
+  #complete-champion-workspace .cw-event { display: grid; grid-template-columns: 76px 16px minmax(0, 1fr); gap: 7px; padding-block: 8px; border-top: 1px solid var(--border); }
+  #complete-champion-workspace .cw-event-copy { display: grid; gap: 2px; }
+  #complete-champion-workspace .cw-chat-head,
+  #complete-champion-workspace .cw-context,
+  #complete-champion-workspace .cw-chat-log,
+  #complete-champion-workspace .cw-composer { padding: 10px; }
+  #complete-champion-workspace .cw-chat-head,
+  #complete-champion-workspace .cw-context,
+  #complete-champion-workspace .cw-chat-log { border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-context,
+  #complete-champion-workspace .cw-chat-log,
+  #complete-champion-workspace .cw-composer { display: grid; align-content: start; gap: 8px; }
+  #complete-champion-workspace .cw-message { max-width: 92%; padding-block: 7px; border-bottom: 1px solid var(--border); }
+  #complete-champion-workspace .cw-message.is-user { justify-self: end; text-align: right; }
+  @media (max-width: 900px) {
+    #complete-champion-workspace .cw-shell { grid-template-columns: minmax(170px, .28fr) minmax(420px, 1fr); grid-template-areas: &quot;sidebar main&quot; &quot;chat chat&quot; &quot;status status&quot;; }
+    #complete-champion-workspace .cw-chat { border-left: 0; border-top: 1px solid var(--border); grid-template-columns: minmax(170px, .35fr) 1fr; grid-template-rows: auto minmax(150px, 1fr) auto; }
+    #complete-champion-workspace .cw-chat-log { grid-column: 2; grid-row: 1 / 3; border-left: 1px solid var(--border); }
+    #complete-champion-workspace .cw-composer { grid-column: 1 / -1; }
+  }
+  @media (max-width: 650px) {
+    #complete-champion-workspace .cw-shell { grid-template-columns: 1fr; grid-template-areas: &quot;sidebar&quot; &quot;main&quot; &quot;chat&quot; &quot;status&quot;; }
+    #complete-champion-workspace .cw-sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+    #complete-champion-workspace .cw-strategies { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #complete-champion-workspace .cw-chat { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(170px, 1fr) auto; }
+    #complete-champion-workspace .cw-chat-head,
+    #complete-champion-workspace .cw-context,
+    #complete-champion-workspace .cw-chat-log,
+    #complete-champion-workspace .cw-composer { grid-column: 1; grid-row: auto; border-left: 0; }
+    #complete-champion-workspace .cw-grid,
+    #complete-champion-workspace .cw-verdict { grid-template-columns: 1fr; }
+    #complete-champion-workspace .cw-section-wide { grid-column: auto; }
+  }
+  @media (max-width: 430px) {
+    #complete-champion-workspace .cw-main { padding-inline: 10px; }
+    #complete-champion-workspace .cw-strategies,
+    #complete-champion-workspace .cw-stats { grid-template-columns: 1fr 1fr; }
+    #complete-champion-workspace .cw-stat:nth-child(3) { border-left: 0; }
+    #complete-champion-workspace .cw-title,
+    #complete-champion-workspace .cw-section-head,
+    #complete-champion-workspace .cw-run-head { align-items: stretch; flex-direction: column; }
+  }
+&lt;/style&gt;
+
+&lt;script&gt;
+  (function () {
+    var root = document.getElementById(&quot;complete-champion-workspace&quot;);
+    if (!root) return;
+    var main = root.querySelector(&quot;#cw-main&quot;);
+    var liveButton = root.querySelector(&quot;#cw-live&quot;);
+    var strategyList = root.querySelector(&quot;#cw-strategies&quot;);
+    var viewing = root.querySelector(&quot;#cw-viewing&quot;);
+    var target = root.querySelector(&quot;#cw-target&quot;);
+    var champions = {
+      mara: {
+        name: &quot;Mara&quot;,
+        live: { strategy: &quot;Momentum&quot;, version: &quot;V4&quot;, checkpoint: &quot;V4.6&quot;, value: &quot;$48,200&quot;, change: &quot;+4.8%&quot;, exposure: &quot;71%&quot;, drawdown: &quot;−2.6%&quot;, runs: 32 },
+        strategies: [
+          { id: &quot;momentum&quot;, name: &quot;Momentum&quot;, title: &quot;Lower-volatility momentum&quot;, draft: &quot;Draft V6&quot;, checkpoint: &quot;V6.4&quot;, pending: 3, papers: [
+            { id: &quot;growth&quot;, name: &quot;Growth test&quot;, version: &quot;V5&quot;, checkpoint: &quot;V5.7&quot;, state: &quot;Running&quot;, value: &quot;$105,480&quot;, change: &quot;+5.5%&quot;, exposure: &quot;64%&quot;, drawdown: &quot;−3.2%&quot;, runs: 18 },
+            { id: &quot;baseline&quot;, name: &quot;Baseline&quot;, version: &quot;V4&quot;, checkpoint: &quot;V4.6&quot;, state: &quot;Paused&quot;, value: &quot;$102,140&quot;, change: &quot;+2.1%&quot;, exposure: &quot;42%&quot;, drawdown: &quot;−4.0%&quot;, runs: 12 }
+          ] },
+          { id: &quot;defensive&quot;, name: &quot;Defensive quality&quot;, title: &quot;Defensive quality compounders&quot;, draft: &quot;Draft V3&quot;, checkpoint: &quot;V3.2&quot;, pending: 1, papers: [
+            { id: &quot;low-dd&quot;, name: &quot;Low drawdown&quot;, version: &quot;V2&quot;, checkpoint: &quot;V2.5&quot;, state: &quot;Running&quot;, value: &quot;$101,920&quot;, change: &quot;+1.9%&quot;, exposure: &quot;58%&quot;, drawdown: &quot;−1.7%&quot;, runs: 9 }
+          ] },
+          { id: &quot;income&quot;, name: &quot;Income&quot;, title: &quot;Quality income&quot;, draft: &quot;Draft V1&quot;, checkpoint: &quot;V1.1&quot;, pending: 0, papers: [] }
+        ]
+      },
+      iris: {
+        name: &quot;Iris&quot;,
+        live: null,
+        strategies: [
+          { id: &quot;dividend&quot;, name: &quot;Dividend quality&quot;, title: &quot;Dividend quality&quot;, draft: &quot;Draft V2&quot;, checkpoint: &quot;V2.1&quot;, pending: 2, papers: [
+            { id: &quot;yield&quot;, name: &quot;Yield test&quot;, version: &quot;V1&quot;, checkpoint: &quot;V1.4&quot;, state: &quot;Running&quot;, value: &quot;$50,940&quot;, change: &quot;+1.9%&quot;, exposure: &quot;67%&quot;, drawdown: &quot;−1.4%&quot;, runs: 7 }
+          ] },
+          { id: &quot;hedge&quot;, name: &quot;Macro hedge&quot;, title: &quot;Macro hedge&quot;, draft: &quot;Draft V1&quot;, checkpoint: &quot;V1.0&quot;, pending: 0, papers: [] }
+        ]
+      }
+    };
+    var championId = &quot;mara&quot;;
+    var strategyId = &quot;momentum&quot;;
+    var environment = { kind: &quot;draft&quot;, paperId: null };
+    var view = &quot;overview&quot;;
+    var dock = &quot;problems&quot;;
+    var run = null;
+    var runView = &quot;summary&quot;;
+
+    function champion() { return champions[championId]; }
+    function strategy() { return champion().strategies.find(function (item) { return item.id === strategyId; }); }
+    function paper() { return strategy().papers.find(function (item) { return item.id === environment.paperId; }); }
+    function dot(active) { return &#x27;&lt;span class=&quot;cw-dot&#x27; + (active ? &#x27; is-active&#x27; : &#x27;&#x27;) + &#x27;&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&#x27;; }
+    function tab(id, label, selected) { return &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-view=&quot;&#x27; + id + &#x27;&quot; aria-pressed=&quot;&#x27; + (selected ? &#x27;true&#x27; : &#x27;false&#x27;) + &#x27;&quot;&gt;&#x27; + label + &#x27;&lt;/button&gt;&#x27;; }
+    function table(headers, rows, caption) {
+      return &#x27;&lt;table class=&quot;cw-table&quot;&gt;&lt;caption class=&quot;sr-only&quot;&gt;&#x27; + caption + &#x27;&lt;/caption&gt;&lt;thead&gt;&lt;tr&gt;&#x27; + headers.map(function (head) { return &#x27;&lt;th scope=&quot;col&quot;&gt;&#x27; + head + &#x27;&lt;/th&gt;&#x27;; }).join(&#x27;&#x27;) + &#x27;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&#x27; + rows.map(function (row) { return &#x27;&lt;tr&gt;&#x27; + row.map(function (cell, index) { return index === 0 ? &#x27;&lt;th scope=&quot;row&quot;&gt;&#x27; + cell + &#x27;&lt;/th&gt;&#x27; : &#x27;&lt;td&gt;&#x27; + cell + &#x27;&lt;/td&gt;&#x27;; }).join(&#x27;&#x27;) + &#x27;&lt;/tr&gt;&#x27;; }).join(&#x27;&#x27;) + &#x27;&lt;/tbody&gt;&lt;/table&gt;&#x27;;
+    }
+    function resetWorkspace() { environment = { kind: &quot;draft&quot;, paperId: null }; view = &quot;overview&quot;; dock = &quot;problems&quot;; run = null; runView = &quot;summary&quot;; }
+
+    function renderSidebar() {
+      var current = champion();
+      var live = current.live;
+      liveButton.setAttribute(&quot;aria-pressed&quot;, environment.kind === &quot;live&quot; ? &quot;true&quot; : &quot;false&quot;);
+      liveButton.innerHTML = dot(Boolean(live)) + &#x27;&lt;span class=&quot;cw-nav-copy&quot;&gt;&lt;span&gt;Live portfolio&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + (live ? live.strategy + &#x27; &#x27; + live.version + &#x27; · &#x27; + live.value : &#x27;Not activated&#x27;) + &#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;
+      strategyList.innerHTML = &#x27;&#x27;;
+      current.strategies.forEach(function (item) {
+        var control = document.createElement(&#x27;button&#x27;);
+        control.type = &#x27;button&#x27;;
+        control.className = &#x27;btn btn-block cw-strategy-item&#x27;;
+        control.setAttribute(&#x27;aria-pressed&#x27;, environment.kind !== &#x27;live&#x27; &amp;&amp; item.id === strategyId ? &#x27;true&#x27; : &#x27;false&#x27;);
+        control.innerHTML = dot(item.id === strategyId) + &#x27;&lt;span class=&quot;cw-nav-copy&quot;&gt;&lt;span&gt;&#x27; + item.name + &#x27;&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.draft + &#x27; · &#x27; + (item.pending ? item.pending + &#x27; changes&#x27; : &#x27;Tested&#x27;) + &#x27;&lt;/span&gt;&lt;/span&gt;&#x27;;
+        control.addEventListener(&#x27;click&#x27;, function () { strategyId = item.id; resetWorkspace(); render(); });
+        strategyList.appendChild(control);
+      });
+      root.querySelector(&#x27;#cw-chat-name&#x27;).textContent = current.name;
+    }
+
+    function strategyTitle(item) {
+      return &#x27;&lt;div class=&quot;cw-title&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Strategy&lt;/p&gt;&lt;h2&gt;&#x27; + item.name + &#x27;&lt;/h2&gt;&lt;/div&gt;&lt;div class=&quot;cw-actions&quot;&gt;&lt;select class=&quot;form-select&quot; aria-label=&quot;Test scheme&quot;&gt;&lt;option&gt;2019–2026 · SPY · $100k&lt;/option&gt;&lt;option&gt;COVID stress · SPY · $100k&lt;/option&gt;&lt;/select&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot; data-dock=&quot;tests&quot;&gt;Test Draft&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
+    }
+    function environments(item) {
+      var html = &#x27;&lt;nav class=&quot;cw-environments&quot; aria-label=&quot;Strategy environments&quot;&gt;&#x27;;
+      html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn cw-env&quot; data-env=&quot;draft&quot; aria-pressed=&quot;&#x27; + (environment.kind === &#x27;draft&#x27;) + &#x27;&quot;&gt;&lt;span class=&quot;cw-inline&quot;&gt;&#x27; + dot(true) + &#x27;Draft&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.draft + &#x27; · &#x27; + item.checkpoint + &#x27;&lt;/span&gt;&lt;/button&gt;&#x27;;
+      item.papers.forEach(function (portfolio) {
+        html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn cw-env&quot; data-env=&quot;paper&quot; data-paper=&quot;&#x27; + portfolio.id + &#x27;&quot; aria-pressed=&quot;&#x27; + (environment.kind === &#x27;paper&#x27; &amp;&amp; environment.paperId === portfolio.id) + &#x27;&quot;&gt;&lt;span class=&quot;cw-inline&quot;&gt;&#x27; + dot(portfolio.state === &#x27;Running&#x27;) + &#x27;Paper · &#x27; + portfolio.name + &#x27;&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Strategy &#x27; + portfolio.version + &#x27; · &#x27; + portfolio.state + &#x27;&lt;/span&gt;&lt;/button&gt;&#x27;;
+      });
+      html += &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;New Paper&lt;/button&gt;&lt;/nav&gt;&#x27;;
+      return html;
+    }
+    function toolbar(kind) {
+      var tabs = &#x27;&#x27;;
+      if (kind === &#x27;draft&#x27;) tabs = tab(&#x27;overview&#x27;, &#x27;Overview&#x27;, view === &#x27;overview&#x27;) + tab(&#x27;document&#x27;, &#x27;Document&#x27;, view === &#x27;document&#x27;);
+      else {
+        tabs = tab(&#x27;overview&#x27;, &#x27;Overview&#x27;, view === &#x27;overview&#x27;) + tab(&#x27;positions&#x27;, &#x27;Positions&#x27;, view === &#x27;positions&#x27;) + tab(&#x27;orders&#x27;, &#x27;Orders&#x27;, view === &#x27;orders&#x27;) + tab(&#x27;runs&#x27;, &#x27;Runs&#x27;, view === &#x27;runs&#x27;);
+        if (kind === &#x27;live&#x27;) tabs += tab(&#x27;risk&#x27;, &#x27;Risk&#x27;, view === &#x27;risk&#x27;);
+      }
+      var action = kind === &#x27;draft&#x27; &amp;&amp; strategy().papers.length ? &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-compare&gt;Compare &#x27; + strategy().papers[0].version + &#x27;&lt;/button&gt;&#x27; : kind === &#x27;paper&#x27; ? &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-archive-paper&gt;Archive&lt;/button&gt;&#x27; : &#x27;&#x27;;
+      return &#x27;&lt;div class=&quot;cw-toolbar&quot;&gt;&lt;nav class=&quot;cw-tabs&quot; aria-label=&quot;Current workspace views&quot;&gt;&#x27; + tabs + &#x27;&lt;/nav&gt;&lt;div class=&quot;cw-actions&quot;&gt;&#x27; + action + &#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
+    }
+    function stats(values) {
+      return &#x27;&lt;div class=&quot;cw-stats&quot;&gt;&#x27; + values.map(function (item) { return &#x27;&lt;div class=&quot;cw-stat&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item[0] + &#x27;&lt;/span&gt;&lt;strong&gt;&#x27; + item[1] + &#x27;&lt;/strong&gt;&lt;/div&gt;&#x27;; }).join(&#x27;&#x27;) + &#x27;&lt;/div&gt;&#x27;;
+    }
+    function chart(runs) {
+      var first = Math.max(1, runs - 7);
+      return &#x27;&lt;div class=&quot;cw-chart&quot;&gt;&lt;svg viewBox=&quot;0 0 640 150&quot; role=&quot;img&quot; aria-label=&quot;Portfolio value measured at completed runs&quot;&gt;&lt;title&gt;Portfolio value at completed runs&lt;/title&gt;&lt;desc&gt;Eight discrete run observations with a benchmark.&lt;/desc&gt;&lt;line class=&quot;cw-gridline&quot; x1=&quot;8&quot; y1=&quot;110&quot; x2=&quot;632&quot; y2=&quot;110&quot;&gt;&lt;/line&gt;&lt;line class=&quot;cw-gridline&quot; x1=&quot;8&quot; y1=&quot;60&quot; x2=&quot;632&quot; y2=&quot;60&quot;&gt;&lt;/line&gt;&lt;path class=&quot;cw-benchmark&quot; d=&quot;M12 108 L100 104 L188 99 L276 95 L364 91 L452 84 L540 78 L628 73&quot;&gt;&lt;/path&gt;&lt;path class=&quot;cw-account&quot; d=&quot;M12 109 L100 101 L188 103 L276 86 L364 90 L452 66 L540 55 L628 42&quot;&gt;&lt;/path&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;12&quot; cy=&quot;109&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;100&quot; cy=&quot;101&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;188&quot; cy=&quot;103&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;276&quot; cy=&quot;86&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;364&quot; cy=&quot;90&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;452&quot; cy=&quot;66&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;540&quot; cy=&quot;55&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;circle class=&quot;cw-mark&quot; cx=&quot;628&quot; cy=&quot;42&quot; r=&quot;5&quot;&gt;&lt;/circle&gt;&lt;text x=&quot;12&quot; y=&quot;136&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;Run &#x27; + first + &#x27;&lt;/text&gt;&lt;text x=&quot;273&quot; y=&quot;136&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;completed runs&lt;/text&gt;&lt;text x=&quot;580&quot; y=&quot;136&quot; class=&quot;text-small&quot; fill=&quot;var(--muted-foreground)&quot;&gt;Run &#x27; + runs + &#x27;&lt;/text&gt;&lt;/svg&gt;&lt;/div&gt;&#x27;;
+    }
+
+    function draftOverview(item) {
+      var linkedLive = champion().live &amp;&amp; champion().live.strategy === item.name;
+      var deployments = [];
+      if (linkedLive) deployments.push([&#x27;Live portfolio&#x27;, &#x27;Strategy &#x27; + champion().live.version, &#x27;Active · &#x27; + champion().live.value]);
+      item.papers.forEach(function (portfolio) { deployments.push([&#x27;Paper · &#x27; + portfolio.name, &#x27;Strategy &#x27; + portfolio.version, portfolio.state + &#x27; · &#x27; + portfolio.runs + &#x27; runs&#x27;]); });
+      if (!deployments.length) deployments.push([&#x27;None&#x27;, &#x27;Draft only&#x27;, &#x27;Not deployed&#x27;]);
+      return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&#x27; + stats([[&#x27;Pending changes&#x27;, item.pending], [&#x27;Evidence&#x27;, &#x27;3 / 5 sections&#x27;], [&#x27;Paper portfolios&#x27;, item.papers.length], [&#x27;Live&#x27;, linkedLive ? champion().live.version : &#x27;Not deployed&#x27;]]) +
+        &#x27;&lt;div class=&quot;cw-grid&quot;&gt;&#x27; +
+          &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Since Strategy V5&lt;/span&gt;&lt;h3&gt;Changes&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;checkpoints&quot;&gt;History&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Rule&#x27;, &#x27;From&#x27;, &#x27;Draft&#x27;], [[&#x27;Position cap&#x27;, &#x27;15%&#x27;, &#x27;12%&#x27;], [&#x27;Cash floor&#x27;, &#x27;8%&#x27;, &#x27;10%&#x27;], [&#x27;Trailing stop&#x27;, &#x27;10%&#x27;, &#x27;9%&#x27;]], &#x27;Draft changes&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Latest evidence&lt;/span&gt;&lt;h3&gt;Dry Run 12&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-open-dry=&quot;12&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;cw-rule&quot;&gt;&lt;span&gt;Outcome&lt;/span&gt;&lt;span&gt;No trade&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-rule&quot;&gt;&lt;span&gt;Entry&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;Untested change&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-rule&quot;&gt;&lt;span&gt;Risk&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;Untested change&lt;/span&gt;&lt;/div&gt;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;cw-section cw-section-wide&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Detailed document&lt;/span&gt;&lt;h3&gt;Strategy structure&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-view=&quot;document&quot;&gt;Open Document&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Section&#x27;, &#x27;Current definition&#x27;, &#x27;Evidence&#x27;], [[&#x27;Universe&#x27;, &#x27;40 liquid U.S. large-cap equities&#x27;, &#x27;BT-18 · passed&#x27;], [&#x27;Entry&#x27;, &#x27;Top quartile · 6-month momentum&#x27;, &#x27;Untested&#x27;], [&#x27;Portfolio&#x27;, &#x27;Equal weight · 8 positions maximum&#x27;, &#x27;DR-12 · passed&#x27;], [&#x27;Risk&#x27;, &#x27;12% per asset · 10% minimum cash&#x27;, &#x27;Untested&#x27;], [&#x27;Exit&#x27;, &#x27;Momentum reversal or 9% trailing stop&#x27;, &#x27;BT-18 · passed&#x27;]], &#x27;Strategy structure&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Pinned immutable versions&lt;/span&gt;&lt;h3&gt;Deployments&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&#x27;Portfolio&#x27;, &#x27;Version&#x27;, &#x27;State&#x27;], deployments, &#x27;Strategy deployments&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+          &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Inputs&lt;/span&gt;&lt;h3&gt;Datasets&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;data&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Dataset&#x27;, &#x27;Latest&#x27;, &#x27;Use&#x27;], [[&#x27;Daily prices&#x27;, &#x27;Jul 15&#x27;, &#x27;Signals&#x27;], [&#x27;Fundamentals&#x27;, &#x27;Q1&#x27;, &#x27;Filters&#x27;], [&#x27;S&amp;P 500&#x27;, &#x27;Jul 15&#x27;, &#x27;Benchmark&#x27;]], &#x27;Strategy datasets&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+    function documentView(item, compare) {
+      var rows = [[&#x27;Universe&#x27;, &#x27;40 liquid U.S. large-cap equities&#x27;, &#x27;BT-18 · passed&#x27;], [&#x27;Entry&#x27;, &#x27;Top quartile · 6-month momentum&#x27;, &#x27;Untested&#x27;], [&#x27;Portfolio&#x27;, &#x27;Equal weight · 8 positions · 12% per asset&#x27;, &#x27;DR-12 · passed&#x27;], [&#x27;Risk&#x27;, &#x27;10% minimum cash · stale-data orders blocked&#x27;, &#x27;Untested&#x27;], [&#x27;Exit&#x27;, &#x27;Momentum reversal or 9% trailing stop&#x27;, &#x27;BT-18 · passed&#x27;]];
+      var html = &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Editable · autosaved · &#x27; + item.checkpoint + &#x27;&lt;/span&gt;&lt;h3&gt;&#x27; + item.draft + &#x27;&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&#x27;Section&#x27;, &#x27;Definition&#x27;, &#x27;Evidence&#x27;], rows, &#x27;Strategy document&#x27;);
+      if (compare) html += &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Frozen · running in Growth test&lt;/span&gt;&lt;h3&gt;Strategy V5&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&#x27;Section&#x27;, &#x27;Definition&#x27;, &#x27;Evidence&#x27;], [[&#x27;Universe&#x27;, rows[0][1], rows[0][2]], [&#x27;Entry&#x27;, rows[1][1], &#x27;BT-18 · passed&#x27;], [&#x27;Portfolio&#x27;, &#x27;Equal weight · 8 positions · 15% per asset&#x27;, &#x27;DR-11 · passed&#x27;], [&#x27;Risk&#x27;, &#x27;8% minimum cash · stale-data orders blocked&#x27;, &#x27;DR-11 · passed&#x27;], [&#x27;Exit&#x27;, &#x27;Momentum reversal or 10% trailing stop&#x27;, &#x27;BT-18 · passed&#x27;]], &#x27;Frozen strategy comparison&#x27;) + &#x27;&lt;/section&gt;&#x27;;
+      return html + &#x27;&lt;/section&gt;&#x27;;
+    }
+    function evidenceDock(item) {
+      var body;
+      if (dock === &#x27;tests&#x27;) body = table([&#x27;Evaluation&#x27;, &#x27;State&#x27;, &#x27;Started&#x27;, &#x27;Outcome&#x27;], [[&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-dry=&quot;13&quot;&gt;Dry Run 13&lt;/button&gt;&#x27;, &#x27;Running&#x27;, &#x27;7s ago&#x27;, &#x27;Loading evidence&#x27;], [&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-dry=&quot;12&quot;&gt;Dry Run 12&lt;/button&gt;&#x27;, &#x27;Completed&#x27;, &#x27;Yesterday&#x27;, &#x27;No trade&#x27;], [&#x27;Backtest 18&#x27;, &#x27;Completed&#x27;, &#x27;Jul 14&#x27;, &#x27;+11.8% · drawdown 8.4%&#x27;]], &#x27;Draft tests&#x27;);
+      else if (dock === &#x27;checkpoints&#x27;) body = table([&#x27;Checkpoint&#x27;, &#x27;Created&#x27;, &#x27;Change&#x27;, &#x27;Evidence&#x27;], [[&#x27;V6.4&#x27;, &#x27;Today&#x27;, &#x27;3 current changes&#x27;, &#x27;Untested&#x27;], [&#x27;V6.3&#x27;, &#x27;Jul 14&#x27;, &#x27;Concentration limits&#x27;, &#x27;Dry Run 12&#x27;], [&#x27;V6.0&#x27;, &#x27;Base&#x27;, &#x27;Cloned from Strategy V5&#x27;, &#x27;V5.7&#x27;]], &#x27;Draft checkpoints&#x27;);
+      else if (dock === &#x27;data&#x27;) body = table([&#x27;Dataset&#x27;, &#x27;Coverage&#x27;, &#x27;Latest&#x27;, &#x27;Use&#x27;], [[&#x27;Daily prices&#x27;, &#x27;Adjusted OHLCV&#x27;, &#x27;Jul 15&#x27;, &#x27;Signals&#x27;], [&#x27;Fundamentals&#x27;, &#x27;Quarterly company data&#x27;, &#x27;Q1&#x27;, &#x27;Filters&#x27;], [&#x27;Benchmark&#x27;, &#x27;S&amp;P 500 total return&#x27;, &#x27;Jul 15&#x27;, &#x27;Comparison&#x27;]], &#x27;Strategy data&#x27;);
+      else body = &#x27;&lt;div class=&quot;cw-problem&quot;&gt;&lt;span&gt;●&lt;/span&gt;&lt;span&gt;Dividend handling is not specified in exit behavior.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Document · Exit&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-problem&quot;&gt;&lt;span&gt;●&lt;/span&gt;&lt;span&gt;No completed evaluation for &#x27; + item.checkpoint + &#x27;. Paper launch remains unavailable.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + item.checkpoint + &#x27; × scheme&lt;/span&gt;&lt;/div&gt;&#x27;;
+      function dockTab(id, label) { return &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-dock=&quot;&#x27; + id + &#x27;&quot; aria-pressed=&quot;&#x27; + (dock === id) + &#x27;&quot;&gt;&#x27; + label + &#x27;&lt;/button&gt;&#x27;; }
+      return &#x27;&lt;section class=&quot;cw-dock&quot;&gt;&lt;nav class=&quot;cw-dock-tabs&quot; aria-label=&quot;Evidence dock&quot;&gt;&#x27; + dockTab(&#x27;problems&#x27;, &#x27;Problems · 2&#x27;) + dockTab(&#x27;tests&#x27;, &#x27;Tests&#x27;) + dockTab(&#x27;checkpoints&#x27;, &#x27;Checkpoints&#x27;) + dockTab(&#x27;data&#x27;, &#x27;Data&#x27;) + &#x27;&lt;/nav&gt;&lt;div class=&quot;cw-dock-body&quot;&gt;&#x27; + body + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+    function draftWorkspace(item) {
+      if (run) return runDetail();
+      var compare = view === &#x27;compare&#x27;;
+      var primary = compare ? &#x27;document&#x27; : view;
+      return toolbar(&#x27;draft&#x27;) + (primary === &#x27;document&#x27; ? documentView(item, compare) : draftOverview(item)) + evidenceDock(item);
+    }
+
+    function portfolioTitle(portfolio, isLive) {
+      var status = isLive ? &#x27;Active&#x27; : portfolio.state;
+      return &#x27;&lt;div class=&quot;cw-title&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;&#x27; + (isLive ? &#x27;Champion capital&#x27; : &#x27;Paper portfolio&#x27;) + &#x27;&lt;/p&gt;&lt;h2&gt;&#x27; + (isLive ? &#x27;Live portfolio&#x27; : portfolio.name) + &#x27;&lt;/h2&gt;&lt;/div&gt;&lt;span class=&quot;cw-inline&quot;&gt;&#x27; + dot(status === &#x27;Active&#x27; || status === &#x27;Running&#x27;) + status + &#x27;&lt;/span&gt;&lt;/div&gt;&#x27;;
+    }
+    function portfolioOverview(portfolio) {
+      var currentRun = portfolio.runs;
+      return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&#x27; + stats([[&#x27;Value&#x27;, portfolio.value], [&#x27;Return&#x27;, portfolio.change], [&#x27;Exposure&#x27;, portfolio.exposure], [&#x27;Max drawdown&#x27;, portfolio.drawdown]]) + chart(currentRun) + &#x27;&lt;div class=&quot;cw-grid&quot;&gt;&#x27; +
+        &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Latest run · #&#x27; + currentRun + &#x27;&lt;/span&gt;&lt;h3&gt;No order&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-open-run=&quot;&#x27; + currentRun + &#x27;&quot;&gt;Open trace&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;cw-rule&quot;&gt;&lt;span&gt;Position cap&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;2 blocked&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-rule&quot;&gt;&lt;span&gt;Earnings window&lt;/span&gt;&lt;span class=&quot;text-muted&quot;&gt;1 blocked&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Account and positions unchanged.&lt;/span&gt;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Next run&lt;/span&gt;&lt;h3&gt;Friday · 3:00 PM&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;Edit&lt;/button&gt;&lt;/div&gt;&lt;p&gt;Weekly at market close&lt;/p&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Buying power $37,970 · 36% cash&lt;/p&gt;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Positions · 6&lt;/span&gt;&lt;h3&gt;Current exposure&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-view=&quot;positions&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Symbol&#x27;, &#x27;Weight&#x27;, &#x27;P&amp;L&#x27;], [[&#x27;MSFT&#x27;, &#x27;18.2%&#x27;, &#x27;+4.1%&#x27;], [&#x27;NVDA&#x27;, &#x27;14.7%&#x27;, &#x27;+1.8%&#x27;], [&#x27;GOOGL&#x27;, &#x27;11.3%&#x27;, &#x27;+2.6%&#x27;]], &#x27;Position preview&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Orders&lt;/span&gt;&lt;h3&gt;Nothing pending&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-view=&quot;orders&quot;&gt;Open&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Run&#x27;, &#x27;Decision&#x27;, &#x27;State&#x27;], [[&#x27;#&#x27; + currentRun, &#x27;No order&#x27;, &#x27;Rules held&#x27;], [&#x27;#&#x27; + Math.max(1, currentRun - 1), &#x27;Sell 4 MSFT&#x27;, &#x27;Filled&#x27;]], &#x27;Order preview&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+        &#x27;&lt;section class=&quot;cw-section cw-section-wide&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Recent runs&lt;/span&gt;&lt;h3&gt;Decision evidence&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-view=&quot;runs&quot;&gt;All runs&lt;/button&gt;&lt;/div&gt;&#x27; + table([&#x27;Run&#x27;, &#x27;Completed&#x27;, &#x27;Outcome&#x27;, &#x27;Orders&#x27;], [[&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-run=&quot;&#x27; + currentRun + &#x27;&quot;&gt;Run &#x27; + currentRun + &#x27;&lt;/button&gt;&#x27;, &#x27;Today · 3:09 PM&#x27;, &#x27;No order · constraints held&#x27;, &#x27;0&#x27;], [&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-run=&quot;&#x27; + Math.max(1, currentRun - 1) + &#x27;&quot;&gt;Run &#x27; + Math.max(1, currentRun - 1) + &#x27;&lt;/button&gt;&#x27;, &#x27;Jul 11 · 3:08 PM&#x27;, &#x27;Rebalanced 2 positions&#x27;, &#x27;2&#x27;]], &#x27;Recent runs&#x27;) + &#x27;&lt;/section&gt;&#x27; +
+      &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+    function positions() { return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Positions · 6&lt;/span&gt;&lt;h3&gt;Holdings&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;64% deployed&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Symbol&#x27;, &#x27;Shares&#x27;, &#x27;Value&#x27;, &#x27;Weight&#x27;, &#x27;P&amp;L&#x27;], [[&#x27;MSFT&#x27;, &#x27;48&#x27;, &#x27;$19,196&#x27;, &#x27;18.2%&#x27;, &#x27;+4.1%&#x27;], [&#x27;NVDA&#x27;, &#x27;102&#x27;, &#x27;$15,505&#x27;, &#x27;14.7%&#x27;, &#x27;+1.8%&#x27;], [&#x27;GOOGL&#x27;, &#x27;61&#x27;, &#x27;$11,919&#x27;, &#x27;11.3%&#x27;, &#x27;+2.6%&#x27;], [&#x27;COST&#x27;, &#x27;9&#x27;, &#x27;$8,544&#x27;, &#x27;8.1%&#x27;, &#x27;+0.7%&#x27;], [&#x27;META&#x27;, &#x27;15&#x27;, &#x27;$7,702&#x27;, &#x27;7.3%&#x27;, &#x27;−0.4%&#x27;], [&#x27;Cash&#x27;, &#x27;—&#x27;, &#x27;$37,970&#x27;, &#x27;36.0%&#x27;, &#x27;—&#x27;]], &#x27;Portfolio positions&#x27;) + &#x27;&lt;/section&gt;&#x27;; }
+    function orders() { return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Order ledger&lt;/span&gt;&lt;h3&gt;Orders&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;0 pending&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Run&#x27;, &#x27;Submitted&#x27;, &#x27;Order&#x27;, &#x27;State&#x27;, &#x27;Fill&#x27;], [[&#x27;18&#x27;, &#x27;Today · 3:09 PM&#x27;, &#x27;No order&#x27;, &#x27;Rules held&#x27;, &#x27;—&#x27;], [&#x27;17&#x27;, &#x27;Jul 11 · 3:08 PM&#x27;, &#x27;SELL 4 MSFT&#x27;, &#x27;Filled&#x27;, &#x27;$399.92&#x27;], [&#x27;17&#x27;, &#x27;Jul 11 · 3:08 PM&#x27;, &#x27;BUY 12 GOOGL&#x27;, &#x27;Filled&#x27;, &#x27;$195.39&#x27;], [&#x27;16&#x27;, &#x27;Jul 4 · 3:07 PM&#x27;, &#x27;No order&#x27;, &#x27;Rules held&#x27;, &#x27;—&#x27;]], &#x27;Order history&#x27;) + &#x27;&lt;/section&gt;&#x27;; }
+    function runs(portfolio) { var n = portfolio.runs; return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Execution history&lt;/span&gt;&lt;h3&gt;Runs&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + n + &#x27; retained&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Run&#x27;, &#x27;Completed&#x27;, &#x27;Duration&#x27;, &#x27;Outcome&#x27;, &#x27;Orders&#x27;], [[&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-run=&quot;&#x27; + n + &#x27;&quot;&gt;Run &#x27; + n + &#x27;&lt;/button&gt;&#x27;, &#x27;Today · 3:09 PM&#x27;, &#x27;8m 54s&#x27;, &#x27;No order&#x27;, &#x27;0&#x27;], [&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-run=&quot;&#x27; + (n - 1) + &#x27;&quot;&gt;Run &#x27; + (n - 1) + &#x27;&lt;/button&gt;&#x27;, &#x27;Jul 11 · 3:08 PM&#x27;, &#x27;8m 21s&#x27;, &#x27;Rebalanced 2 positions&#x27;, &#x27;2&#x27;], [&#x27;&lt;button type=&quot;button&quot; class=&quot;cw-row-button&quot; data-open-run=&quot;&#x27; + (n - 2) + &#x27;&quot;&gt;Run &#x27; + (n - 2) + &#x27;&lt;/button&gt;&#x27;, &#x27;Jul 4 · 3:07 PM&#x27;, &#x27;7m 49s&#x27;, &#x27;No order&#x27;, &#x27;0&#x27;]], &#x27;Portfolio runs&#x27;) + &#x27;&lt;/section&gt;&#x27;; }
+    function risk() { return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Live controls&lt;/span&gt;&lt;h3&gt;Risk&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;viz-badge&quot;&gt;Within limits&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Control&#x27;, &#x27;Current&#x27;, &#x27;Limit&#x27;, &#x27;State&#x27;], [[&#x27;Single asset&#x27;, &#x27;18.2%&#x27;, &#x27;20%&#x27;, &#x27;Within&#x27;], [&#x27;Gross exposure&#x27;, &#x27;71%&#x27;, &#x27;80%&#x27;, &#x27;Within&#x27;], [&#x27;Cash floor&#x27;, &#x27;29%&#x27;, &#x27;10%&#x27;, &#x27;Within&#x27;], [&#x27;Data freshness&#x27;, &#x27;43s&#x27;, &#x27;2m&#x27;, &#x27;Current&#x27;]], &#x27;Live risk&#x27;) + &#x27;&lt;/section&gt;&#x27;; }
+    function portfolioWorkspace(portfolio, isLive) {
+      if (run) return runDetail();
+      var identity = isLive ? champion().live.strategy : strategy().name;
+      var version = portfolio.version;
+      var source = portfolio.checkpoint;
+      var actions = isLive ? &#x27;&#x27; : &#x27;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-archive-paper&gt;Archive&lt;/button&gt;&#x27;;
+      var provenance = &#x27;&lt;div class=&quot;cw-provenance&quot;&gt;&lt;div class=&quot;cw-inline&quot;&gt;&lt;strong&gt;&#x27; + identity + &#x27; Strategy &#x27; + version + &#x27;&lt;/strong&gt;&lt;span class=&quot;text-muted&quot;&gt;←&lt;/span&gt;&lt;span&gt;checkpoint &#x27; + source + &#x27;&lt;/span&gt;&lt;span class=&quot;viz-badge&quot;&gt;&#x27; + (isLive ? &#x27;Live capital&#x27; : &#x27;Simulated&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-actions&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot;&gt;Open frozen strategy&lt;/button&gt;&#x27; + actions + &#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
+      var body = view === &#x27;positions&#x27; ? positions() : view === &#x27;orders&#x27; ? orders() : view === &#x27;runs&#x27; ? runs(portfolio) : view === &#x27;risk&#x27; ? risk() : portfolioOverview(portfolio);
+      return portfolioTitle(portfolio, isLive) + provenance + toolbar(isLive ? &#x27;live&#x27; : &#x27;paper&#x27;) + body;
+    }
+
+    function runDetail() {
+      var isDry = run.type === &#x27;dry&#x27;;
+      var running = isDry &amp;&amp; run.id === 13;
+      var parent = isDry ? strategy().draft + &#x27; · Tests&#x27; : run.parent;
+      var breadcrumb = &#x27;&lt;div class=&quot;cw-toolbar&quot;&gt;&lt;div class=&quot;cw-inline&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-back-run&gt;‹ &#x27; + parent + &#x27;&lt;/button&gt;&lt;span class=&quot;text-muted&quot;&gt;/&lt;/span&gt;&lt;strong&gt;&#x27; + (isDry ? &#x27;Dry Run &#x27; : &#x27;Run &#x27;) + run.id + &#x27;&lt;/strong&gt;&lt;/div&gt;&lt;nav class=&quot;cw-tabs&quot; aria-label=&quot;Run views&quot;&gt;&#x27; + tab(&#x27;run-summary&#x27;, &#x27;Summary&#x27;, runView === &#x27;summary&#x27;) + tab(&#x27;run-activity&#x27;, &#x27;Activity&#x27;, runView === &#x27;activity&#x27;) + &#x27;&lt;/nav&gt;&lt;/div&gt;&#x27;;
+      var header = &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-run-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;cw-inline&quot;&gt;&#x27; + dot(running) + (running ? &#x27;Running&#x27; : &#x27;Completed&#x27;) + &#x27;&lt;/span&gt;&lt;h2&gt;&#x27; + (isDry ? &#x27;Dry Run &#x27; : &#x27;Run &#x27;) + run.id + &#x27;&lt;/h2&gt;&lt;/div&gt;&lt;div class=&quot;cw-actions&quot;&gt;&#x27; + (running ? &#x27;&lt;button type=&quot;button&quot; class=&quot;btn&quot; id=&quot;cw-stop&quot;&gt;Stop&lt;/button&gt;&#x27; : &#x27;&#x27;) + &#x27;&lt;button type=&quot;button&quot; class=&quot;btn&quot;&gt;Improve in Draft&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;cw-run-meta&quot;&gt;&lt;span&gt;&#x27; + (running ? &#x27;7s elapsed&#x27; : &#x27;8m 54s elapsed&#x27;) + &#x27;&lt;/span&gt;&lt;span&gt;&#x27; + (running ? &#x27;—&#x27; : &#x27;0&#x27;) + &#x27; orders&lt;/span&gt;&lt;span&gt;$&#x27; + (isDry ? &#x27;10,000&#x27; : &#x27;37,970&#x27;) + &#x27; buying power&lt;/span&gt;&lt;span&gt;&#x27; + (isDry ? &#x27;Draft &#x27; + strategy().checkpoint : &#x27;Strategy V5&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;/section&gt;&#x27;;
+      return breadcrumb + header + (runView === &#x27;activity&#x27; ? runActivity(running) : runSummary(running, isDry));
+    }
+    function runSummary(running, isDry) {
+      if (running) return &#x27;&lt;section class=&quot;cw-verdict&quot;&gt;&lt;div class=&quot;cw-verdict-main&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Current stage&lt;/span&gt;&lt;strong&gt;Loading market evidence&lt;/strong&gt;&lt;span&gt;Portfolio snapshot queued&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Input&#x27;, &#x27;State&#x27;, &#x27;Cutoff&#x27;], [[&#x27;Buying power&#x27;, &#x27;$10,000&#x27;, &#x27;Current&#x27;], [&#x27;Positions&#x27;, &#x27;0&#x27;, &#x27;Current&#x27;], [&#x27;Fundamentals&#x27;, &#x27;Loading&#x27;, &#x27;—&#x27;]], &#x27;Dry run inputs&#x27;) + &#x27;&lt;/section&gt;&#x27;;
+      return &#x27;&lt;section class=&quot;cw-verdict&quot;&gt;&lt;div class=&quot;cw-verdict-main&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Outcome&lt;/span&gt;&lt;strong&gt;No order&lt;/strong&gt;&lt;span&gt;Three candidates reached portfolio checks. Existing constraints blocked all three.&lt;/span&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Portfolio impact · $0 · positions unchanged&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;strong&gt;Decision trace&lt;/strong&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;40 → 3 → 0&lt;/span&gt;&lt;/div&gt;&#x27; + table([&#x27;Candidate&#x27;, &#x27;Passed&#x27;, &#x27;Blocked by&#x27;], [[&#x27;MSFT&#x27;, &#x27;Entry&#x27;, &#x27;20% position cap&#x27;], [&#x27;NVDA&#x27;, &#x27;Entry&#x27;, &#x27;Earnings window&#x27;], [&#x27;GOOGL&#x27;, &#x27;Entry&#x27;, &#x27;Cash floor&#x27;]], &#x27;Decision trace&#x27;) + &#x27;&lt;/div&gt;&lt;/section&gt;&lt;section class=&quot;cw-section&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Provenance&lt;/span&gt;&lt;h3&gt;Exact inputs&lt;/h3&gt;&lt;/div&gt;&lt;/div&gt;&#x27; + table([&#x27;Source&#x27;, &#x27;Identity&#x27;, &#x27;Cutoff&#x27;], [[&#x27;Strategy&#x27;, isDry ? strategy().draft + &#x27; · &#x27; + strategy().checkpoint : &#x27;Immutable Strategy V5 · V5.7&#x27;, &#x27;Frozen at start&#x27;], [&#x27;Market data&#x27;, &#x27;Daily adjusted bars&#x27;, &#x27;Jul 15 · 3:00 PM&#x27;], [&#x27;Portfolio&#x27;, isDry ? &#x27;Dry-run sandbox&#x27; : &#x27;Growth test&#x27;, &#x27;Run start&#x27;]], &#x27;Run provenance&#x27;) + &#x27;&lt;/section&gt;&#x27;;
+    }
+    function runActivity(running) {
+      var events = running ? [[&#x27;00:00&#x27;, &#x27;Run started&#x27;, strategy().checkpoint + &#x27; pinned&#x27;], [&#x27;00:01&#x27;, &#x27;Skills discovered&#x27;, &#x27;market-data · trade-execution&#x27;], [&#x27;00:03&#x27;, &#x27;Buying power read&#x27;, &#x27;$10,000 available&#x27;], [&#x27;00:07&#x27;, &#x27;Market data&#x27;, &#x27;Loading daily bars…&#x27;]] : [[&#x27;15:00:00&#x27;, &#x27;Run started&#x27;, &#x27;Strategy and portfolio snapshot pinned&#x27;], [&#x27;15:00:01&#x27;, &#x27;Skills discovered&#x27;, &#x27;market-data · trade-execution&#x27;], [&#x27;15:00:03&#x27;, &#x27;Buying power read&#x27;, &#x27;$37,970 available&#x27;], [&#x27;15:00:04&#x27;, &#x27;Positions read&#x27;, &#x27;6 positions · 64% deployed&#x27;], [&#x27;15:01:12&#x27;, &#x27;Fundamentals loaded&#x27;, &#x27;40 / 40 universe members&#x27;], [&#x27;15:05:46&#x27;, &#x27;Candidate screen&#x27;, &#x27;3 passed entry rules&#x27;], [&#x27;15:08:41&#x27;, &#x27;Decision&#x27;, &#x27;No order · constraints held&#x27;], [&#x27;15:08:54&#x27;, &#x27;Completed&#x27;, &#x27;Portfolio unchanged&#x27;]];
+      return &#x27;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;Authoritative execution log&lt;/span&gt;&lt;h3&gt;Activity&lt;/h3&gt;&lt;/div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + (running ? &#x27;Streaming&#x27; : &#x27;Complete&#x27;) + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;cw-trace&quot;&gt;&#x27; + events.map(function (event) { return &#x27;&lt;div class=&quot;cw-event&quot;&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + event[0] + &#x27;&lt;/span&gt;&lt;span&gt;○&lt;/span&gt;&lt;div class=&quot;cw-event-copy&quot;&gt;&lt;strong&gt;&#x27; + event[1] + &#x27;&lt;/strong&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;&#x27; + event[2] + &#x27;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&#x27;; }).join(&#x27;&#x27;) + &#x27;&lt;/div&gt;&lt;/section&gt;&#x27;;
+    }
+
+    function attachEvents() {
+      root.querySelectorAll(&#x27;[data-env]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { environment = control.getAttribute(&#x27;data-env&#x27;) === &#x27;draft&#x27; ? { kind: &#x27;draft&#x27;, paperId: null } : { kind: &#x27;paper&#x27;, paperId: control.getAttribute(&#x27;data-paper&#x27;) }; view = &#x27;overview&#x27;; run = null; render(); }); });
+      root.querySelectorAll(&#x27;[data-view]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { var next = control.getAttribute(&#x27;data-view&#x27;); if (next === &#x27;run-summary&#x27; || next === &#x27;run-activity&#x27;) runView = next === &#x27;run-summary&#x27; ? &#x27;summary&#x27; : &#x27;activity&#x27;; else view = next; render(); }); });
+      root.querySelectorAll(&#x27;[data-dock]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { dock = control.getAttribute(&#x27;data-dock&#x27;); render(); }); });
+      root.querySelectorAll(&#x27;[data-compare]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { view = view === &#x27;compare&#x27; ? &#x27;document&#x27; : &#x27;compare&#x27;; render(); }); });
+      root.querySelectorAll(&#x27;[data-open-run]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { run = { type: environment.kind, id: Number(control.getAttribute(&#x27;data-open-run&#x27;)), parent: environment.kind === &#x27;live&#x27; ? &#x27;Live · Runs&#x27; : paper().name + &#x27; · Runs&#x27; }; runView = &#x27;summary&#x27;; render(); }); });
+      root.querySelectorAll(&#x27;[data-open-dry]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { run = { type: &#x27;dry&#x27;, id: Number(control.getAttribute(&#x27;data-open-dry&#x27;)), parent: strategy().draft + &#x27; · Tests&#x27; }; runView = &#x27;summary&#x27;; render(); }); });
+      var back = root.querySelector(&#x27;[data-back-run]&#x27;);
+      if (back) back.addEventListener(&#x27;click&#x27;, function () { if (run.type === &#x27;dry&#x27;) { view = &#x27;overview&#x27;; dock = &#x27;tests&#x27;; } else view = &#x27;runs&#x27;; run = null; render(); });
+      var stop = root.querySelector(&#x27;#cw-stop&#x27;);
+      if (stop) stop.addEventListener(&#x27;click&#x27;, function () { stop.textContent = &#x27;Stopping…&#x27;; stop.disabled = true; });
+      root.querySelectorAll(&#x27;[data-archive-paper]&#x27;).forEach(function (control) { control.addEventListener(&#x27;click&#x27;, function () { control.textContent = &#x27;Archive queued&#x27;; control.disabled = true; }); });
+    }
+    function render() {
+      renderSidebar();
+      var current = champion();
+      var item = strategy();
+      target.textContent = item.name + &#x27; · &#x27; + item.draft + &#x27; · &#x27; + item.checkpoint;
+      root.querySelector(&#x27;#cw-footer-target&#x27;).textContent = item.name + &#x27; · &#x27; + item.draft + &#x27; · &#x27; + item.checkpoint;
+      root.querySelector(&#x27;#cw-footer-live&#x27;).textContent = current.live ? current.live.strategy + &#x27; &#x27; + current.live.version + &#x27; · &#x27; + current.live.value : &#x27;Not activated&#x27;;
+      var html;
+      if (environment.kind === &#x27;live&#x27;) {
+        if (!current.live) {
+          html = &#x27;&lt;div class=&quot;cw-title&quot;&gt;&lt;div&gt;&lt;p class=&quot;text-small text-muted&quot;&gt;Champion capital&lt;/p&gt;&lt;h2&gt;Live portfolio&lt;/h2&gt;&lt;/div&gt;&lt;span class=&quot;cw-inline&quot;&gt;&#x27; + dot(false) + &#x27;Not activated&lt;/span&gt;&lt;/div&gt;&lt;section class=&quot;cw-pane&quot;&gt;&lt;div class=&quot;cw-section-head&quot;&gt;&lt;div&gt;&lt;span class=&quot;text-small text-muted&quot;&gt;No deployment&lt;/span&gt;&lt;h3&gt;$0 at risk&lt;/h3&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot;&gt;Review Paper evidence&lt;/button&gt;&lt;/div&gt;&lt;/section&gt;&#x27;;
+          viewing.textContent = &#x27;Live · Not activated&#x27;;
+        } else {
+          var livePortfolio = { name: &#x27;Live portfolio&#x27;, version: current.live.version, checkpoint: current.live.checkpoint, state: &#x27;Active&#x27;, value: current.live.value, change: current.live.change, exposure: current.live.exposure, drawdown: current.live.drawdown, runs: current.live.runs };
+          html = portfolioWorkspace(livePortfolio, true);
+          viewing.textContent = run ? &#x27;Live · Run &#x27; + run.id : &#x27;Live · &#x27; + current.live.strategy + &#x27; &#x27; + current.live.version;
+        }
+      } else {
+        html = strategyTitle(item) + environments(item);
+        if (environment.kind === &#x27;draft&#x27;) {
+          html += draftWorkspace(item);
+          viewing.textContent = run ? item.name + &#x27; · Dry Run &#x27; + run.id : item.name + &#x27; · &#x27; + item.draft + &#x27; · &#x27; + item.checkpoint;
+        } else {
+          html += portfolioWorkspace(paper(), false);
+          viewing.textContent = run ? paper().name + &#x27; · Run &#x27; + run.id : &#x27;Paper · &#x27; + paper().name + &#x27; · Strategy &#x27; + paper().version;
+        }
+      }
+      main.innerHTML = html;
+      attachEvents();
+    }
+    liveButton.addEventListener(&#x27;click&#x27;, function () { environment = { kind: &#x27;live&#x27;, paperId: null }; view = &#x27;overview&#x27;; run = null; render(); });
+    root.querySelector(&#x27;#cw-champion&#x27;).addEventListener(&#x27;change&#x27;, function (event) { championId = event.target.value; strategyId = champion().strategies[0].id; resetWorkspace(); render(); });
+    root.querySelector(&#x27;#cw-new&#x27;).addEventListener(&#x27;click&#x27;, function () { strategyId = champion().strategies[champion().strategies.length - 1].id; resetWorkspace(); render(); });
+    root.querySelector(&#x27;#cw-composer&#x27;).addEventListener(&#x27;submit&#x27;, function (event) { event.preventDefault(); var field = root.querySelector(&#x27;#cw-message&#x27;); if (!field.value.trim()) return; var message = document.createElement(&#x27;div&#x27;); message.className = &#x27;cw-message is-user&#x27;; message.textContent = field.value.trim(); root.querySelector(&#x27;#cw-chat-log&#x27;).appendChild(message); field.value = &#x27;&#x27;; });
+    render();
+  })();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

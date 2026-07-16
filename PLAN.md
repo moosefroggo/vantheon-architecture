@@ -31,34 +31,37 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 ## Canonical Product Model
 
 - A `Champion` is the persistent AI agent identity with which the user collaborates. The `Champion workspace` contains its Draft, Paper, Live, conversation, and activity; the `strategy lineage` is the sequence of Draft checkpoints and immutable strategies it develops. These terms are related but not interchangeable.
-- A Champion develops one current draft generation, displayed as `Draft Vn`.
-- Each accepted semantic Draft change set creates one restorable minor checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Non-mutating or unsuccessful work does not increment the checkpoint.
+- A Champion develops one current draft generation, displayed as `Drafting Vn`.
+- The active Draft is always the latest authoritative checkpoint, tested or untested. Each accepted semantic Draft change set creates and activates one restorable minor checkpoint such as `V5.1 → V5.2`, regardless of whether it originated from conversation, direct editing, autonomous Champion work, or another authorized actor. Testing attaches evidence to a checkpoint but never advances or selects it; non-mutating or unsuccessful work does not increment it.
 - Launching Draft V5 from checkpoint V5.2 freezes an immutable Strategy V5 snapshot, creates Paper V5, and begins Draft V6 at checkpoint V6.0 with the exact structured content of V5.2. V6.0 is a generation-initialization checkpoint; the first semantic change becomes V6.1.
 - Restoring an older checkpoint never rewinds or deletes history. Restoring V8.2 while current is V8.4 creates a reviewed and validated V8.5 containing the restored content.
-- Paper navigation uses the concise label `Paper V5`; portfolio details expose `Strategy snapshot from Draft V5 · checkpoint V5.2`, the frozen strategy, semantic changes, and provenance.
-- Multiple Paper portfolios such as V5, V6, and V7 coexist, accumulate independent performance and run histories, and can be compared over time.
+- Normal UI reserves `Vn` for strategy generations: `Drafting V6`, `Checkpoint 3`, `Strategy V5`, and `Growth Test · Running Strategy V5`. It never displays compound `V6.3` checkpoint notation outside technical/audit contexts. Paper details expose the frozen strategy, source checkpoint, semantic changes, and provenance.
+- Multiple named Paper portfolios running Strategy V5, V6, V7, or later coexist, accumulate independent performance and run histories, and can be compared over time.
 - A portfolio is persistent evidence; a run is one scheduled execution inside that portfolio. A portfolio is never modeled as a run.
 - Live promotion follows the trust path `Paper → Live`. Live pins the exact Paper-tested strategy snapshot and requires explicit confirmation.
-- Paper and Live eligibility are versioned server-authoritative assessments. The Champion may explain or recommend remediation but cannot grant, bypass, or override eligibility.
+- Paper has no eligibility state. Launch uses server validation of the requested setup plus explicit user confirmation. Live eligibility is a versioned server-authoritative assessment that the Champion may explain or recommend remediation for but cannot grant, bypass, or override.
 - Chat remains persistent across the workspace:
   - Draft: create, modify, explain, and test.
   - Paper: analyze outcomes and propose changes to the current Draft.
   - Live: explain, monitor risk, and prepare changes for the Draft.
 - Strategy-changing chat always targets the current Draft. Paper and Live strategies remain immutable.
 - Champion inputs and outputs are untrusted. Model-produced changes are proposals until capability-scoped commands pass independent server validation.
-- The chat composer always distinguishes the viewed context from the mutation target, for example: `Viewing Paper V5 · Changes go to Draft V8 · checkpoint V8.4`.
+- The chat composer attaches the selected rule, run, order, position, or other context without permanent instructional copy. When a request would change strategy, Atlas and the semantic proposal identify the exact current Draft checkpoint before acceptance.
 - Learning from an older Paper or Live version is proposed against the latest Draft. The Champion compares the observed source rule with its current equivalent, explains incompatibilities, and requests a decision rather than silently overwriting or creating another Draft branch.
 - Paper is optimized for learning and comparison; Live is optimized for capital visibility, risk, and control.
 
 ## Information Architecture
 
 - Persistent Champion shell:
-  - Champion identity and status.
+  - Champion selector as the parent context, with identity and status.
   - Draft/Paper/Live switcher with `Developing` and `Running` state labels.
-  - Persistent contextual conversation.
-  - Visible viewed-context and Draft-mutation-target labels near the conversation composer.
+  - Desktop workbench organized as environment navigator, primary workbench, contextual inspector, and test/run output tray.
+  - Persistently visible Champion conversation dock, spatially secondary to the primary workbench and continuously correlated with the selected rule, metric, run, order, position, or outcome.
+  - Visible selected-context attachment above the composer; mutation target disclosed at strategy-change interpretation and review.
   - Current Champion activity and notifications.
-  - Collapsible conversation and notification panels for data-dense workspaces.
+  - Conversation remains docked and visible at every supported viewport; notifications and secondary detail may collapse during data-dense work.
+  - Switching Champions atomically switches identity, conversation, Draft/Paper/Live environment, mutation target, and attached references while preserving each Champion's own last active workspace state and warm cache.
+  - No composer attachment, selection, pending interaction, or optimistic projection crosses a Champion boundary.
 - Draft:
   - Strategy as the default creation surface.
   - Inline semantic change review and immediate testing.
@@ -66,7 +69,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
   - Restorable checkpoint history.
   - Advanced data configuration kept secondary.
 - Paper:
-  - Overview centered on evidence and Champion assessment.
+  - Overview centered first on portfolio value, P&L, buying power, exposure, drawdown, freshness, next run, and operational evidence.
   - First-class comparison across Paper V5/V6/V7.
   - Runs before lower-level positions and orders.
   - Read-only frozen strategy with exact source checkpoint.
@@ -141,7 +144,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 ## Accessibility, Motion, and Interaction Safety
 
 - Target WCAG 2.2 AA for the supported demo viewport and document any known exceptions with an owner and revisit trigger.
-- Define keyboard navigation and focus restoration across the persistent shell, Draft/Paper/Live switches, collapsible panels, dialogs, chat, virtualized histories, and React `Activity`-preserved views.
+- Define keyboard navigation and focus movement across the persistent shell, Draft/Paper/Live switches, the always-visible conversation dock, collapsible secondary panels, dialogs, virtualized histories, and React `Activity`-preserved views.
 - Batch and prioritize assistive-technology announcements so high-frequency prices and portfolio changes do not flood live regions. Connection loss, risk changes, command outcomes, and required user action receive distinct announcement treatment.
 - Provide a synchronized textual summary or accessible data table for information otherwise available only through canvas-based charts.
 - Preserve meaningful collection semantics for virtualized tables and histories, including total-size and position information where supported.
@@ -156,6 +159,7 @@ Planning prioritizes two journeys above feature breadth: onboarding to understan
 - Maintain visual-regression coverage for domain surfaces carrying financial meaning, focus treatment, responsive behavior, reduced-motion alternatives, degradation, and error states.
 - Test keyboard-only completion of onboarding to Paper and the rigorous iteration loop.
 - Keep deterministic browser performance tests and protocol load tests as complementary layers rather than substitutes for functional, accessibility, security, or visual testing.
+- Pause for hands-on founder testing at the five accepted gates in `docs/development-testing.md`: onboarding to Paper, rigorous iteration, Live trust, live-data performance and recovery, and release-candidate journeys. Each handoff includes a runnable build, task-based script, fixture or scenario identity, known limitations, and explicit acceptance or requested changes before the next major slice.
 
 ## State and Data-Flow Diagrams
 
@@ -185,12 +189,12 @@ Record the following as accepted decisions with their reasoning and revisit cond
 - Organize IA around Draft, Paper, and Live user goals rather than technical entities.
 - Use major generations for deployed strategy identity and minor checkpoints for restorable draft history.
 - Create one checkpoint per accepted semantic Draft change set, regardless of actor, not per low-level command.
-- Label portfolios as Paper V5 while exposing Draft V5 · checkpoint V5.2 as exact source provenance.
+- Give portfolios stable names, show `Running Strategy V5`, and expose `Drafting V5 · Checkpoint 2` as exact source provenance.
 - Allow multiple simultaneous Paper portfolios for longitudinal comparison.
 - Require Paper validation before Live promotion.
 - Treat evaluation as evidence only when its assumptions, data cutoff, behavior, rejections, risk, and limitations are visible; return alone is insufficient.
 - Keep chat contextual but route strategy mutations exclusively to the current Draft.
-- Always expose viewed context separately from the Draft mutation target.
+- Keep viewed context and Draft mutation target separate in state; expose the selected context in the composer and the exact target before accepting a strategy change.
 - Apply observations from older portfolios as proposals against the latest Draft; explain conflicts and do not introduce multiple active Draft branches in the MVP.
 - Keep deployed strategies immutable and show semantic rather than raw JSON differences.
 - Use server-backed reads and validated patches; local stores render reality but do not define it.

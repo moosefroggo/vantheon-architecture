@@ -1,0 +1,831 @@
+<title>Vantheon — Version-First Workbench</title>
+<style>
+  :root {
+    --paper: #FAFAF7;
+    --wash: #F2F1EB;
+    --cell: #FFFFFF;
+    --ink: #191B1D;
+    --ink2: #61666B;
+    --ink3: #9A9E96;
+    --hair: #E4E2DA;
+    --accent: #2242C8;
+    --accent-soft: #E8ECFB;
+    --attn: #9A6A00;
+    --attn-soft: #F6EEDC;
+    --live-bg: #191B1D;
+    --live-fg: #FAFAF7;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141618; --wash: #1B1E21; --cell: #191C1F;
+      --ink: #E7E5E0; --ink2: #9AA0A6; --ink3: #6A6F75; --hair: #2B2F33;
+      --accent: #8FA3FF; --accent-soft: #232A44;
+      --attn: #D9A93F; --attn-soft: #2E2817;
+      --live-bg: #E7E5E0; --live-fg: #141618;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #FAFAF7; --wash: #F2F1EB; --cell: #FFFFFF;
+    --ink: #191B1D; --ink2: #61666B; --ink3: #9A9E96; --hair: #E4E2DA;
+    --accent: #2242C8; --accent-soft: #E8ECFB;
+    --attn: #9A6A00; --attn-soft: #F6EEDC;
+    --live-bg: #191B1D; --live-fg: #FAFAF7;
+  }
+  :root[data-theme="dark"] {
+    --paper: #141618; --wash: #1B1E21; --cell: #191C1F;
+    --ink: #E7E5E0; --ink2: #9AA0A6; --ink3: #6A6F75; --hair: #2B2F33;
+    --accent: #8FA3FF; --accent-soft: #232A44;
+    --attn: #D9A93F; --attn-soft: #2E2817;
+    --live-bg: #E7E5E0; --live-fg: #141618;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font: 12.5px/1.5 var(--sans); }
+  button { font: inherit; color: inherit; background: none; border: 0;
+           cursor: pointer; padding: 0; }
+  button:focus-visible, select:focus-visible, textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 2px;
+  }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .lbl { font: 600 10px/1 var(--sans); letter-spacing: .09em;
+         text-transform: uppercase; color: var(--ink3); }
+
+  .viewport { overflow-x: auto; min-height: 100vh; }
+  .frame { min-width: 1220px; height: 100vh; display: grid;
+           grid-template-rows: auto 1fr auto; }
+
+  /* ── Loop bar ─────────────────────────────────────────────── */
+  .loopbar { display: flex; align-items: center; gap: 16px;
+             padding: 0 14px; height: 46px;
+             background: var(--wash); border-bottom: 1px solid var(--hair); }
+  .wordmark { font: 700 11px/1 var(--sans); letter-spacing: .28em; }
+  .jump { display: flex; align-items: center; gap: 2px; min-width: 0; }
+  .jump button { font-family: var(--mono); font-size: 12px; color: var(--ink2);
+                 padding: 4px 6px; border-radius: 3px; white-space: nowrap; }
+  .jump button:hover { background: var(--hair); color: var(--ink); }
+  .jump .sep { color: var(--ink3); font-size: 11px; }
+  .jump .here { color: var(--ink); font-weight: 600; }
+
+  .runctl { display: flex; align-items: center; margin-left: auto;
+            border: 1px solid var(--hair); border-radius: 4px;
+            background: var(--cell); overflow: hidden; }
+  .runctl .ckpt { padding: 5px 9px; font-family: var(--mono); font-size: 12px;
+                  font-weight: 600; border-right: 1px solid var(--hair); }
+  .runctl select { border: 0; background: transparent; color: var(--ink2);
+                   font: 12px var(--mono); padding: 5px 8px; max-width: 220px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px;
+         border: 1px solid var(--hair); border-radius: 4px;
+         padding: 5px 12px; font-weight: 600; font-size: 12px;
+         background: var(--cell); white-space: nowrap; }
+  .btn:hover:not(:disabled) { border-color: var(--ink3); }
+  .btn.primary { background: var(--accent); border-color: var(--accent);
+                 color: #fff; }
+  :root[data-theme="dark"] .btn.primary,
+  .btn.primary.darkfix { color: var(--paper); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .activity { display: flex; align-items: center; gap: 6px;
+              font-family: var(--mono); font-size: 11px; color: var(--ink2);
+              min-width: 150px; justify-content: flex-end; }
+  .spin { width: 10px; height: 10px; border: 1.5px solid var(--ink3);
+          border-top-color: transparent; border-radius: 50%;
+          animation: spin 0.9s linear infinite; display: none; }
+  .working .spin { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .spin { animation: none; }
+    * { transition: none !important; }
+  }
+  .probs { display: inline-flex; align-items: center; gap: 5px;
+           border: 1px solid var(--hair); border-radius: 4px;
+           padding: 4px 9px; font: 600 11px var(--mono);
+           background: var(--attn-soft); color: var(--attn); }
+  .probs.clear { background: transparent; color: var(--ink3); }
+
+  /* ── Body grid ────────────────────────────────────────────── */
+  .bodygrid { display: grid; grid-template-columns: 236px 1fr 292px;
+              min-height: 0; }
+
+  /* Explorer */
+  .explorer { border-right: 1px solid var(--hair); background: var(--wash);
+              overflow-y: auto; padding: 10px 0 16px; }
+  .exp-strategy { padding: 4px 14px 10px; }
+  .exp-strategy .name { font-weight: 700; font-size: 13px; }
+  .exp-group { padding: 12px 14px 4px; }
+  .tree { list-style: none; margin: 0; padding: 0; }
+  .vrow { display: flex; align-items: center; gap: 8px; width: 100%;
+          text-align: left; padding: 7px 14px; border-left: 2px solid transparent; }
+  .vrow:hover { background: var(--hair); }
+  .vrow[aria-current="true"] { background: var(--cell);
+                               border-left-color: var(--accent); }
+  .vrow .vnum { font: 700 13px var(--mono); width: 26px; }
+  .vrow .vmeta { font-size: 11px; color: var(--ink2); min-width: 0;
+                 overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .glyph { width: 14px; text-align: center; font-size: 11px; color: var(--ink3); }
+  .glyph.cur { color: var(--accent); }
+  .chip-live { font: 700 9px/1 var(--sans); letter-spacing: .08em;
+               background: var(--live-bg); color: var(--live-fg);
+               border-radius: 3px; padding: 3px 5px; }
+  .subtree { list-style: none; margin: 0 0 2px; padding: 0 0 0 0; }
+  .srow { display: flex; align-items: center; gap: 8px; width: 100%;
+          text-align: left; padding: 4px 14px 4px 40px; font-size: 12px;
+          color: var(--ink2); }
+  .srow:hover { background: var(--hair); color: var(--ink); }
+  .srow .mono { font-size: 11px; }
+  .ck { display: flex; align-items: center; gap: 8px; width: 100%;
+        text-align: left; padding: 3px 14px 3px 54px;
+        font: 11px var(--mono); color: var(--ink2); }
+  .ck:hover { background: var(--hair); }
+  .ck .st { width: 12px; text-align: center; }
+  .ck .st.ok { color: var(--accent); }
+  .ck .st.un { color: var(--attn); }
+  .schemerow { padding: 4px 14px 4px 28px; font: 11px var(--mono);
+               color: var(--ink2); white-space: nowrap; overflow: hidden;
+               text-overflow: ellipsis; }
+
+  /* Cells */
+  .cells { display: grid; grid-template-rows: 1fr 218px; min-width: 0;
+           min-height: 0; }
+  .cellrow { display: grid; grid-template-columns: 1fr 1fr; min-height: 0; }
+  .cell { border-right: 1px solid var(--hair); background: var(--cell);
+          display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .cell:last-child { border-right: 0; }
+  .cellhead { display: flex; align-items: center; gap: 8px;
+              padding: 8px 14px; border-bottom: 1px solid var(--hair); }
+  .cellhead .t { font: 600 12px var(--mono); }
+  .cellhead .state { font-size: 10.5px; color: var(--ink2); }
+  .cellhead .right { margin-left: auto; display: flex; gap: 8px;
+                     align-items: center; }
+  .ghost { border: 1px solid var(--hair); border-radius: 3px;
+           padding: 3px 8px; font-size: 11px; color: var(--ink2); }
+  .ghost:hover { color: var(--ink); border-color: var(--ink3); }
+  .cellbody { overflow-y: auto; flex: 1; }
+  .frozen-banner { display: flex; gap: 8px; align-items: center;
+                   padding: 6px 14px; font: 11px var(--mono);
+                   color: var(--ink2); background: var(--wash);
+                   border-bottom: 1px solid var(--hair); }
+
+  .rule { display: grid; grid-template-columns: 92px 1fr auto;
+          gap: 4px 14px; padding: 10px 14px;
+          border-bottom: 1px solid var(--hair); align-items: baseline; }
+  .rule:hover { background: var(--wash); }
+  .rule .g { font: 600 10px/1.6 var(--sans); letter-spacing: .08em;
+             text-transform: uppercase; color: var(--ink3); }
+  .rule .v { font-weight: 600; }
+  .rule .c { grid-column: 2; font-size: 11.5px; color: var(--ink2); }
+  .edit-tick { font: 600 9px/1 var(--sans); letter-spacing: .06em;
+               text-transform: uppercase; color: var(--attn);
+               background: var(--attn-soft); padding: 3px 6px;
+               border-radius: 3px; }
+  .evi-chip { font: 10.5px var(--mono); color: var(--ink2);
+              border: 1px solid var(--hair); border-radius: 3px;
+              padding: 2px 6px; }
+
+  .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 14px;
+        padding: 12px 14px; font-size: 12px; }
+  .kv dt { color: var(--ink3); font: 600 10px/1.8 var(--sans);
+           letter-spacing: .08em; text-transform: uppercase; }
+  .kv dd { margin: 0; font-family: var(--mono); font-size: 12px; }
+
+  figure.eq { margin: 0; padding: 12px 14px; }
+  figure.eq figcaption { display: flex; justify-content: space-between;
+                         font: 11px var(--mono); color: var(--ink2);
+                         margin-bottom: 8px; }
+  .runmark-legend { font-size: 10.5px; color: var(--ink3); }
+
+  /* Panel */
+  .panel { border-top: 1px solid var(--hair); background: var(--cell);
+           display: flex; flex-direction: column; min-height: 0; }
+  .ptabs { display: flex; gap: 2px; padding: 0 10px; background: var(--wash);
+           border-bottom: 1px solid var(--hair); }
+  .ptab { padding: 7px 12px; font: 600 11px var(--sans); color: var(--ink2);
+          border-bottom: 2px solid transparent; letter-spacing: .02em; }
+  .ptab[aria-selected="true"] { color: var(--ink);
+                                border-bottom-color: var(--accent); }
+  .ptab .n { font-family: var(--mono); color: var(--attn); }
+  .pbody { overflow-y: auto; flex: 1; }
+  .assump { display: flex; gap: 10px; align-items: baseline;
+            padding: 8px 14px; border-bottom: 1px solid var(--hair);
+            font-size: 12px; }
+  .assump .dot { color: var(--attn); }
+  .assump .loc { margin-left: auto; font: 11px var(--mono); color: var(--ink3);
+                 white-space: nowrap; }
+
+  table.ledger { width: 100%; border-collapse: collapse;
+                 font: 12px var(--mono); font-variant-numeric: tabular-nums; }
+  .ledger th { text-align: left; font: 600 10px var(--sans);
+               letter-spacing: .08em; text-transform: uppercase;
+               color: var(--ink3); padding: 7px 14px;
+               border-bottom: 1px solid var(--hair); }
+  .ledger td { padding: 7px 14px; border-bottom: 1px solid var(--hair);
+               white-space: nowrap; }
+  .ledger tr.latest td { background: var(--accent-soft); }
+  .delta { color: var(--ink2); font-size: 11px; }
+  .schemenote { padding: 6px 14px; font: 11px var(--mono); color: var(--ink2);
+                border-bottom: 1px solid var(--hair); background: var(--wash); }
+  .schemenote .warn { color: var(--attn); font-weight: 600; }
+
+  .runrow { display: grid; grid-template-columns: 120px 90px 1fr auto;
+            gap: 14px; padding: 8px 14px; font-size: 12px;
+            border-bottom: 1px solid var(--hair); align-items: baseline; }
+  .runrow .org { font: 600 10px/1.6 var(--sans); letter-spacing: .07em;
+                 text-transform: uppercase; color: var(--ink3); }
+  .runrow .when { font: 11px var(--mono); color: var(--ink2); }
+  .runrow .act { font: 11px var(--mono); color: var(--ink2); }
+
+  .dep { display: grid; grid-template-columns: 1fr auto auto;
+         gap: 14px; padding: 8px 14px; border-bottom: 1px solid var(--hair);
+         font: 12px var(--mono); align-items: baseline; }
+  .dep .nm { font-weight: 600; }
+  .dep .res { color: var(--ink2); font-size: 11px; }
+  .dep-note { padding: 8px 14px; font-size: 11px; color: var(--ink3); }
+
+  /* Panel */
+  .panel { border-top: 1px solid var(--hair); background: var(--cell);
+           display: flex; flex-direction: column; min-height: 0; }
+  .ptabs { display: flex; gap: 2px; padding: 0 10px; background: var(--wash);
+           border-bottom: 1px solid var(--hair); }
+  .ptab { padding: 7px 12px; font: 600 11px var(--sans); color: var(--ink2);
+          border-bottom: 2px solid transparent; letter-spacing: .02em; }
+  .ptab[aria-selected="true"] { color: var(--ink);
+                                border-bottom-color: var(--accent); }
+  .ptab .n { font-family: var(--mono); color: var(--attn); }
+  .pbody { overflow-y: auto; flex: 1; }
+  .assump { display: flex; gap: 10px; align-items: baseline;
+            padding: 8px 14px; border-bottom: 1px solid var(--hair);
+            font-size: 12px; }
+  .assump .dot { color: var(--attn); }
+  .assump .loc { margin-left: auto; font: 11px var(--mono); color: var(--ink3);
+                 white-space: nowrap; }
+
+  table.ledger { width: 100%; border-collapse: collapse;
+                 font: 12px var(--mono); font-variant-numeric: tabular-nums; }
+  .ledger th { text-align: left; font: 600 10px var(--sans);
+               letter-spacing: .08em; text-transform: uppercase;
+               color: var(--ink3); padding: 7px 14px;
+               border-bottom: 1px solid var(--hair); }
+  .ledger td { padding: 7px 14px; border-bottom: 1px solid var(--hair);
+               white-space: nowrap; }
+  .ledger tr.latest td { background: var(--accent-soft); }
+  .delta { color: var(--ink2); font-size: 11px; }
+  .schemenote { padding: 6px 14px; font: 11px var(--mono); color: var(--ink2);
+                border-bottom: 1px solid var(--hair); background: var(--wash); }
+  .schemenote .warn { color: var(--attn); font-weight: 600; }
+
+  .runrow { display: grid; grid-template-columns: 120px 90px 1fr auto;
+            gap: 14px; padding: 8px 14px; font-size: 12px;
+            border-bottom: 1px solid var(--hair); align-items: baseline; }
+  .runrow .org { font: 600 10px/1.6 var(--sans); letter-spacing: .07em;
+                 text-transform: uppercase; color: var(--ink3); }
+  .runrow .when { font: 11px var(--mono); color: var(--ink2); }
+  .runrow .act { font: 11px var(--mono); color: var(--ink2); }
+
+  .dep { display: grid; grid-template-columns: 1fr auto auto;
+         gap: 14px; padding: 8px 14px; border-bottom: 1px solid var(--hair);
+         font: 12px var(--mono); align-items: baseline; }
+  .dep .nm { font-weight: 600; }
+  .dep .res { color: var(--ink2); font-size: 11px; }
+  .dep-note { padding: 8px 14px; font-size: 11px; color: var(--ink3); }
+
+  /* Dock */
+  .dock { border-left: 1px solid var(--hair); background: var(--wash);
+          display: flex; flex-direction: column; min-height: 0; }
+  .dockhead { padding: 10px 14px 8px; border-bottom: 1px solid var(--hair); }
+  .dockhead .who { font-weight: 700; font-size: 13px; }
+  .dockhead .sub { font-size: 11px; color: var(--ink2); }
+  .ctxstrip { display: grid; grid-template-columns: 1fr 1fr;
+              border-bottom: 1px solid var(--hair); font-size: 11px; }
+  .ctxstrip > div { padding: 8px 12px; }
+  .ctxstrip > div:first-child { border-right: 1px solid var(--hair); }
+  .ctxstrip .val { font: 600 11px var(--mono); margin-top: 2px; }
+  .thread { flex: 1; overflow-y: auto; padding: 12px; display: flex;
+            flex-direction: column; gap: 10px; }
+  .msg { max-width: 92%; border-radius: 6px; padding: 8px 10px;
+         font-size: 12px; line-height: 1.45; }
+  .msg.user { align-self: flex-end; background: var(--hair); }
+  .msg.champ { align-self: flex-start; background: var(--cell);
+               border: 1px solid var(--hair); }
+  .refchip { display: inline-block; font: 10.5px var(--mono);
+             border: 1px solid var(--hair); border-radius: 3px;
+             padding: 1px 6px; color: var(--accent); margin-top: 6px; }
+  .composer { border-top: 1px solid var(--hair); padding: 10px;
+              display: flex; gap: 8px; }
+  .composer textarea { flex: 1; resize: none; border: 1px solid var(--hair);
+                       border-radius: 4px; background: var(--cell);
+                       color: var(--ink); font: 12px var(--sans);
+                       padding: 7px 9px; height: 54px; }
+
+  /* Status bar */
+  .statusbar { display: flex; align-items: center; gap: 18px;
+               height: 30px; padding: 0 14px; background: var(--wash);
+               border-top: 1px solid var(--hair);
+               font: 11px var(--mono); color: var(--ink2); }
+  .statusbar .target { color: var(--ink); font-weight: 600; }
+  .statusbar .right { margin-left: auto; display: flex; gap: 16px;
+                      align-items: center; }
+  .themebtn { font: 11px var(--mono); color: var(--ink2);
+              border: 1px solid var(--hair); border-radius: 3px;
+              padding: 2px 8px; }
+  .hidden { display: none !important; }
+</style>
+
+<div class="viewport">
+<div class="frame" id="frame">
+
+  <!-- ─── Loop bar ─────────────────────────────────────────── -->
+  <header class="loopbar" aria-label="Loop bar">
+    <span class="wordmark">VANTHEON</span>
+    <nav class="jump" aria-label="Jump bar">
+      <button>Mara</button><span class="sep">▸</span>
+      <button id="jump-version">V4</button><span class="sep">▸</span>
+      <button class="here" id="jump-surface">Definition</button>
+    </nav>
+
+    <div class="runctl" aria-label="Run selector">
+      <span class="ckpt" id="run-ckpt">V4.3</span>
+      <select id="scheme" aria-label="Evaluation scheme">
+        <option value="base">2019–2026 · SPY · $100k</option>
+        <option value="covid">COVID stress · SPY · $100k</option>
+      </select>
+    </div>
+    <button class="btn primary" id="btn-test">▶ Test</button>
+    <button class="btn" id="btn-launch" disabled
+            title="Eligibility: no completed evaluation for V4.3">
+      Launch to Paper</button>
+
+    <div class="activity" id="activity"><span class="spin"></span>
+      <span id="activity-text">idle</span></div>
+    <button class="probs" id="probs" title="Open Problems">⚠ <span
+      id="probs-n">2</span></button>
+  </header>
+
+  <!-- ─── Body ─────────────────────────────────────────────── -->
+  <div class="bodygrid">
+
+    <!-- Explorer -->
+    <aside class="explorer" aria-label="Explorer">
+      <div class="exp-strategy">
+        <div class="lbl">Strategy</div>
+        <div class="name">Lower-volatility momentum</div>
+      </div>
+
+      <div class="exp-group"><span class="lbl">Current</span></div>
+      <ul class="tree">
+        <li>
+          <button class="vrow" data-version="v4" aria-current="true">
+            <span class="glyph cur">●</span><span class="vnum">V4</span>
+            <span class="vmeta" id="v4-meta">developing · 2 untested edits</span>
+          </button>
+          <ul class="subtree">
+            <li><button class="srow">Definition</button></li>
+            <li><button class="srow">Runtime Policy</button></li>
+            <li><button class="srow">Datasets <span class="mono">· 3 locked</span></button></li>
+            <li><button class="srow">Checkpoints</button></li>
+            <li>
+              <ul class="subtree">
+                <li><button class="ck" id="ck-43"><span class="st un">○</span>
+                  V4.3 · current · untested</button></li>
+                <li><button class="ck"><span class="st ok">✓</span>
+                  V4.2 · evaluated · baseline</button></li>
+                <li><button class="ck"><span class="st ok">✓</span>
+                  V4.1 · evaluated</button></li>
+                <li><button class="ck"><span class="st">⚑</span>
+                  V4.0 · generation start</button></li>
+              </ul>
+            </li>
+            <li><button class="srow">Evaluations <span class="mono" id="evi-n">· 2</span></button></li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="exp-group"><span class="lbl">Deployed</span></div>
+      <ul class="tree">
+        <li>
+          <button class="vrow" data-version="v3">
+            <span class="glyph">🔒</span><span class="vnum">V3</span>
+            <span class="vmeta">Paper · running · 3 runs</span>
+          </button>
+        </li>
+        <li>
+          <button class="vrow" data-version="v2">
+            <span class="glyph">🔒</span><span class="vnum">V2</span>
+            <span class="vmeta">since Jul 2</span>
+            <span class="chip-live">LIVE $25K</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="exp-group"><span class="lbl">Schemes</span></div>
+      <div class="schemerow">2019–2026 · SPY · $100k</div>
+      <div class="schemerow">COVID stress · SPY · $100k</div>
+
+      <div class="exp-group"><span class="lbl">Compare</span></div>
+      <div class="schemerow">Select portfolios to compare…</div>
+    </aside>
+
+    <!-- Cells + panel -->
+    <main class="cells" aria-label="Workspace cells">
+      <div class="cellrow">
+
+        <!-- Cell A -->
+        <section class="cell" id="cell-a">
+          <div class="cellhead">
+            <span class="t" id="a-title">V4 · Definition</span>
+            <span class="state" id="a-state">editable · autosaved</span>
+            <span class="right"><button class="ghost hidden" id="a-apply">
+              Apply to V4</button></span>
+          </div>
+          <div class="frozen-banner hidden" id="a-banner">🔒 frozen ·
+            <span id="a-banner-src">source checkpoint V3.2 ⚑ launched</span></div>
+          <div class="cellbody" id="a-body"></div>
+        </section>
+
+        <!-- Cell B -->
+        <section class="cell" id="cell-b">
+          <div class="cellhead">
+            <span class="t" id="b-title">V3 · Definition</span>
+            <span class="state" id="b-state">🔒 read-only · sibling split</span>
+            <span class="right"><button class="ghost" id="b-apply">
+              Apply to V4</button></span>
+          </div>
+          <div class="cellbody" id="b-body"></div>
+        </section>
+      </div>
+
+      <!-- Panel -->
+      <section class="panel" aria-label="Panel">
+        <div class="ptabs" role="tablist">
+          <button class="ptab" role="tab" data-tab="problems"
+                  aria-selected="true">Problems <span class="n"
+                  id="tab-probs-n">2</span></button>
+          <button class="ptab" role="tab" data-tab="output"
+                  aria-selected="false">Output</button>
+          <button class="ptab" role="tab" data-tab="runs"
+                  aria-selected="false">Runs</button>
+          <button class="ptab" role="tab" data-tab="data"
+                  aria-selected="false">Data</button>
+        </div>
+        <div class="pbody" id="pbody"></div>
+      </section>
+    </main>
+
+    <!-- Assistant dock -->
+    <aside class="dock" aria-label="Champion dock">
+      <div class="dockhead">
+        <div class="who">Mara</div>
+        <div class="sub">Champion · available</div>
+      </div>
+      <div class="ctxstrip">
+        <div><span class="lbl">Viewing</span>
+          <div class="val" id="dock-viewing">V4 · Definition</div></div>
+        <div><span class="lbl">Changes go to</span>
+          <div class="val">Draft V4 · V4.3</div></div>
+      </div>
+      <div class="thread">
+        <div class="msg user">Why did Paper V3 run 3 place no orders?</div>
+        <div class="msg champ">Run 3 evaluated 40 symbols; TSM passed momentum
+          and trend but the position would exceed the 15% cap, so the run
+          recorded NO_ORDER. That matched the strategy's intent.
+          <br><span class="refchip">Portfolio · position cap</span>
+          <span class="refchip">Paper V3 · run 3</span></div>
+        <div class="msg user">Would a 12% cap have admitted it?</div>
+        <div class="msg champ">Yes — at 12% the rebalance admits TSM at run 3
+          and trims MSFT. I can propose that change against Draft V4 · V4.3;
+          you'd review the diff before it becomes V4.4.</div>
+      </div>
+      <form class="composer" onsubmit="return false">
+        <textarea aria-label="Message Mara" placeholder="Ask about what you're
+viewing, or describe a change…"></textarea>
+        <button class="btn" type="submit">Send</button>
+      </form>
+    </aside>
+  </div>
+
+  <!-- ─── Status bar ───────────────────────────────────────── -->
+  <footer class="statusbar" aria-label="Status bar">
+    <span class="target">target&nbsp; Draft V4 · V4.3</span>
+    <span><span class="chip-live">LIVE $25,000</span>&nbsp; on V2 · since Jul 2</span>
+    <span>data current · Jul 14, 3:28 PM CT</span>
+    <span class="right">
+      <span id="cell-tools">definition: 6 rules · 2 edited</span>
+      <span>⌘K</span>
+      <button class="themebtn" id="themebtn">theme</button>
+    </span>
+  </footer>
+</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Fixtures ─────────────────────────────────────────────── */
+  const RULES = [
+    { g: "Universe",  v: "40 liquid U.S. large-cap equities",
+      c: "Long only · $50M minimum median daily value", evi: "40 eligible" },
+    { g: "Selection", v: "Top quartile by 6-month momentum",
+      c: "Price must remain above its 100-day average", evi: "12 passed" },
+    { g: "Exit",      v: "Exit on trend break or hard-risk breach",
+      c: "Rules evaluated at every scheduled run", evi: "2 exits" },
+    { g: "Portfolio", v: "Equal weight · 8 positions maximum",
+      c: "12% per asset · 10% minimum cash", evi: "3 rejected",
+      edited: true },
+    { g: "Risk",      v: "No leverage, shorts, or stale-data orders",
+      c: "Block orders when price freshness fails", evi: "7 blocked",
+      edited: true },
+    { g: "Schedule",  v: "Friday after market close",
+      c: "Model orders at the next session open", evi: "" },
+  ];
+
+  const VERSIONS = {
+    v4: { title: "V4 · Definition", state: "editable · autosaved",
+          frozen: false, jump: "V4",
+          bTitle: "V3 · Definition", bMode: "def-readonly",
+          viewing: "V4 · Definition",
+          tools: "definition: 6 rules · 2 edited" },
+    v3: { title: "V3 · Definition", state: "🔒 read-only",
+          frozen: true, src: "source checkpoint V3.2 ⚑ launched", jump: "V3",
+          bTitle: "Paper V3 · Portfolio value", bMode: "paper-chart",
+          viewing: "V3 · Paper",
+          tools: "paper V3: 3 runs · 1 no-trade" },
+    v2: { title: "V2 · Definition", state: "🔒 read-only",
+          frozen: true, src: "source checkpoint V2.1 ⚑ launched", jump: "V2",
+          bTitle: "Live · Deployment period", bMode: "live-period",
+          viewing: "V2 · Live period",
+          tools: "live: $25,000 · V2 controlling" },
+  };
+
+  const state = {
+    version: "v4",
+    tested: false,
+    scheme: "base",
+    panelTab: { v4: "problems", v3: "runs", v2: "output" },
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  /* ── Renderers ────────────────────────────────────────────── */
+  function rulesHTML(editable) {
+    return RULES.map((r) => `
+      <div class="rule">
+        <span class="g">${r.g}</span>
+        <span class="v">${r.v}</span>
+        <span>${editable && r.edited
+          ? '<span class="edit-tick">edited · untested</span>'
+          : r.evi ? `<span class="evi-chip">${r.evi}</span>` : ""}</span>
+        <span class="c">${r.c}</span>
+      </div>`).join("");
+  }
+
+  function equityChartHTML() {
+    return `
+      <figure class="eq">
+        <figcaption><span>$100,000 → $101,240 · +1.2%</span>
+          <span class="runmark-legend">● run with orders · ○ no-trade run</span>
+        </figcaption>
+        <svg viewBox="0 0 560 130" width="100%" height="130"
+             role="img" aria-label="Paper V3 portfolio value across three runs,
+             rising from 100,000 to 101,240 dollars; run three placed no orders.">
+          <line x1="0" y1="98" x2="560" y2="98" stroke="var(--hair)"
+                stroke-dasharray="4 5"/>
+          <path d="M10 98 L150 96 L290 74 L430 78 L550 62" fill="none"
+                stroke="var(--ink2)" stroke-width="1.5"/>
+          <circle cx="150" cy="96" r="4" fill="var(--accent)"/>
+          <circle cx="290" cy="74" r="4" fill="var(--accent)"/>
+          <circle cx="430" cy="78" r="4" fill="var(--cell)"
+                  stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="140" y="115" font-size="9" fill="var(--ink3)"
+                font-family="var(--mono)">run 1</text>
+          <text x="280" y="115" font-size="9" fill="var(--ink3)"
+                font-family="var(--mono)">run 2</text>
+          <text x="415" y="115" font-size="9" fill="var(--ink3)"
+                font-family="var(--mono)">run 3 · no-trade</text>
+        </svg>
+      </figure>
+      <dl class="kv">
+        <dt>Pinned version</dt><dd>Strategy V3 · from V3.2 ⚑</dd>
+        <dt>Next run</dt><dd>Jul 17 · 4:15 PM ET</dd>
+        <dt>Exposure</dt><dd>71% · 6 positions</dd>
+      </dl>`;
+  }
+
+  function livePeriodHTML() {
+    return `
+      <figure class="eq">
+        <figcaption><span>$25,000 · +0.8% this period</span>
+          <span class="runmark-legend">│ deployment boundary</span></figcaption>
+        <svg viewBox="0 0 560 130" width="100%" height="130" role="img"
+             aria-label="Live portfolio value with a deployment boundary on
+             July 2 where version 2 took control; up 0.8 percent since.">
+          <line x1="0" y1="90" x2="560" y2="90" stroke="var(--hair)"
+                stroke-dasharray="4 5"/>
+          <path d="M10 90 L120 94 L200 86" fill="none" stroke="var(--ink3)"
+                stroke-width="1.5"/>
+          <line x1="200" y1="18" x2="200" y2="118" stroke="var(--ink)"
+                stroke-width="1.5"/>
+          <path d="M200 86 L320 80 L440 84 L550 70" fill="none"
+                stroke="var(--ink2)" stroke-width="1.5"/>
+          <text x="208" y="28" font-size="9" fill="var(--ink3)"
+                font-family="var(--mono)">Jul 2 · V2 takes control</text>
+        </svg>
+      </figure>
+      <dl class="kv">
+        <dt>Controlling</dt><dd>Strategy V2 · from V2.1 ⚑</dd>
+        <dt>Attribution</dt><dd>returns after Jul 2 → V2</dd>
+        <dt>Emergency</dt><dd>
+          <button class="ghost">Pause executions</button>
+          <button class="ghost">Cancel open orders</button></dd>
+      </dl>`;
+  }
+
+  const problemsHTML = () => {
+    const rows = [`
+      <div class="assump"><span class="dot">●</span>
+        <span>Unresolved assumption — dividend handling is not specified in
+        exit behavior.</span>
+        <span class="loc">Definition ▸ Exit</span></div>`];
+    if (!state.tested) rows.push(`
+      <div class="assump"><span class="dot">●</span>
+        <span>Eligibility — no completed evaluation for V4.3. Blocks
+        <strong>Launch to Paper</strong>.</span>
+        <span class="loc">V4.3 × scheme</span></div>`);
+    return rows.join("");
+  }
+
+  const outputHTML = () => {
+    const cross = state.scheme !== "base";
+    const note = cross
+      ? `<div class="schemenote"><span class="warn">Descriptive only —</span>
+         schemes differ (COVID stress vs 2019–2026). Verdicts require one
+         scheme. <span class="warn">window · capital regime</span></div>`
+      : `<div class="schemenote">Scheme 2019–2026 · SPY · $100k · cutoff
+         Jun 30, 2026 · assumptions pinned</div>`;
+    const d = (txt) => cross
+      ? `<span class="delta">(descriptive)</span>`
+      : `<span class="delta">${txt}</span>`;
+    const v43 = state.tested ? `
+      <tr class="latest"><td>✓ V4.3</td><td>just now</td>
+        <td>10.9% ${d("▲0.4 better")}</td>
+        <td>7.7% ${d("▼0.7 better")}</td>
+        <td>9 ${d("▲2 review")}</td>
+        <td>29 ${d("↔")}</td></tr>` : `
+      <tr><td>○ V4.3</td><td>untested</td>
+        <td colspan="4">run ▶ Test to evaluate against baseline V4.2</td></tr>`;
+    return note + `
+      <table class="ledger">
+        <thead><tr><th>Checkpoint</th><th>When</th><th>CAGR</th>
+          <th>Max drawdown</th><th>Rejections</th><th>Turnover</th></tr></thead>
+        <tbody>
+          ${v43}
+          <tr><td>✓ V4.2</td><td>Jul 12</td><td>10.5%</td><td>8.4%</td>
+              <td>7</td><td>31</td></tr>
+          <tr><td>✓ V4.1</td><td>Jul 11</td><td>10.1%</td><td>8.9%</td>
+              <td>6</td><td>33</td></tr>
+          <tr><td>⚑ V4.0</td><td>Jul 10</td><td colspan="4">generation
+              baseline — inherits V3 launch evidence</td></tr>
+        </tbody>
+      </table>`;
+  }
+
+  const runsHTML = () => {
+    return `
+      <div class="runrow"><span class="org">Paper V3</span>
+        <span class="when">Jul 11</span>
+        <span>Run 3 — NO_ORDER · TSM passed momentum + trend; position cap
+          15% would be exceeded</span>
+        <span class="act"><button class="ghost">Apply to V4</button></span></div>
+      <div class="runrow"><span class="org">Paper V3</span>
+        <span class="when">Jul 4</span>
+        <span>Run 2 — 2 orders · MSFT +$12,400 · NVDA +$12,100</span>
+        <span class="act">trace →</span></div>
+      <div class="runrow"><span class="org">Dry run</span>
+        <span class="when">Jul 12</span>
+        <span>V4.2 × 2019–2026 · 390 decisions · 31 rebalances · 7 risk
+          rejections</span>
+        <span class="act">trace →</span></div>`;
+  }
+
+  const dataHTML = () => {
+    return `
+      <div class="dep"><span class="nm">us-largecap-40 universe</span>
+        <span class="res">resolved Jul 14, 2026 · 4:00 PM ET</span>
+        <span>🔒</span></div>
+      <div class="dep"><span class="nm">SPY total-return benchmark</span>
+        <span class="res">resolved Jul 14, 2026</span><span>🔒</span></div>
+      <div class="dep"><span class="nm">prices-eod feed</span>
+        <span class="res">resolved Jul 14, 2026 · current</span>
+        <span>🔒</span></div>
+      <div class="dep-note">Datasets are locked dependencies. Changing one is
+        a reviewed resolution; frozen versions keep the resolution they
+        launched with.</div>`;
+  }
+
+  /* ── Wiring ───────────────────────────────────────────────── */
+  function renderCells() {
+    const v = VERSIONS[state.version];
+    $("a-title").textContent = v.title;
+    $("a-state").textContent = v.state;
+    $("a-banner").classList.toggle("hidden", !v.frozen);
+    if (v.frozen) $("a-banner-src").textContent = v.src;
+    $("a-apply").classList.toggle("hidden", !v.frozen);
+    $("a-body").innerHTML = rulesHTML(!v.frozen);
+
+    $("b-title").textContent = v.bTitle;
+    if (v.bMode === "def-readonly") {
+      $("b-state").textContent = "🔒 read-only · sibling split";
+      $("b-apply").classList.remove("hidden");
+      $("b-body").innerHTML = rulesHTML(false);
+    } else if (v.bMode === "paper-chart") {
+      $("b-state").textContent = "Simulated · running";
+      $("b-apply").classList.add("hidden");
+      $("b-body").innerHTML = equityChartHTML();
+    } else {
+      $("b-state").textContent = "LIVE · real capital";
+      $("b-apply").classList.add("hidden");
+      $("b-body").innerHTML = livePeriodHTML();
+    }
+    $("jump-version").textContent = v.jump;
+    $("dock-viewing").textContent = v.viewing;
+    $("cell-tools").textContent = v.tools;
+  }
+
+  function renderPanel() {
+    const tab = state.panelTab[state.version];
+    document.querySelectorAll(".ptab").forEach((b) =>
+      b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+    $("pbody").innerHTML =
+      tab === "problems" ? problemsHTML()
+      : tab === "output" ? outputHTML()
+      : tab === "runs" ? runsHTML()
+      : dataHTML();
+  }
+
+  function renderProblems() {
+    const n = state.tested ? 1 : 2;
+    $("probs-n").textContent = n;
+    $("tab-probs-n").textContent = n;
+  }
+
+  document.querySelectorAll(".vrow").forEach((row) =>
+    row.addEventListener("click", () => {
+      state.version = row.dataset.version;
+      document.querySelectorAll(".vrow").forEach((r) =>
+        r.setAttribute("aria-current", String(r === row)));
+      renderCells(); renderPanel();
+    }));
+
+  document.querySelectorAll(".ptab").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.panelTab[state.version] = b.dataset.tab;
+      renderPanel();
+    }));
+
+  $("probs").addEventListener("click", () => {
+    state.panelTab[state.version] = "problems"; renderPanel();
+  });
+
+  $("scheme").addEventListener("change", (e) => {
+    state.scheme = e.target.value;
+    if (state.panelTab[state.version] === "output") renderPanel();
+  });
+
+  $("btn-test").addEventListener("click", () => {
+    if (state.tested) { state.panelTab[state.version] = "output";
+      renderPanel(); return; }
+    const act = $("activity");
+    act.classList.add("working");
+    $("activity-text").textContent = "evaluating V4.3 × scheme…";
+    $("btn-test").disabled = true;
+    setTimeout(() => {
+      state.tested = true;
+      act.classList.remove("working");
+      $("activity-text").textContent = "evaluation complete · 1.9s";
+      $("btn-test").disabled = false;
+      $("btn-launch").disabled = false;
+      $("btn-launch").title = "Eligibility satisfied · review before launch";
+      $("ck-43").innerHTML =
+        '<span class="st ok">✓</span> V4.3 · current · evaluated';
+      $("v4-meta").textContent = "developing · evaluated";
+      $("evi-n").textContent = "· 3";
+      renderProblems();
+      state.panelTab.v4 = "output";
+      if (state.version === "v4") renderPanel();
+    }, 1400);
+  });
+
+  $("themebtn").addEventListener("click", () => {
+    const r = document.documentElement;
+    const cur = r.getAttribute("data-theme");
+    const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    r.setAttribute("data-theme",
+      cur ? (cur === "dark" ? "light" : "dark") : (dark ? "light" : "dark"));
+  });
+
+  renderCells(); renderPanel(); renderProblems();
+})();
+</script>

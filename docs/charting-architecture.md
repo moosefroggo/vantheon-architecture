@@ -26,6 +26,23 @@ This is a deliberate specialization, not a fallback chain. Feature code does not
 
 Do not use shadcn's general chart component or add a third general-purpose chart library for these families. A new family must be classified here before choosing an implementation.
 
+## Evidence Earns Visual Weight
+
+Charts are evidence records, not ambient market displays.
+
+- No naked price or portfolio curve belongs in the workspace. Material points link to runs, decisions, checkpoints, or deployments and provide a keyboard-accessible route to the same trace.
+- Visual cadence matches strategy cadence. A Friday-close strategy renders discrete scheduled observations and never implies a continuous intraday feed that does not exist.
+- Paper equity history is a completed-run observation series, not an ambient market curve. Every observation resolves to a typed run reference, may expose decision references, and provides a visible keyboard-operable path to that trace. A dashed connector may communicate ordering only when the interface explicitly states that values between runs were not observed.
+- One completed run is one evidence observation and renders as a single traceable marker. It is not an empty state and must not be described as a trend.
+- Chart height grows conservatively with meaningful history. Sparse histories receive a modest strip or first-run placeholder rather than a hero chart.
+- A benchmark line is withheld before the strategy has completed a run. Descriptive comparison may appear once evidence exists; rankings, `ahead`/`behind` verdicts, or verdict color require the D-030 validity envelope.
+- U.S. equity Paper and Live portfolios compare against SPY by default unless the immutable strategy version names a different approved benchmark. SPY total return is sampled at each completed-run cutoff and normalized to the portfolio launch value; the chart never compares raw SPY price with portfolio dollars.
+- Sparklines are evidence-gated. Evaluation rows may use them when their series is sufficiently dense; Paper rows do not show a shape until a configured minimum history exists. The current demo threshold is five completed runs.
+- Directional glyphs and raw deltas use neutral ink. Semantic color is reserved for validated verdicts and safety states and is never the only signal.
+- Empty charts state what evidence is missing and when it is expected. They never manufacture a comparison from flat cash and a moving benchmark.
+
+Market data is admitted only when it explains a strategy decision. If a proposed chart or widget would still make sense after removing the strategy, it belongs outside the Champion workspace.
+
 ## Shared Product Boundary
 
 Every material chart is assembled through a shared product frame and one engine-specific plot.

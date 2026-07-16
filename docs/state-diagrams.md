@@ -12,7 +12,7 @@ These diagrams specify observable product and frontend contracts. They do not pr
 - A client proposal, streamed tool output, animation, cache entry, or optimistic projection is never proof of acceptance.
 - Draft, portfolio, deployment, run, order, and connection states are independent state domains. One diagram must not be interpreted as silently changing another.
 - Paper and Live strategies are immutable. Strategy-changing actions always target the current Draft.
-- Labels such as `Paper V5` are concise presentation labels; exact source checkpoints remain available in detail views.
+- Normal UI reserves `Vn` for strategy generations: `Drafting Vn`, `Checkpoint m`, named Paper portfolios with `Running Strategy Vn`, and `Live · Running Strategy Vn`.
 - A failure path preserves the last valid authoritative state unless the diagram explicitly shows a successful transition.
 
 ## State-Domain Owners
@@ -102,29 +102,28 @@ Non-mutating conversation remains in `Editing` and does not increment the checkp
 
 ## 3. Paper Launch
 
-The authoritative launch commit exposes Strategy V5, active Paper V5, and Draft V6 at checkpoint V6.0 together. No client state should imply that the generation advanced before that commit.
+The authoritative launch commit exposes Strategy V5, the active Paper portfolio, and Drafting V6 at Checkpoint 0 together. No client state should imply that the generation advanced before that commit.
 
 ```mermaid
 flowchart TD
-    A["Draft V5 · checkpoint V5.2 is current"] --> B["Assess versioned Paper eligibility policy"]
-    B --> C{"Eligible?"}
-    C -->|"No"| F["Block launch and show missing criteria"]
-    F --> A
-    C -->|"Yes"| D["Review source checkpoint, assumptions, evaluation, schedule, and simulated capital"]
+    A["Drafting V5 · Checkpoint 2 is current"] --> D["Review source checkpoint, Dry Run evidence, schedule, and simulated capital"]
     D --> E{"Human confirms Paper launch?"}
     E -->|"No"| A
-    E -->|"Yes"| G["Revalidate eligibility and prepare immutable Strategy V5 candidate"]
-    G --> H["Provision Paper portfolio resources"]
+    E -->|"Yes"| G["Validate launch command and prepare immutable Strategy V5 candidate"]
+    G --> F{"Request valid and authorized?"}
+    F -->|"No"| O["Show validation error; keep Draft unchanged"]
+    O --> A
+    F -->|"Yes"| H["Provision Paper portfolio resources"]
     H --> I{"Provisioned?"}
     I -->|"No"| J["No active Paper; preserve retry target"]
     J --> A
     I -->|"Yes"| K["Commit authoritative Paper launch"]
-    K --> L["Immutable Strategy V5 from Draft V5 · checkpoint V5.2"]
-    K --> M["Paper V5 active with simulated capital"]
-    K --> N["Draft V6 · checkpoint V6.0 becomes mutation target"]
+    K --> L["Immutable Strategy V5 from Drafting V5 · Checkpoint 2"]
+    K --> M["Growth Test active · Running Strategy V5"]
+    K --> N["Drafting V6 · Checkpoint 0 becomes mutation target"]
 ```
 
-Existing Paper portfolios remain independent. A later Draft normally launches another Paper portfolio rather than rewriting Paper V5.
+Existing Paper portfolios remain independent. A later Draft normally launches another named Paper portfolio rather than rewriting Growth Test.
 
 ## 4. Live Promotion
 
@@ -132,7 +131,7 @@ Live promotion uses the exact Paper-tested strategy. The prior Live deployment r
 
 ```mermaid
 flowchart TD
-    A["Paper V5 with immutable Strategy V5"] --> B["Assess versioned Live eligibility policy"]
+    A["Growth Test · Running Strategy V5"] --> B["Assess versioned Live eligibility policy"]
     B --> C{"All hard criteria satisfied?"}
     C -->|"No"| D["Continue Paper and show missing, failed, or stale criteria"]
     C -->|"Yes"| E["Compare Strategy V5 with current Live strategy"]
@@ -145,7 +144,7 @@ flowchart TD
     K --> H
     J -->|"Yes"| L["Atomically activate Live deployment for Strategy V5"]
     L --> M["End prior deployment period if one exists"]
-    L --> N["Live V5 becomes current controlling strategy"]
+    L --> N["Live · Running Strategy V5"]
     N --> O["Audit confirmation and deployment provenance"]
 ```
 
@@ -191,11 +190,11 @@ flowchart TD
     B --> C["Select Improve in Draft"]
     C --> D["Carry portfolio, run, decision, rule evaluation, cutoff, and question"]
     D --> E["Show Viewing Paper V5 Run 42"]
-    D --> F["Show Changes go to Draft V8 · checkpoint V8.4"]
+    D --> F["Resolve Draft V8 · checkpoint V8.4 as command target"]
     E --> G["Compare V5 source rule with Draft V8 · checkpoint V8.4 equivalent"]
     F --> G
     G --> H{"Learning compatible with current Draft?"}
-    H -->|"Yes"| I["Propose semantic change set against checkpoint V8.4"]
+    H -->|"Yes"| I["Show target and propose semantic change set against checkpoint V8.4"]
     I --> J["Validate commands and base checkpoint"]
     J --> K["Create authoritative checkpoint V8.5 in Draft V8"]
     H -->|"No"| L["Explain conflict, superseded rule, or changed assumption"]
@@ -206,13 +205,13 @@ flowchart TD
 
 ## 7. Correlated Champion Work and Command Flow
 
-Conversation is one presentation of work, not its owner. The primary domain surface and activity projection remain current through authoritative events even when conversation is collapsed or unavailable.
+Conversation is one persistent presentation of work, not its owner. Its dock remains visible, while the primary domain surface and activity projection remain current through authoritative events if the conversation stream is loading, reconnecting, or unavailable.
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Surface as Primary domain surface
-    participant Conversation as Conversation panel
+    participant Conversation as Conversation dock
     participant Activity as Champion activity projection
     participant Server as Authoritative server
     participant Champion as Champion runtime
@@ -243,7 +242,7 @@ sequenceDiagram
     end
 ```
 
-The conversation panel may summarize and link to the result, but the result is independently present in the primary surface and activity history. If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
+The conversation dock may summarize and link to the result, but the result is independently present in the primary surface and activity history. If transport is unavailable before submission, the browser preserves the pending command and its base checkpoint in the recovery queue. Reconnection replays it only after comparing that base with current server state.
 
 ## 8. Portfolio Run Lifecycle
 
@@ -324,6 +323,8 @@ stateDiagram-v2
 ```
 
 Paper archive is deliberately two-step: an Active or Stopping portfolio cannot transition directly to Archived. Unarchive restores discoverability and historical inspection only; a separate explicit resume action is required before any future scheduled run.
+
+The navigation status must preserve both entity existence and the underlying lifecycle through connection loss. `No portfolio` is not a state in this machine because no entity exists yet. `Disconnected` applies only after a portfolio exists and overlays its last confirmed lifecycle; recovery reconciles that same portfolio rather than creating a new one. Compact dots may reinforce these states, but persistent text carries the canonical meaning.
 
 ## 10. Live Emergency Controls
 
@@ -527,6 +528,22 @@ flowchart LR
 
 The active tier receives full visible detail. A bounded set of recently visited Champions stays warm. All others retain only aggregates. Hidden React views must still clean up effects and subscriptions explicitly.
 
+Champion switching is a parent-context transition with a fail-closed interaction boundary:
+
+```mermaid
+stateDiagram-v2
+    [*] --> ChampionAActive
+    ChampionAActive --> Switching: Select Champion B
+    Switching --> BindBIdentity: Clear or namespace A transient state
+    BindBIdentity --> RestoreB: Bind B route, thread, and mutation scope
+    RestoreB --> ReconcileB: Restore B last environment and warm state
+    ReconcileB --> ChampionBActive: Authorization and target resolved
+    ReconcileB --> ChampionBDegraded: Stale, unavailable, or unauthorized reference
+    ChampionBDegraded --> ChampionBActive: Scoped recovery succeeds
+```
+
+While `Switching`, strategy-changing submission is disabled. Champion A's conversation, mutation target, selected objects, optimistic projections, and financial facts cannot appear as Champion B state. `RestoreB` can use only Champion B namespaced state; a missing item becomes an explicit scoped empty/error state rather than a cross-Champion fallback.
+
 ## Diagram Validation Scenarios
 
 The diagrams are internally consistent only if all of these statements remain true:
@@ -536,6 +553,7 @@ The diagrams are internally consistent only if all of these statements remain tr
 - A user can follow Paper V5 evidence into Draft V8 at checkpoint V8.4 and create checkpoint V8.5 without altering or branching V5.
 - A portfolio owns many runs; a run pins the exact deployment and immutable strategy active at its start.
 - No-trade completes a run with durable evidence and no fabricated order.
+- A Champion switch restores only the selected Champion's conversation, last environment, mutation target, and domain references; no prior-Champion interaction state leaks across the boundary.
 - An order may complete after its originating run, and cancellation remains pending until authoritative confirmation.
 - Pausing future executions does not imply that open orders were cancelled, and cancelling orders does not pause future runs.
 - Failed Live activation leaves the previous Live deployment in control.

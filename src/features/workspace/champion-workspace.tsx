@@ -1559,11 +1559,6 @@ export function ChampionWorkspace() {
                   <CheckpointDetailWorkspace
                     checkpoint={validRoutedCheckpoint}
                     isCurrent={validRoutedCheckpoint.id === scenarioCurrentCheckpoint?.id}
-                    evaluation={Object.values(demo.scenario?.evaluations ?? {}).find(
-                      (evaluation) =>
-                        evaluation.checkpointId === validRoutedCheckpoint.id &&
-                        evaluation.status === "completed"
-                    )}
                     onBack={() => navigate(draftHref(championId))}
                     onRestore={
                       draftReadOnly
@@ -1632,14 +1627,11 @@ export function ChampionWorkspace() {
                   <DraftStrategyWorkspace
                     key={`${championId}-${selectedStrategy.id}`}
                     draft={draftView}
-                    evaluation={currentEvaluation}
-                  checkpoint={checkpoint}
-                  evaluationComplete={evaluationComplete}
-                  authorityOperation={authorityOperation}
-                  readOnly={draftReadOnly}
-                  saveStatus={localSaveStatus}
-                  activeTab={draftSurface}
-                  onRunEvaluation={() => setEvaluationReviewOpen(true)}
+                    authorityOperation={authorityOperation}
+                    readOnly={draftReadOnly}
+                    saveStatus={localSaveStatus}
+                    activeTab={draftSurface}
+                    onRunEvaluation={() => setEvaluationReviewOpen(true)}
                     onForkStrategy={forkCurrentStrategy}
                     onActiveTabChange={(surface) =>
                       {
@@ -1682,40 +1674,24 @@ export function ChampionWorkspace() {
                 )
               ) : activeContext === "paper" &&
                 (route.kind === "paper-index" || route.kind === "paper-compare") ? (
-                paperLaunched ? (
-                  <PaperCollectionWorkspace
-                    title="Paper portfolios"
-                    portfolios={paperPortfolios.filter(
-                      (portfolio) => portfolio.operationalState !== "archived"
-                    )}
-                    archivedCount={paperPortfolios.filter(
-                      (portfolio) => portfolio.operationalState === "archived"
-                    ).length}
-                    onOpen={(portfolioId) =>
-                      navigate(paperPortfolioHref(championId, portfolioId))
-                    }
-                    onOpenArchived={() => navigate(paperArchivedHref(championId))}
-                  />
-                ) : (
-                  <EmptyEnvironmentWorkspace
-                    environment="Paper"
-                    draftLabel={draftLabel}
-                    evaluationComplete={evaluationComplete}
-                    paperLaunched={false}
-                    onAskAtlas={() =>
-                      focusChampionConversation(championId, "Paper · Journey")
-                    }
-                    onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
-                    onRunDraft={() => setEvaluationReviewOpen(true)}
-                    onReviewPaperLaunch={() =>
-                      updateChampionSession(championId, (current) => ({
-                        ...current,
-                        launchReviewOpen: true,
-                      }))
-                    }
-                    onOpenPaper={() => navigate(paperIndexHref(championId))}
-                  />
-                )
+                <EmptyEnvironmentWorkspace
+                  environment="Paper"
+                  draftLabel={draftLabel}
+                  evaluationComplete={evaluationComplete}
+                  paperLaunched={false}
+                  onAskAtlas={() =>
+                    focusChampionConversation(championId, "Paper · Journey")
+                  }
+                  onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
+                  onRunDraft={() => setEvaluationReviewOpen(true)}
+                  onReviewPaperLaunch={() =>
+                    updateChampionSession(championId, (current) => ({
+                      ...current,
+                      launchReviewOpen: true,
+                    }))
+                  }
+                  onOpenPaper={() => navigate(paperIndexHref(championId))}
+                />
               ) : activeContext === "paper" && route.kind === "paper-archived" ? (
                 <PaperCollectionWorkspace
                   title="Archived Paper"
@@ -1742,6 +1718,7 @@ export function ChampionWorkspace() {
                     onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
                     onOpenPortfolio={returnToPaperOverview}
                     onOpenRuns={openPaperRuns}
+                    onDeployLive={() => navigate(liveHref(championId))}
                     lifecycleOperation={selectedPaperLifecycleOperation}
                     onStop={() => reviewPaperLifecycle("stop")}
                     onArchive={() => reviewPaperLifecycle("archive")}

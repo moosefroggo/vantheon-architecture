@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import type {
-  WorkspaceDraftFixture,
-  WorkspaceEvaluationFixture,
-} from "./workspace-fixtures"
+import type { WorkspaceDraftFixture } from "./workspace-fixtures"
 import { WorkspacePageHeader } from "./workspace-page-header"
 
 export type DraftDecisionSelection = {
@@ -23,9 +20,6 @@ export type DraftSurfaceTab = "summary" | "document"
 
 export type DraftStrategyWorkspaceProps = {
   draft: WorkspaceDraftFixture
-  evaluation: WorkspaceEvaluationFixture | null
-  checkpoint: string
-  evaluationComplete: boolean
   authorityOperation: string | null
   activeTab: DraftSurfaceTab
   onRunEvaluation: () => void
@@ -40,9 +34,6 @@ export type DraftStrategyWorkspaceProps = {
 
 export function DraftStrategyWorkspace({
   draft,
-  evaluation,
-  checkpoint,
-  evaluationComplete,
   authorityOperation,
   activeTab,
   onRunEvaluation,
@@ -54,8 +45,6 @@ export function DraftStrategyWorkspace({
   saveStatus,
   readOnly = false,
 }: DraftStrategyWorkspaceProps) {
-  const currentEvaluation =
-    evaluationComplete && evaluation?.checkpoint === checkpoint ? evaluation : null
   const evaluationPending = authorityOperation === "evaluating"
 
   function editRule(ruleId: string) {
@@ -76,10 +65,6 @@ export function DraftStrategyWorkspace({
           ...(readOnly
             ? [{ label: "Read only", variant: "outline" as const }]
             : []),
-          {
-            label: currentEvaluation ? "Tested" : "Untested",
-            variant: currentEvaluation ? "secondary" : "outline",
-          },
         ]}
         details={draft.objective}
         action={

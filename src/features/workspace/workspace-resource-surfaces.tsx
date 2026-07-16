@@ -16,7 +16,6 @@ import {
 import type {
   ChangeSetRecord,
   DraftCheckpointRecord,
-  EvaluationRecord,
   SourceArtifactRecord,
 } from "./demo"
 import { WorkspacePageHeader } from "./workspace-page-header"
@@ -139,13 +138,11 @@ export function ChangeSetReviewWorkspace({
 
 export function CheckpointDetailWorkspace({
   checkpoint,
-  evaluation,
   isCurrent = false,
   onBack,
   onRestore,
 }: {
   checkpoint: DraftCheckpointRecord
-  evaluation?: EvaluationRecord
   isCurrent?: boolean
   onBack: () => void
   onRestore?: () => void
@@ -154,10 +151,7 @@ export function CheckpointDetailWorkspace({
     <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Checkpoint detail">
       <WorkspacePageHeader
         title={checkpointDisplayLabel(checkpoint)}
-        badges={[
-          { label: evaluation ? "Tested" : "Untested", variant: evaluation ? "secondary" : "outline" },
-          { label: "Saved locally", variant: "outline" },
-        ]}
+        badges={[{ label: "Saved locally", variant: "outline" }]}
         details={`Saved ${formatTimestamp(checkpoint.createdAt)}. Restoring creates a reviewed proposal and a new checkpoint; history never rewinds.`}
         action={
           <div className="flex gap-2">

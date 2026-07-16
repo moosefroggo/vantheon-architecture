@@ -333,7 +333,7 @@ test.describe("Mara command authority", () => {
     const response = await page.goto("/champions/mara/paper");
     expect(response?.ok()).toBe(true);
     await expect(page).toHaveURL(/\/champions\/mara\/paper$/);
-    await expect(page.getByRole("heading", { name: "Paper portfolios" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Paper setup" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Compare two" })).toHaveCount(0);
   });
 });

@@ -124,6 +124,10 @@ test.describe("Mara Draft scenario", () => {
 
     await page.getByRole("tab", { name: "Paper", exact: true }).click();
     await expect(page).toHaveURL(/\/champions\/mara\/paper\/portfolio_mara_v9$/);
+    const deployLive = page.getByRole("button", { name: "Deploy Live" });
+    await expect(deployLive).toBeEnabled();
+    await deployLive.click();
+    await expect(page).toHaveURL(/\/champions\/mara\/live$/);
   });
 
   test("redirects the current checkpoint to its existing Draft view", async ({

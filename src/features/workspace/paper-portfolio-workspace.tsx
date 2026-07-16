@@ -198,6 +198,7 @@ export type PaperPortfolioWorkspaceProps = {
   onOpenDraft: () => void
   onOpenPortfolio: () => void
   onOpenRuns: () => void
+  onDeployLive?: () => void
   lifecycleOperation?: PaperLifecycleAction | null
   onStop?: () => void
   onArchive?: () => void
@@ -231,10 +232,16 @@ export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
     )
   }
 
-  return <PortfolioOverview paper={paper} />
+  return <PortfolioOverview paper={paper} onDeployLive={props.onDeployLive} />
 }
 
-function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
+function PortfolioOverview({
+  paper,
+  onDeployLive,
+}: {
+  paper: PaperWorkspaceFixture
+  onDeployLive?: () => void
+}) {
   const currency = paper.currency ?? "USD"
   const [range, setRange] = useState<PortfolioRange>("ALL")
   const [chartView, setChartView] = useState<PaperChartView>("value")
@@ -260,6 +267,9 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
   const detractors = positions.filter(
     (position) => (position.unrealizedPnl ?? 0) < 0,
   )
+  const canDeployLive =
+    paper.operationalState === "active" ||
+    (paper.operationalState === undefined && paper.status === "Running")
 
   function addFunds() {
     const amount = Number(deposit.replaceAll(",", ""))
@@ -276,7 +286,12 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
         titleId="paper-workspace-title"
         titleLevel={2}
         action={
-          <Button type="button" disabled title="Live deployment is coming soon">
+          <Button
+            type="button"
+            disabled={!canDeployLive}
+            title={canDeployLive ? undefined : "Only an active Paper portfolio can deploy Live"}
+            onClick={onDeployLive}
+          >
             Deploy Live
           </Button>
         }

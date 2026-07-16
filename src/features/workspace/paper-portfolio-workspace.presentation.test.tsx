@@ -69,7 +69,12 @@ function workspaceProps(
 
 describe("mirror-aligned Paper portfolio", () => {
   it("renders only the portfolio facts evidenced in the mirror", () => {
-    render(<PaperPortfolioWorkspace {...workspaceProps(createPaper())} />)
+    const onDeployLive = vi.fn()
+    render(
+      <PaperPortfolioWorkspace
+        {...workspaceProps(createPaper(), { onDeployLive })}
+      />
+    )
 
     expect(screen.getByRole("heading", { name: "Portfolio" })).toBeVisible()
     expect(
@@ -103,7 +108,10 @@ describe("mirror-aligned Paper portfolio", () => {
     expect(
       screen.queryByRole("button", { name: "Open Draft" }),
     ).not.toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Deploy Live" })).toBeDisabled()
+    const deployLive = screen.getByRole("button", { name: "Deploy Live" })
+    expect(deployLive).toBeEnabled()
+    fireEvent.click(deployLive)
+    expect(onDeployLive).toHaveBeenCalledOnce()
   })
 
   it("reproduces the captured Add funds and Edit schedule dialogs", () => {

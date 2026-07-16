@@ -2783,7 +2783,7 @@ function paperSidebarStatus(
   const spyReturn = firstBenchmark && lastBenchmark
     ? lastBenchmark / firstBenchmark - 1
     : 0
-  return `Paper · Active · ${formatSignedPercent(portfolioReturn)} · vs SPY ${formatSignedPercent(portfolioReturn - spyReturn)}`
+  return `Paper ${formatSignedPercent(portfolioReturn)} · SPY ${formatSignedPercent(spyReturn)}`
 }
 
 function formatSignedPercent(value: number) {

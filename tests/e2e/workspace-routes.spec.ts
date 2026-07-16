@@ -113,7 +113,7 @@ test.describe("Mara Draft scenario", () => {
   }) => {
     await openScenario("/champions/mara/paper/portfolio_mara_v9");
 
-    await expect(page.getByText("Paper · Active", { exact: false })).toHaveCount(9);
+    await expect(page.getByText(/^Paper [+-]\d+\.\d% · SPY [+-]\d+\.\d%$/)).toHaveCount(9);
     await expect(page.getByText("V9", { exact: true }).last()).toBeVisible();
 
     await page.getByRole("tab", { name: "Strategy", exact: true }).click();

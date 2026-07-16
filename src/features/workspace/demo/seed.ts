@@ -23,9 +23,9 @@ import type {
   WorkspaceScenario,
 } from "./types";
 
-export const WORKSPACE_DEMO_SEED_VERSION = 2;
+export const WORKSPACE_DEMO_SEED_VERSION = 3;
 export const WORKSPACE_DEMO_SCHEMA_VERSION = schemaVersion(
-  "workspace-demo-scenario/v2"
+  "workspace-demo-scenario/v3"
 );
 const STRATEGY_SCHEMA_VERSION = schemaVersion("structured-strategy/v1");
 const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
@@ -267,7 +267,7 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
       {
         id: WORKSPACE_DEMO_IDS.iris.portfolio,
         championId: WORKSPACE_DEMO_IDS.iris.champion,
-        displayName: "Iris income paper",
+        displayName: "Quality income compounders · Paper 1",
         strategyId: WORKSPACE_DEMO_IDS.iris.strategyV1,
         sourceCheckpointId: WORKSPACE_DEMO_IDS.iris.checkpointV11,
         deploymentId: WORKSPACE_DEMO_IDS.iris.deployment,

@@ -245,9 +245,7 @@ test.describe("Mara command authority", () => {
       ).toBeVisible();
 
       if (run === 0) {
-        await page
-          .getByRole("button", { name: "Strategy V1", exact: true })
-          .click();
+        await page.goto("/champions/mara/draft");
         await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
       }
     }
@@ -278,10 +276,8 @@ test.describe("Mara command authority", () => {
     await expect(page).toHaveURL(
       /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
     );
-    await expect(
-      page.getByRole("heading", { name: "Lower-volatility momentum · Paper 1" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Open Draft" }).click();
+    await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
+    await page.getByRole("tab", { name: "Drafting" }).click();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
     await expect(
       page
@@ -308,15 +304,15 @@ test.describe("Mara command authority", () => {
     await expect(page).toHaveURL(
       /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
     );
-    await expect(page.getByRole("heading", { name: "Lower-volatility momentum · Paper 1" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Compare two" })).toHaveCount(0);
   });
 });
 
-test.describe("Iris Paper command authority", () => {
+test.describe("Iris Paper mirror boundary", () => {
   test.use({ scenario: "iris-paper" });
 
-  test("persists the stop, archive, and unarchive lifecycle without resuming", async ({
+  test("does not expose lifecycle controls absent from the captured Paper surface", async ({
     page,
     openScenario,
   }) => {
@@ -326,47 +322,10 @@ test.describe("Iris Paper command authority", () => {
     const portfolio = recordsForChampion(before.portfolios, irisId)[0];
     expect(portfolio?.id).toBe("portfolio_iris_income");
     expect(portfolio?.state).toBe("active");
-
-    await page.getByRole("button", { name: "Stop", exact: true }).click();
-    const stopDialog = page.getByRole("dialog", { name: "Stop Paper portfolio?" });
-    await expect(stopDialog).toContainText("Future scheduled runs will stop");
-    await stopDialog.getByRole("button", { name: "Confirm stop" }).click();
-    await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
-    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("stopped");
-
-    await page.getByRole("button", { name: "Archive", exact: true }).click();
-    const archiveDialog = page.getByRole("dialog", {
-      name: "Archive Paper portfolio?",
-    });
-    await expect(archiveDialog).toContainText("remains inspectable");
-    await archiveDialog.getByRole("button", { name: "Confirm archive" }).click();
-    await expect(page).toHaveURL(/\/champions\/iris\/paper\/archived$/);
-    await expect(page.getByRole("heading", { name: "Archived Paper" })).toBeVisible();
-    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("archived");
-
-    await page
-      .getByRole("button", { name: /Quality income compounders · Paper 1/ })
-      .click();
-    await expect(page).toHaveURL(
-      /\/champions\/iris\/paper\/portfolio_iris_income$/,
-    );
-    await page.getByRole("button", { name: "Unarchive", exact: true }).click();
-    const unarchiveDialog = page.getByRole("dialog", {
-      name: "Unarchive Paper portfolio?",
-    });
-    await expect(unarchiveDialog).toContainText("returns to Stopped");
-    await unarchiveDialog.getByRole("button", { name: "Confirm unarchive" }).click();
-    await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
-
-    const after = await readAuthority(page);
-    expect(after.portfolios[portfolio.id]?.state).toBe("stopped");
-    expectAppliedReceipts(after, "stop", 1, "portfolio-state-changed");
-    expectAppliedReceipts(after, "archive", 1, "portfolio-state-changed");
-    expectAppliedReceipts(after, "unarchive", 1, "portfolio-state-changed");
-
-    await page.reload();
-    await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeVisible();
-    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("stopped");
+    await expect(page.getByRole("button", { name: "Stop", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Archive", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Unarchive", exact: true })).toHaveCount(0);
+    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("active");
   });
 });
 

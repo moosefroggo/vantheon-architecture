@@ -539,7 +539,8 @@ export function ChampionWorkspace() {
   const evidenceTab: WorkspaceEvidenceTab =
     route.kind === "data" ? "data" : route.panel ?? bottomPanel.tab
   const evidenceExpanded =
-    route.kind === "data" || route.panel !== undefined || bottomPanel.expanded
+    route.kind !== "data" &&
+    (route.panel !== undefined || bottomPanel.expanded)
   const selectedPaperLifecycleOperation =
     paperLifecycleOperation && paperLifecycleOperation.portfolioId === paperSnapshot?.id
       ? paperLifecycleOperation.action
@@ -547,7 +548,9 @@ export function ChampionWorkspace() {
 
   const defaultViewedContext =
     activeContext === "draft"
-      ? selectedDryRun
+      ? route.kind === "data"
+        ? "Drafting · Data"
+        : selectedDryRun
         ? `Evaluation · ${selectedDryRun.label} · ${titleCase(dryRunTab)}`
         : `Drafting · ${titleCase(draftSelection.surface)}`
       : activeContext === "paper"
@@ -1228,7 +1231,11 @@ export function ChampionWorkspace() {
             </SelectTrigger>
             <SelectContent align="start">
               {workspaceFixtures.map((fixture) => (
-                <SelectItem key={fixture.champion.id} value={fixture.champion.id}>
+                <SelectItem
+                  key={fixture.champion.id}
+                  value={fixture.champion.id}
+                  onClick={() => selectChampion(fixture.champion.id)}
+                >
                   {fixture.champion.name}
                 </SelectItem>
               ))}
@@ -1314,7 +1321,7 @@ export function ChampionWorkspace() {
                     evidenceTab === "data")
                 }
                 onClick={() => {
-                  setBottomPanel({ tab: "data", expanded: true })
+                  setBottomPanel({ tab: "data", expanded: false })
                   navigate(dataHref(championId))
                 }}
               >
@@ -1360,8 +1367,18 @@ export function ChampionWorkspace() {
               }
             >
               <TabsList variant="line">
-                <TabsTrigger value="draft">Drafting</TabsTrigger>
-                <TabsTrigger value="paper">Paper</TabsTrigger>
+                <TabsTrigger
+                  value="draft"
+                  onClick={() => selectWorkspaceContext(championId, "draft")}
+                >
+                  Drafting
+                </TabsTrigger>
+                <TabsTrigger
+                  value="paper"
+                  onClick={() => selectWorkspaceContext(championId, "paper")}
+                >
+                  Paper
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           )}
@@ -1372,7 +1389,7 @@ export function ChampionWorkspace() {
                 ? {
                     kind: "paper" as const,
                     freshness: paperView?.freshness ?? "Paper collection · local evidence",
-                    marketRelevant: (paperView?.openOrders ?? 0) > 0,
+                    marketRelevant: true,
                     marketSession: marketSessionFixture,
                   }
                 : selectedDryRun
@@ -1383,6 +1400,15 @@ export function ChampionWorkspace() {
                           (item) => item.label === "Data cutoff"
                         )?.value ?? "Unavailable",
                     }
+                  : route.kind === "data"
+                    ? {
+                        kind: "evaluation" as const,
+                        dataCutoff: evaluationSetupTemplate
+                          ? formatDemoTimestamp(
+                              evaluationSetupTemplate.setup.dataCutoff
+                            )
+                          : "Unavailable",
+                      }
                   : { kind: "draft" as const, label: localSaveStatus })}
           />
         </div>
@@ -1707,9 +1733,13 @@ export function ChampionWorkspace() {
                 activeTab={evidenceTab}
                 expanded={evidenceExpanded}
                 onActiveTabChange={(tab) => {
-                  setBottomPanel((current) => ({ ...current, tab }))
-                  if (tab === "data") navigate(dataHref(championId))
-                  else navigate(`${draftHref(championId)}?panel=${encodeURIComponent(tab)}`)
+                  if (tab === "data") {
+                    setBottomPanel({ tab: "data", expanded: false })
+                    navigate(dataHref(championId))
+                  } else {
+                    setBottomPanel((current) => ({ ...current, tab }))
+                    navigate(`${draftHref(championId)}?panel=${encodeURIComponent(tab)}`)
+                  }
                 }}
                 onExpandedChange={(expanded) =>
                   {
@@ -1811,7 +1841,11 @@ export function ChampionWorkspace() {
             focusRequest={conversation.focusRequest}
             message={composerMessage}
             exchanges={conversation.exchanges}
-            paperLaunchReviewAvailable={paperLaunchReviewAvailable}
+            paperLaunchReviewAvailable={
+              activeContext === "draft" &&
+              !paperLaunched &&
+              paperLaunchReviewAvailable
+            }
             onMessageChange={(message) =>
               setConversationMessage(championId, message)
             }

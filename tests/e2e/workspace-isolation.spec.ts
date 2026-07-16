@@ -17,7 +17,9 @@ test.describe("Persistence and reset scenario", () => {
 
     await page.getByRole("combobox", { name: "Champion workspace" }).click();
     await page.getByRole("option", { name: "Iris", exact: true }).click();
-    await expect(page).toHaveURL(/\/champions\/iris\/paper$/);
+    await expect(page).toHaveURL(
+      /\/champions\/iris\/paper(?:\/portfolio_iris_income)?$/,
+    );
     await expect(atlas.getByText(message, { exact: true })).toHaveCount(0);
     await expect(
       atlas.getByRole("textbox", { name: /Message Atlas about Paper/ }),

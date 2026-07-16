@@ -57,6 +57,26 @@ test.describe("Mara Draft scenario", () => {
     ).toBeVisible();
   });
 
+  test("opens Data once without duplicating the bottom-panel body", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario("/champions/mara/draft");
+
+    await page.getByRole("tab", { name: "Data", exact: true }).click();
+
+    await expect(page).toHaveURL(/\/champions\/mara\/draft\/data$/);
+    await expect(page.getByRole("region", { name: "Data" })).toHaveCount(1);
+    await expect(
+      page.getByRole("complementary", { name: "Atlas conversation" }).getByText(
+        "Drafting · Data",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0);
+    await expect(page.getByRole("status", { name: /Data cutoff/ })).toBeVisible();
+  });
+
   test("exposes the Live readiness route and context status without a market badge", async ({
     page,
     openScenario,
@@ -119,19 +139,15 @@ test.describe("Iris Paper scenario", () => {
     await expect(page).toHaveURL(
       /\/champions\/iris\/paper\/portfolio_iris_income\?tab=positions$/,
     );
-    await expect(
-      page.getByRole("heading", { name: "Quality income compounders · Paper 1" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();
-    await expect(
-      page.getByRole("status", { name: /Portfolio as of Jul 1, 2026/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("status", { name: /Market (open|closed)/i })).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();
   });
 
-  test("restores a run, Activity tab, and decision identity through history", async ({
+  test("restores a run without inventing an uncaptured detail body", async ({
     page,
     openScenario,
   }) => {
@@ -140,20 +156,13 @@ test.describe("Iris Paper scenario", () => {
     );
 
     await expect(page.getByRole("heading", { name: "Run 1", exact: true })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
-    await expect(page.getByText("Run started", { exact: true })).toBeVisible();
+    await expect(page.getByText(/Feb 2, 2026/)).toBeVisible();
     await expect(page).toHaveURL(/decision=decision_iris_run1_pg$/);
-
-    await page.getByRole("tab", { name: "Summary" }).click();
-    await expect(page).toHaveURL(
-      /\/champions\/iris\/paper\/portfolio_iris_income\/runs\/run_iris_2026_02\?decision=decision_iris_run1_pg$/,
-    );
-    await page.goBack();
-    await expect(page.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
+    await expect(page.getByText("Decision trace", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Activity" })).toHaveCount(0);
 
     await page.reload();
     await expect(page.getByRole("heading", { name: "Run 1", exact: true })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
   });
 });
 

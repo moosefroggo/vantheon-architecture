@@ -1,28 +1,30 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
-import { ArrowRight, ChevronDown, LockKeyhole } from "lucide-react"
+import { useMemo, useState, type ReactNode } from "react"
+import {
+  ArrowRight,
+  ChevronDown,
+  LockKeyhole,
+  Pencil,
+  Plus,
+  Search,
+} from "lucide-react"
 
-import { DrawdownEvidenceChart } from "@/components/domain/charts/drawdown-evidence-chart"
-import { PortfolioEquityChart } from "@/components/domain/charts/portfolio-equity-chart"
 import { Money } from "@/components/system/money"
 import { Percentage } from "@/components/system/percentage"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type {
   DomainObjectReference,
   DrawdownEvidenceReadModel,
@@ -199,413 +201,495 @@ export type PaperPortfolioWorkspaceProps = {
   onArchive?: () => void
   onUnarchive?: () => void
   onRunTabChange: (tab: PaperRunTab) => void
-  onSelectedReferenceChange: (
-    reference: DomainObjectReference | null
-  ) => void
+  onSelectedReferenceChange: (reference: DomainObjectReference | null) => void
 }
 
 export type PaperDetailsTab = "runs" | "positions" | "orders" | "strategy"
 export type PaperRunTab = "summary" | "activity"
 export type PaperChartView = "value" | "performance" | "drawdown"
 
-export function PaperPortfolioWorkspace({
-  paper,
-  selectedReference,
-  runTab,
-  onOpenDraft,
-  lifecycleOperation = null,
-  onStop,
-  onArchive,
-  onUnarchive,
-  onRunTabChange,
-  onSelectedReferenceChange,
-}: PaperPortfolioWorkspaceProps) {
-  const currency = paper.currency ?? "USD"
-  const accountValue = paper.account?.accountValue ?? paper.portfolioValue
-  const totalPnl = paper.account?.totalPnl
-  const dailyPnl = paper.account?.dailyPnl ?? paper.dailyPnl
-  const totalReturn = paper.account?.totalReturn ?? paper.totalReturn
-  const cash = paper.account?.cash
-  const buyingPower = paper.account?.buyingPower ?? paper.buyingPower
-  const deployedValue =
-    paper.account?.deployedValue ?? paper.account?.positionsMarketValue
-  const grossExposure = paper.account?.grossExposure ?? paper.exposure
-  const equityPresentation = createPaperEquityPresentation(paper)
-  const equityChartHeight = getEquityChartHeight(paper.equityHistory?.length ?? 0)
-  const operationalState =
-    paper.operationalState ?? inferPaperOperationalState(paper.status)
+const portfolioRanges = ["1D", "1W", "1M", "3M", "YTD", "1Y", "ALL"] as const
+type PortfolioRange = (typeof portfolioRanges)[number]
+
+export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
+  const { paper, selectedReference } = props
   const selectedRun = selectedReference
     ? findRunForReference(paper.runs ?? [], selectedReference)
     : null
-  const selectedDecision =
-    selectedRun && selectedReference?.kind === "decision"
-      ? selectedRun.decisions?.find((decision) => decision.id === selectedReference.id)
-      : null
 
-  function openEvidenceReference(reference: DomainObjectReference) {
-    onSelectedReferenceChange(reference)
-  }
+  if (selectedRun) return <PaperRunWorkspace run={selectedRun} />
 
-  if (selectedRun) {
-    return (
-      <PaperRunWorkspace
-        paper={paper}
-        run={selectedRun}
-        selectedDecisionId={selectedDecision?.id ?? null}
-        activeTab={runTab}
-        onActiveTabChange={onRunTabChange}
-      />
-    )
+  return <PortfolioOverview paper={paper} />
+}
+
+function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
+  const currency = paper.currency ?? "USD"
+  const [range, setRange] = useState<PortfolioRange>("1D")
+  const [fundsOpen, setFundsOpen] = useState(false)
+  const [scheduleOpen, setScheduleOpen] = useState(false)
+  const [deposit, setDeposit] = useState("1,000")
+  const [addedFunds, setAddedFunds] = useState(0)
+  const [schedule, setSchedule] = useState(paper.runCadence)
+  const positions = paper.positionRows ?? []
+  const orders = paper.orderRows ?? []
+  const accountValue =
+    (paper.account?.accountValue ?? paper.portfolioValue) + addedFunds
+  const buyingPower =
+    (paper.account?.buyingPower ?? paper.buyingPower) + addedFunds
+  const deployed =
+    accountValue > 0
+      ? (paper.account?.positionsMarketValue ?? 0) / accountValue
+      : 0
+  const benchmark = benchmarkFact(paper, accountValue)
+  const gainers = positions.filter(
+    (position) => (position.unrealizedPnl ?? 0) > 0,
+  )
+  const detractors = positions.filter(
+    (position) => (position.unrealizedPnl ?? 0) < 0,
+  )
+
+  function addFunds() {
+    const amount = Number(deposit.replaceAll(",", ""))
+    if (Number.isFinite(amount) && amount >= 1 && amount <= 100_000) {
+      setAddedFunds((current) => current + amount)
+      setFundsOpen(false)
+    }
   }
 
   return (
     <section aria-labelledby="paper-workspace-title" className="space-y-4">
-      <WorkspacePageHeader
-        title={paper.label}
-        titleId="paper-workspace-title"
-        badges={[
-          { label: availableText(paper.status), variant: "secondary" },
-        ]}
-        details={
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
-              <LockKeyhole aria-hidden="true" className="size-3.5" />
-              {availableText(paper.strategy)}
-            </span>
-            <span>{availableText(paper.source)}</span>
+      <WorkspacePageHeader title="Portfolio" titleId="paper-workspace-title" />
+
+      {positions.length === 0 ? (
+        <section className="rounded-lg border px-4 py-3">
+          <h2 className="text-sm font-semibold">No positions yet</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This champion hasn’t placed any trades yet. Check back in 16 hours,
+            after your first run completes.
+          </p>
+        </section>
+      ) : null}
+
+      <section
+        className="rounded-lg border p-4"
+        aria-labelledby="account-value-title"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p
+              id="account-value-title"
+              className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Account value
+            </p>
+            <p className="mt-1 text-3xl font-semibold tabular-nums">
+              <Money
+                value={accountValue}
+                currency={currency}
+                maximumFractionDigits={2}
+              />
+            </p>
+            <p className="mt-1 text-sm tabular-nums">
+              <Money
+                value={paper.account?.dailyPnl ?? paper.dailyPnl}
+                currency={currency}
+                showSign
+                maximumFractionDigits={2}
+              />{" "}
+              (
+              <Percentage
+                value={paper.account?.totalReturn ?? paper.totalReturn}
+                showSign
+              />
+              )
+            </p>
+            {benchmark ? (
+              <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <span>
+                  {benchmark.symbol}{" "}
+                  <Percentage value={benchmark.returnValue} showSign /> (
+                  <Money
+                    value={benchmark.amount}
+                    currency={currency}
+                    showSign
+                    maximumFractionDigits={2}
+                  />
+                  )
+                </span>
+                <Badge variant={benchmark.ahead ? "secondary" : "destructive"}>
+                  {benchmark.ahead ? "Ahead" : "Behind"}
+                </Badge>
+              </p>
+            ) : null}
           </div>
-        }
-        action={
-          <div className="flex items-center gap-2">
-            <PaperLifecycleControl
-              state={operationalState}
-              operation={lifecycleOperation}
-              onStop={onStop}
-              onArchive={onArchive}
-              onUnarchive={onUnarchive}
-            />
-            <Button type="button" onClick={onOpenDraft}>
-              Open Draft
-              <ArrowRight aria-hidden="true" data-icon="inline-end" />
+          <div
+            className="flex flex-wrap justify-end gap-1"
+            aria-label="Portfolio range"
+          >
+            {portfolioRanges.map((candidate) => (
+              <Button
+                key={candidate}
+                type="button"
+                size="xs"
+                variant={range === candidate ? "secondary" : "ghost"}
+                aria-pressed={range === candidate}
+                onClick={() => setRange(candidate)}
+              >
+                {candidate}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <MirrorPortfolioChart paper={paper} range={range} />
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <MirrorPanel
+          title="Buying power"
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setFundsOpen(true)}
+            >
+              <Plus aria-hidden="true" /> Add funds
             </Button>
+          }
+        >
+          <div className="flex items-end justify-between gap-4">
+            <p className="text-2xl font-semibold tabular-nums">
+              <Money
+                value={buyingPower}
+                currency={currency}
+                maximumFractionDigits={0}
+              />
+            </p>
+            <p className="text-sm text-muted-foreground">
+              <Percentage value={deployed} /> deployed
+            </p>
           </div>
-        }
-        className="pb-3"
-      />
+        </MirrorPanel>
 
-      <dl className="grid grid-cols-2 overflow-hidden rounded-lg border sm:grid-cols-3 xl:grid-cols-6">
-        <Metric label="Account value">
-          <Money value={accountValue} currency={currency} />
-        </Metric>
-        <Metric
-          label="Total P&amp;L"
-          detail={
-            <>
-              <Percentage value={totalReturn} showSign /> return · Today{" "}
-              <Money value={dailyPnl} currency={currency} showSign />
-            </>
+        <MirrorPanel
+          title="Schedule"
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setScheduleOpen(true)}
+            >
+              <Pencil aria-hidden="true" /> Edit
+            </Button>
           }
         >
-          <OptionalMoney value={totalPnl} currency={currency} showSign />
-        </Metric>
-        <Metric label="Cash">
-          <OptionalMoney value={cash} currency={currency} />
-        </Metric>
-        <Metric
-          label="Buying power"
-          detail={paper.account?.reservedCash !== undefined ? (
-            <>
-              Reserved <Money value={paper.account.reservedCash} currency={currency} />
-            </>
-          ) : undefined}
-        >
-          <Money value={buyingPower} currency={currency} />
-        </Metric>
-        <Metric
-          label="Deployed"
-        >
-          <OptionalMoney value={deployedValue} currency={currency} />
-        </Metric>
-        <Metric label="Gross exposure">
-          <Percentage value={grossExposure} />
-        </Metric>
-      </dl>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Next run
+          </p>
+          <p className="mt-1 text-xl font-semibold">{paper.nextRun}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{schedule}</p>
+        </MirrorPanel>
 
-      <dl className="flex flex-wrap items-center gap-x-5 gap-y-1 border-y py-2 text-xs">
-        {paper.account?.realizedPnl !== undefined ? (
-          <OperationalFact label="Realized P&amp;L">
-            <Money
-              value={paper.account.realizedPnl}
-              currency={currency}
-              showSign
-            />
-          </OperationalFact>
-        ) : null}
-        {paper.account?.unrealizedPnl !== undefined ? (
-          <OperationalFact label="Unrealized P&amp;L">
-            <Money
-              value={paper.account.unrealizedPnl}
-              currency={currency}
-              showSign
-            />
-          </OperationalFact>
-        ) : null}
-        {paper.account?.income !== undefined ? (
-          <OperationalFact label="Income">
-            <Money value={paper.account.income} currency={currency} showSign />
-          </OperationalFact>
-        ) : null}
-        {paper.account?.fees !== undefined ? (
-          <OperationalFact label="Fees">
-            <Money value={paper.account.fees} currency={currency} />
-          </OperationalFact>
-        ) : null}
-        {paper.account?.timeWeightedReturn !== undefined ? (
-          <OperationalFact label="Time-weighted return">
-            <Percentage value={paper.account.timeWeightedReturn} showSign />
-          </OperationalFact>
-        ) : null}
-        <OperationalFact label="Max drawdown">
-          <Percentage value={Math.abs(paper.maxDrawdown)} />
-        </OperationalFact>
-        <OperationalFact label="Positions">{paper.positions}</OperationalFact>
-        <OperationalFact label="Open orders">{paper.openOrders}</OperationalFact>
-        {equityPresentation.state === "ready" || paper.performanceModel || paper.drawdownModel ? (
-          <OperationalFact label="Next run">
-            {availableText(paper.nextRun)}
-          </OperationalFact>
-        ) : null}
-        <OperationalFact label="Freshness">
-          {availableText(paper.freshness)}
-        </OperationalFact>
-      </dl>
-
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,0.65fr)]">
-        <PaperChartViews
-          paper={paper}
-          valuePresentation={equityPresentation}
-          height={equityChartHeight}
-          onOpenReference={openEvidenceReference}
+        <MovementPanel
+          title="Gainers"
+          positions={gainers}
+          empty="No gainers yet."
+        />
+        <MovementPanel
+          title="Detractors"
+          positions={detractors}
+          empty="No detractors yet."
         />
 
-        <LatestRunOverview
-          paper={paper}
-          onOpenRun={(run) =>
-            onSelectedReferenceChange({ kind: "run", id: run.id, label: run.label })
-          }
-        />
+        <MirrorPanel title="Assets">
+          <div className="grid min-h-44 place-items-center">
+            <div className="grid size-40 place-items-center rounded-full bg-muted shadow-[inset_0_0_0_2.2rem_hsl(var(--background))]">
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Total
+                </p>
+                <p className="mt-1 font-semibold tabular-nums">
+                  <Money
+                    value={accountValue}
+                    currency={currency}
+                    maximumFractionDigits={0}
+                  />
+                </p>
+              </div>
+            </div>
+          </div>
+        </MirrorPanel>
+
+        <MirrorPanel title="Orders">
+          {orders.length ? (
+            <ul className="divide-y">
+              {orders
+                .slice(-3)
+                .reverse()
+                .map((order) => (
+                  <li
+                    key={order.id}
+                    className="flex items-center justify-between gap-4 py-3 text-sm"
+                  >
+                    <span className="font-medium">{order.symbol}</span>
+                    <span className="text-muted-foreground">
+                      {order.side} · {order.status}
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          ) : (
+            <EmptyLine>No orders yet.</EmptyLine>
+          )}
+        </MirrorPanel>
       </div>
+
+      <Dialog open={fundsOpen} onOpenChange={setFundsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add funds</DialogTitle>
+            <DialogDescription>
+              Deposit capital into your portfolio.
+            </DialogDescription>
+          </DialogHeader>
+          <label className="grid gap-2 text-sm font-medium">
+            Amount
+            <span className="font-normal text-muted-foreground">
+              $1 – $100,000 per deposit.
+            </span>
+            <span className="flex items-center rounded-md border">
+              <span className="px-3 text-muted-foreground">$</span>
+              <Input
+                aria-label="Amount"
+                inputMode="decimal"
+                value={deposit}
+                onChange={(event) => setDeposit(event.target.value)}
+                className="border-0"
+              />
+            </span>
+          </label>
+          <DialogFooter>
+            <Button type="button" onClick={addFunds}>
+              Add Funds
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit schedule</DialogTitle>
+            <DialogDescription>When the bot runs.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium">Schedule</p>
+              <p className="text-sm text-muted-foreground">
+                Trades daily at 9:30am ET.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <select
+                className="h-9 rounded-md border bg-background px-3 text-sm"
+                aria-label="Frequency"
+                defaultValue="daily"
+              >
+                <option value="daily">Daily</option>
+              </select>
+              <select
+                className="h-9 rounded-md border bg-background px-3 text-sm"
+                aria-label="Run time"
+                defaultValue="market-open"
+              >
+                <option value="market-open">Market Open 9:30am ET</option>
+              </select>
+            </div>
+            <label className="flex items-start gap-3 text-sm">
+              <input type="checkbox" className="mt-1" />
+              <span>
+                <span className="block font-medium">
+                  Run on market holidays
+                </span>
+                <span className="block text-muted-foreground">
+                  When off, runs that land on a US market holiday are skipped.
+                </span>
+              </span>
+            </label>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => {
+                setSchedule("Trades daily at 9:30am ET.")
+                setScheduleOpen(false)
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }
 
-function PaperChartViews({
-  paper,
-  valuePresentation,
-  height,
-  onOpenReference,
-}: {
-  paper: PaperWorkspaceFixture
-  valuePresentation: PaperEquityPresentation
-  height: number
-  onOpenReference: (reference: DomainObjectReference) => void
-}) {
-  const valueModel = valuePresentation.state === "ready"
-    ? {
-        ...valuePresentation.model,
-        identity: {
-          ...valuePresentation.model.identity,
-          title: "Portfolio value by completed run",
-        },
-        benchmark: undefined,
-      }
-    : null
-  const performanceModel = paper.performanceModel ?? (
-    valuePresentation.state === "ready" && valuePresentation.model.benchmark
-      ? valuePresentation.model
-      : null
-  )
-  const [activeView, setActiveView] = useState<PaperChartView>(() =>
-    performanceModel ? "performance" : "value"
-  )
-  const resolvedActiveView =
-    activeView === "performance" && !performanceModel
-      ? "value"
-      : activeView === "drawdown" && !paper.drawdownModel
-        ? "value"
-        : activeView
-
-  return (
-    <Tabs
-      value={resolvedActiveView}
-      onValueChange={(value) => setActiveView(value as PaperChartView)}
-      className="gap-3"
-    >
-      <TabsList aria-label={`${paper.label} portfolio chart view`}>
-        <TabsTrigger value="value">Value</TabsTrigger>
-        <TabsTrigger value="performance" disabled={!performanceModel}>
-          Performance
-        </TabsTrigger>
-        <TabsTrigger value="drawdown" disabled={!paper.drawdownModel}>
-          Drawdown
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="value">
-        {valueModel ? (
-          <PortfolioEquityChart
-            model={valueModel}
-            height={height}
-            onOpenReference={onOpenReference}
-          />
-        ) : valuePresentation.state === "invalid" ? (
-          <InvalidHistorySurface reason={valuePresentation.reason} />
-        ) : (
-          <ZeroHistorySurface
-            portfolioValue={paper.account?.accountValue ?? paper.portfolioValue}
-            currency={paper.currency ?? "USD"}
-            nextRun={paper.nextRun}
-            benchmarkLabel={
-              paper.benchmark?.label?.trim() || paper.benchmark?.symbol?.trim()
-            }
-          />
-        )}
-      </TabsContent>
-
-      <TabsContent value="performance">
-        {performanceModel ? (
-          <PortfolioEquityChart
-            model={performanceModel}
-            height={height}
-            onOpenReference={onOpenReference}
-          />
-        ) : (
-          <UnavailableChartSurface
-            title="Performance unavailable"
-            detail="No traceable performance or benchmark read model was supplied."
-          />
-        )}
-      </TabsContent>
-
-      <TabsContent value="drawdown">
-        {paper.drawdownModel ? (
-          <DrawdownEvidenceChart model={paper.drawdownModel} height={height} />
-        ) : (
-          <UnavailableChartSurface
-            title="Drawdown unavailable"
-            detail="No drawdown evidence read model was supplied."
-          />
-        )}
-      </TabsContent>
-    </Tabs>
-  )
-}
-
-function PaperLifecycleControl({
-  state,
-  operation,
-  onStop,
-  onArchive,
-  onUnarchive,
-}: {
-  state: PaperOperationalState | null
-  operation: PaperLifecycleAction | null
-  onStop?: () => void
-  onArchive?: () => void
-  onUnarchive?: () => void
-}) {
-  if (state === "stopping") {
-    return (
-      <Button type="button" variant="destructive" disabled>
-        Stopping…
-      </Button>
-    )
-  }
-
-  if ((state === "active" || state === "paused" || state === "degraded") && onStop) {
-    return (
-      <Button
-        type="button"
-        variant="destructive"
-        disabled={operation === "stop"}
-        onClick={onStop}
-      >
-        {operation === "stop" ? "Stopping…" : "Stop"}
-      </Button>
-    )
-  }
-
-  if (state === "stopped" && onArchive) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        disabled={operation === "archive"}
-        onClick={onArchive}
-      >
-        {operation === "archive" ? "Archiving…" : "Archive"}
-      </Button>
-    )
-  }
-
-  if (state === "archived" && onUnarchive) {
-    return (
-      <Button
-        type="button"
-        variant="secondary"
-        disabled={operation === "unarchive"}
-        onClick={onUnarchive}
-      >
-        {operation === "unarchive" ? "Unarchiving…" : "Unarchive"}
-      </Button>
-    )
-  }
-
-  return null
-}
-
-function inferPaperOperationalState(status: string): PaperOperationalState | null {
-  const normalized = status.trim().toLowerCase()
-
-  if (normalized.includes("archived")) return "archived"
-  if (normalized.includes("stopping")) return "stopping"
-  if (normalized.includes("stopped") || normalized.includes("inactive")) {
-    return "stopped"
-  }
-  if (normalized.includes("paused")) return "paused"
-  if (normalized.includes("degraded")) return "degraded"
-  if (normalized.includes("running") || normalized.includes("active")) {
-    return "active"
-  }
-
-  return null
-}
-
-function UnavailableChartSurface({
+function MirrorPanel({
   title,
-  detail,
+  action,
+  children,
 }: {
   title: string
-  detail: string
+  action?: ReactNode
+  children: ReactNode
 }) {
   return (
-    <section className="grid min-h-40 place-items-center rounded-lg border border-dashed p-5 text-center">
-      <div>
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+    <section className="min-h-40 rounded-lg border p-4">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {title}
+        </h2>
+        {action}
       </div>
+      <div className="mt-5">{children}</div>
     </section>
   )
 }
 
-export function PaperWorkspaceBottomPanel({
-  paper,
-  activeTab,
-  expanded,
-  onActiveTabChange,
-  onExpandedChange,
-  onOpenRun,
+function MovementPanel({
+  title,
+  positions,
+  empty,
 }: {
+  title: string
+  positions: readonly PaperPositionRow[]
+  empty: string
+}) {
+  return (
+    <MirrorPanel title={title}>
+      {positions.length ? (
+        <ul className="divide-y">
+          {positions.slice(0, 3).map((position) => (
+            <li
+              key={position.id ?? position.symbol}
+              className="flex items-center justify-between gap-4 py-3 text-sm"
+            >
+              <span className="font-medium">{position.symbol}</span>
+              <span className="tabular-nums">
+                <OptionalPercentage
+                  value={position.unrealizedReturn}
+                  showSign
+                />
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyLine>{empty}</EmptyLine>
+      )}
+    </MirrorPanel>
+  )
+}
+
+function EmptyLine({ children }: { children: ReactNode }) {
+  return (
+    <p className="grid min-h-20 place-items-center text-sm italic text-muted-foreground">
+      {children}
+    </p>
+  )
+}
+
+function benchmarkFact(paper: PaperWorkspaceFixture, accountValue: number) {
+  const benchmarkPoint = paper.performanceModel?.benchmark?.points
+    .filter((point) => point.value !== null)
+    .at(-1)
+  if (!paper.benchmark || benchmarkPoint?.value == null) return null
+  const portfolioReturn = paper.account?.totalReturn ?? paper.totalReturn
+  const startingValue =
+    portfolioReturn === -1 ? accountValue : accountValue / (1 + portfolioReturn)
+  return {
+    symbol: paper.benchmark.symbol,
+    returnValue: benchmarkPoint.value,
+    amount: startingValue * benchmarkPoint.value,
+    ahead: portfolioReturn >= benchmarkPoint.value,
+  }
+}
+
+function MirrorPortfolioChart({
+  paper,
+  range,
+}: {
+  paper: PaperWorkspaceFixture
+  range: PortfolioRange
+}) {
+  const points = useMemo(
+    () => filterRange(paper.equityHistory ?? [], range),
+    [paper.equityHistory, range],
+  )
+  const values = points.map((point) => point.value)
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = Math.max(max - min, 1)
+  const polyline = points
+    .map((point, index) => {
+      const x = points.length <= 1 ? 50 : (index / (points.length - 1)) * 100
+      const y = 88 - ((point.value - min) / span) * 68
+      return `${x},${y}`
+    })
+    .join(" ")
+
+  return (
+    <div className="mt-5 h-52" role="img" aria-label="Account value history">
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="size-full"
+        aria-hidden="true"
+      >
+        <line
+          x1="0"
+          y1="88"
+          x2="100"
+          y2="88"
+          stroke="currentColor"
+          strokeOpacity="0.16"
+          strokeDasharray="1 1"
+        />
+        {polyline ? (
+          <polyline
+            points={polyline}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
+      </svg>
+    </div>
+  )
+}
+
+function filterRange(
+  points: readonly NonNullable<
+    PaperWorkspaceFixture["equityHistory"]
+  >[number][],
+  range: PortfolioRange,
+) {
+  if (range === "ALL" || points.length < 2) return [...points]
+  const end = new Date(points.at(-1)!.timestamp)
+  const start = new Date(end)
+  if (range === "1D") start.setDate(start.getDate() - 1)
+  if (range === "1W") start.setDate(start.getDate() - 7)
+  if (range === "1M") start.setMonth(start.getMonth() - 1)
+  if (range === "3M") start.setMonth(start.getMonth() - 3)
+  if (range === "YTD") start.setMonth(0, 1)
+  if (range === "1Y") start.setFullYear(start.getFullYear() - 1)
+  const filtered = points.filter((point) => new Date(point.timestamp) >= start)
+  return filtered.length ? filtered : [points.at(-1)!]
+}
+
+export function PaperWorkspaceBottomPanel(props: {
   paper: PaperWorkspaceFixture
   activeTab: PaperDetailsTab
   expanded: boolean
@@ -613,6 +697,14 @@ export function PaperWorkspaceBottomPanel({
   onExpandedChange: (expanded: boolean) => void
   onOpenRun: (run: PaperRunFixture) => void
 }) {
+  const {
+    paper,
+    activeTab,
+    expanded,
+    onActiveTabChange,
+    onExpandedChange,
+    onOpenRun,
+  } = props
   return (
     <Tabs
       value={activeTab}
@@ -637,7 +729,6 @@ export function PaperWorkspaceBottomPanel({
             Strategy
           </TabsTrigger>
         </TabsList>
-
         {expanded ? (
           <Button
             type="button"
@@ -650,24 +741,19 @@ export function PaperWorkspaceBottomPanel({
           </Button>
         ) : null}
       </div>
-
       {expanded ? (
-        <ScrollArea className="h-52 border-t px-3 py-3">
+        <ScrollArea className="h-72 border-t px-3 py-3">
           <TabsContent value="runs">
             <RunsPanel paper={paper} onOpenRun={onOpenRun} />
           </TabsContent>
           <TabsContent value="positions">
-            <PositionsPanel
-              paper={paper}
-              currency={paper.currency ?? "USD"}
-              onOpenRun={onOpenRun}
-            />
+            <PositionsPanel paper={paper} />
           </TabsContent>
           <TabsContent value="orders">
-            <OrdersPanel paper={paper} onOpenRun={onOpenRun} />
+            <OrdersPanel paper={paper} />
           </TabsContent>
           <TabsContent value="strategy">
-            <StrategyPanel paper={paper} />
+            <StrategyPanel />
           </TabsContent>
         </ScrollArea>
       ) : null}
@@ -675,88 +761,278 @@ export function PaperWorkspaceBottomPanel({
   )
 }
 
-function LatestRunOverview({
+function RunsPanel({
   paper,
   onOpenRun,
 }: {
   paper: PaperWorkspaceFixture
   onOpenRun: (run: PaperRunFixture) => void
 }) {
-  const latestRun = paper.runs?.at(-1)
-
+  const runs = [...(paper.runs ?? [])].reverse()
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Latest run</CardTitle>
-        <CardDescription>{paper.runCadence}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {latestRun ? (
-          <Button
-            type="button"
-            variant="outline"
-            className="h-auto w-full justify-between px-3 py-3 text-left"
-            onClick={() => onOpenRun(latestRun)}
-          >
-            <span>
-              <span className="block text-sm font-medium">{latestRun.label}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                {latestRun.decision ?? "Decision unavailable"} · {latestRun.completedAt}
+    <section>
+      <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+        Your strategy in action: researching and trading.
+      </p>
+      {runs.length ? (
+        <div className="mt-3 divide-y rounded-lg border">
+          {runs.map((run) => (
+            <Button
+              key={run.id}
+              type="button"
+              variant="ghost"
+              className="h-auto w-full justify-between rounded-none px-4 py-3 text-left"
+              onClick={() => onOpenRun(run)}
+            >
+              <span className="font-medium">{run.label}</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {run.completedAt}
               </span>
-            </span>
-            <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
-          </Button>
-        ) : (
-          <div className="rounded-lg border border-dashed px-3 py-4">
-            <p className="text-sm font-medium">No completed runs</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Next run {paper.nextRun}
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function Metric({
-  label,
-  detail,
-  children,
-}: {
-  label: string
-  detail?: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <div className="min-w-0 border-b border-r p-3 nth-[2n]:border-r-0 sm:nth-[2n]:border-r sm:nth-[3n]:border-r-0 xl:border-b-0 xl:nth-[3n]:border-r xl:nth-[6n]:border-r-0">
-      <dt className="truncate text-[0.6875rem] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="mt-1 truncate text-base font-semibold tabular-nums">
-        {children}
-      </dd>
-      {detail ? (
-        <dd className="mt-0.5 truncate text-[0.6875rem] text-muted-foreground tabular-nums">
-          {detail}
-        </dd>
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Button>
+          ))}
+        </div>
       ) : null}
+    </section>
+  )
+}
+
+function PaperRunWorkspace({ run }: { run: PaperRunFixture }) {
+  return (
+    <section aria-labelledby="paper-run-title">
+      <WorkspacePageHeader
+        title={run.label}
+        titleId="paper-run-title"
+        details={run.completedAt}
+      />
+    </section>
+  )
+}
+
+function findRunForReference(
+  runs: readonly PaperRunFixture[],
+  reference: DomainObjectReference,
+) {
+  if (reference.kind === "run")
+    return runs.find((run) => run.id === reference.id) ?? null
+  if (reference.kind === "decision") {
+    return (
+      runs.find((run) =>
+        run.decisions?.some((decision) => decision.id === reference.id),
+      ) ?? null
+    )
+  }
+  return null
+}
+
+function PositionsPanel({ paper }: { paper: PaperWorkspaceFixture }) {
+  const [query, setQuery] = useState("")
+  const currency = paper.currency ?? "USD"
+  const positions = (paper.positionRows ?? []).filter((position) =>
+    `${position.symbol} ${position.name ?? ""}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  )
+  return (
+    <section aria-labelledby="positions-title" className="space-y-3">
+      <div>
+        <h2 id="positions-title" className="text-lg font-semibold">
+          Positions
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Open positions currently held by your champion.
+        </p>
+      </div>
+      <div className="overflow-hidden rounded-lg border">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+          <p className="text-sm">
+            <strong>{paper.positionRows?.length ?? 0}</strong> open positions
+          </p>
+          <SearchField
+            label="Search positions..."
+            value={query}
+            onChange={setQuery}
+          />
+        </div>
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr>
+              <TableHeading>Asset</TableHeading>
+              <TableHeading>Position</TableHeading>
+              <TableHeading align="right">Value</TableHeading>
+              <TableHeading align="right">Return</TableHeading>
+              <TableHeading align="right">Profit</TableHeading>
+              <TableHeading align="right">Allocation</TableHeading>
+            </tr>
+          </thead>
+          <tbody>
+            {positions.map((position) => (
+              <tr key={position.id ?? position.symbol} className="border-t">
+                <th scope="row" className="px-3 py-3 text-left font-medium">
+                  {position.symbol}
+                </th>
+                <td className="px-3 py-3 tabular-nums">
+                  <OptionalNumber value={position.quantity} />
+                </td>
+                <td className="px-3 py-3 text-right tabular-nums">
+                  <OptionalMoney
+                    value={position.marketValue}
+                    currency={currency}
+                  />
+                </td>
+                <td className="px-3 py-3 text-right tabular-nums">
+                  <OptionalPercentage
+                    value={position.unrealizedReturn}
+                    showSign
+                  />
+                </td>
+                <td className="px-3 py-3 text-right tabular-nums">
+                  <OptionalMoney
+                    value={position.unrealizedPnl}
+                    currency={currency}
+                    showSign
+                  />
+                </td>
+                <td className="px-3 py-3 text-right tabular-nums">
+                  <OptionalPercentage value={position.weight} />
+                </td>
+              </tr>
+            ))}
+            {!positions.length ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No open positions.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+function OrdersPanel({ paper }: { paper: PaperWorkspaceFixture }) {
+  const [query, setQuery] = useState("")
+  const runsById = new Map((paper.runs ?? []).map((run) => [run.id, run]))
+  const orders = (paper.orderRows ?? []).filter((order) =>
+    `${order.symbol} ${order.side} ${order.status}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  )
+  return (
+    <section aria-labelledby="orders-title" className="space-y-3">
+      <div>
+        <h2 id="orders-title" className="text-lg font-semibold">
+          Orders
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Orders placed by your champion.
+        </p>
+      </div>
+      <div className="overflow-hidden rounded-lg border">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+          <p className="text-sm">
+            <strong>{paper.orderRows?.length ?? 0}</strong> orders
+          </p>
+          <SearchField
+            label="Search orders..."
+            value={query}
+            onChange={setQuery}
+          />
+        </div>
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr>
+              <TableHeading>Asset</TableHeading>
+              <TableHeading>Order</TableHeading>
+              <TableHeading>Status</TableHeading>
+              <TableHeading>Expires</TableHeading>
+              <TableHeading>Run</TableHeading>
+              <TableHeading>Created</TableHeading>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order.id} className="border-t">
+                <th scope="row" className="px-3 py-3 text-left font-medium">
+                  {order.symbol}
+                </th>
+                <td className="px-3 py-3">
+                  {order.side}
+                  {order.quantity === undefined ? "" : ` · ${order.quantity}`}
+                </td>
+                <td className="px-3 py-3">{order.status}</td>
+                <td className="px-3 py-3">
+                  {order.timeInForce ?? "Unavailable"}
+                </td>
+                <td className="px-3 py-3">
+                  {order.provenance?.runId
+                    ? (runsById.get(order.provenance.runId)?.label ??
+                      order.provenance.runId)
+                    : "Unavailable"}
+                </td>
+                <td className="px-3 py-3">
+                  {order.createdAt ?? "Unavailable"}
+                </td>
+              </tr>
+            ))}
+            {!orders.length ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No orders yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+function StrategyPanel() {
+  return (
+    <div className="flex items-center justify-between rounded-lg border px-4 py-4">
+      <span className="inline-flex items-center gap-2 font-medium">
+        <LockKeyhole aria-hidden="true" className="size-4" /> Strategy
+      </span>
+      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Read-only
+      </span>
     </div>
   )
 }
 
-function OperationalFact({
+function SearchField({
   label,
-  children,
+  value,
+  onChange,
 }: {
   label: string
-  children: ReactNode
+  value: string
+  onChange: (value: string) => void
 }) {
   return (
-    <div className="flex min-w-0 items-baseline gap-1.5">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-medium tabular-nums">{children}</dd>
-    </div>
+    <label className="relative block w-full max-w-64">
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <Input
+        aria-label={label}
+        placeholder={label}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="pl-9"
+      />
+    </label>
   )
 }
 
@@ -764,21 +1040,18 @@ function OptionalMoney({
   value,
   currency,
   showSign = false,
-  maximumFractionDigits,
 }: {
   value: number | undefined
   currency: string
   showSign?: boolean
-  maximumFractionDigits?: number
 }) {
   if (value === undefined) return <>Unavailable</>
-
   return (
     <Money
       value={value}
       currency={currency}
       showSign={showSign}
-      maximumFractionDigits={maximumFractionDigits}
+      maximumFractionDigits={2}
     />
   )
 }
@@ -791,697 +1064,17 @@ function OptionalPercentage({
   showSign?: boolean
 }) {
   if (value === undefined) return <>Unavailable</>
-
   return <Percentage value={value} showSign={showSign} />
-}
-
-function availableText(value: string | undefined) {
-  return value?.trim() || "Unavailable"
-}
-
-function ZeroHistorySurface({
-  portfolioValue,
-  currency,
-  nextRun,
-  benchmarkLabel,
-}: {
-  portfolioValue: number
-  currency: string
-  nextRun: string
-  benchmarkLabel?: string
-}) {
-  const benchmark = benchmarkLabel?.trim() || null
-  const title = benchmark ? `Portfolio vs ${benchmark}` : "Portfolio value"
-
-  return (
-    <figure aria-labelledby="paper-equity-title">
-      <Card>
-        <CardHeader>
-          <CardTitle id="paper-equity-title">{title}</CardTitle>
-          <CardDescription>No completed runs</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          <p className="text-sm">First run {availableText(nextRun)}</p>
-          <p className="text-xs text-muted-foreground">
-            Benchmark {benchmark ?? "Unavailable"}
-          </p>
-        </CardContent>
-      </Card>
-      <p className="sr-only">
-        The portfolio has no return history. Its current and starting value is{" "}
-        <Money value={portfolioValue} currency={currency} />.{" "}
-        {benchmark
-          ? `${benchmark} comparison begins after the first completed run.`
-          : "Benchmark comparison is unavailable because no benchmark was supplied."}
-      </p>
-    </figure>
-  )
-}
-
-function InvalidHistorySurface({ reason }: { reason: string }) {
-  return (
-    <section
-      aria-labelledby="paper-equity-unavailable-title"
-      className="grid min-h-40 place-items-center rounded-lg border border-dashed p-5 text-center"
-    >
-      <div className="max-w-sm">
-        <h2 id="paper-equity-unavailable-title" className="text-sm font-semibold">
-          Equity evidence unavailable
-        </h2>
-        <p className="mt-1 text-xs text-muted-foreground">{reason}</p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          No curve is shown without a traceable completed-run record.
-        </p>
-      </div>
-    </section>
-  )
-}
-
-function RunsPanel({
-  paper,
-  onOpenRun,
-}: {
-  paper: PaperWorkspaceFixture
-  onOpenRun: (run: PaperRunFixture) => void
-}) {
-  if (!paper.runs?.length) {
-    return (
-      <section className="grid min-h-28 place-items-center rounded-lg border border-dashed p-5 text-center">
-        <div>
-          <p className="text-sm font-medium">No completed runs</p>
-          <p className="mt-1 text-xs text-muted-foreground">Next run {paper.nextRun}</p>
-        </div>
-      </section>
-    )
-  }
-
-  return (
-    <div className="overflow-hidden rounded-lg border">
-      <div className="border-b px-4 py-3 text-sm font-medium">
-        Completed runs ({paper.runs.length})
-      </div>
-      <div className="divide-y">
-        {[...paper.runs].reverse().map((run) => (
-          <Button
-            key={run.id}
-            type="button"
-            variant="ghost"
-            className="h-auto w-full justify-between rounded-none px-4 py-3 text-left"
-            onClick={() => onOpenRun(run)}
-          >
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{run.label}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                {run.status} · {run.completedAt} ·{" "}
-                {run.decision ?? "Decision unavailable"}
-              </span>
-            </span>
-            <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
-          </Button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function PaperRunWorkspace({
-  paper,
-  run,
-  selectedDecisionId,
-  activeTab,
-  onActiveTabChange,
-}: {
-  paper: PaperWorkspaceFixture
-  run: PaperRunFixture
-  selectedDecisionId: string | null
-  activeTab: PaperRunTab
-  onActiveTabChange: (tab: PaperRunTab) => void
-}) {
-  const hasRunContext = Boolean(
-    run.portfolioReference ||
-    run.strategyReference ||
-    run.scheduleReference ||
-    run.freshness ||
-    run.failureReason ||
-    run.cancellationReason
-  )
-
-  return (
-    <section aria-labelledby="paper-run-title" className="space-y-4">
-      <header className="border-b pb-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 id="paper-run-title" className="text-2xl font-semibold tracking-tight">
-                {run.label}
-              </h1>
-              <Badge variant="secondary">{run.status}</Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Completed {run.completedAt}
-              {run.startedAt ? ` · Started ${run.startedAt}` : null}
-            </p>
-          </div>
-          <dl className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-            <OperationalFact label="Elapsed">
-              {run.duration ?? "Unavailable"}
-            </OperationalFact>
-            <OperationalFact label="Orders">
-              {run.orders ?? "Unavailable"}
-            </OperationalFact>
-            <OperationalFact label="Run buying power">
-              <OptionalMoney
-                value={run.buyingPower}
-                currency={paper.currency ?? "USD"}
-              />
-            </OperationalFact>
-          </dl>
-        </div>
-      </header>
-
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => onActiveTabChange(value as PaperRunTab)}
-        className="mt-4 gap-4"
-      >
-        <TabsList aria-label={`${run.label} details`}>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="summary" className="space-y-4">
-          <dl className="grid gap-px overflow-hidden rounded-lg bg-border sm:grid-cols-2 xl:grid-cols-4">
-            <CompactFact label="Decision" value={run.decision ?? "Unavailable"} />
-            <CompactFact label="Evaluated" value={run.evaluated ?? "Unavailable"} />
-            <CompactFact label="Orders" value={run.orders ?? "Unavailable"} />
-            <CompactFact
-              label="Before account value"
-              value={
-                <OptionalMoney
-                  value={run.beforeAccountValue}
-                  currency={paper.currency ?? "USD"}
-                />
-              }
-            />
-            <CompactFact
-              label="After account value"
-              value={
-                <OptionalMoney
-                  value={run.afterAccountValue ?? run.accountValue}
-                  currency={paper.currency ?? "USD"}
-                />
-              }
-            />
-            <CompactFact
-              label="Before buying power"
-              value={
-                <OptionalMoney
-                  value={run.beforeBuyingPower}
-                  currency={paper.currency ?? "USD"}
-                />
-              }
-            />
-            <CompactFact
-              label="After buying power"
-              value={
-                <OptionalMoney
-                  value={run.afterBuyingPower ?? run.buyingPower}
-                  currency={paper.currency ?? "USD"}
-                />
-              }
-            />
-            <CompactFact label="Started" value={run.startedAt ?? "Unavailable"} />
-            <CompactFact label="Data cutoff" value={run.dataCutoff ?? "Unavailable"} />
-          </dl>
-          {hasRunContext ? (
-            <section aria-labelledby={`${run.id}-context-title`} className="rounded-lg border">
-              <h2
-                id={`${run.id}-context-title`}
-                className="border-b px-4 py-3 text-sm font-medium"
-              >
-                Run context
-              </h2>
-              <dl className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-4">
-                <CompactFact
-                  label="Portfolio snapshot"
-                  value={run.portfolioReference ?? "Unavailable"}
-                />
-                <CompactFact
-                  label="Strategy snapshot"
-                  value={run.strategyReference ?? "Unavailable"}
-                />
-                <CompactFact
-                  label="Schedule"
-                  value={run.scheduleReference ?? "Unavailable"}
-                />
-                <CompactFact
-                  label="Freshness"
-                  value={run.freshness ?? "Unavailable"}
-                />
-                {run.failureReason ? (
-                  <CompactFact label="Failure reason" value={run.failureReason} />
-                ) : null}
-                {run.cancellationReason ? (
-                  <CompactFact
-                    label="Cancellation reason"
-                    value={run.cancellationReason}
-                  />
-                ) : null}
-              </dl>
-            </section>
-          ) : null}
-          <DecisionTrace run={run} selectedDecisionId={selectedDecisionId} />
-        </TabsContent>
-
-        <TabsContent value="activity">
-          {run.activity?.length ? (
-            <ol className="divide-y rounded-lg border">
-              {run.activity.map((event) => (
-                <li key={event.id} className="grid gap-2 px-4 py-4 sm:grid-cols-[7rem_1fr]">
-                  <time className="text-xs text-muted-foreground">{event.time}</time>
-                  <div>
-                    <p className="text-sm font-medium">{event.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{event.detail}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <EmptyTableState
-              title="Activity unavailable"
-              detail="No event records were supplied for this run."
-            />
-          )}
-        </TabsContent>
-      </Tabs>
-    </section>
-  )
-}
-
-function DecisionTrace({
-  run,
-  selectedDecisionId,
-}: {
-  run: PaperRunFixture
-  selectedDecisionId: string | null
-}) {
-  if (!run.decisions?.length) {
-    return (
-      <EmptyTableState
-        title="No individual decision records"
-        detail="This run completed without an expanded candidate trace."
-      />
-    )
-  }
-
-  return (
-    <section aria-labelledby={`${run.id}-decisions-title`} className="rounded-lg border">
-      <h2 id={`${run.id}-decisions-title`} className="border-b px-4 py-3 text-sm font-medium">
-        Decision trace
-      </h2>
-      <ul className="divide-y">
-        {run.decisions.map((decision) => (
-          <li
-            key={decision.id}
-            className={selectedDecisionId === decision.id ? "bg-muted/50 px-4 py-3" : "px-4 py-3"}
-          >
-            <p className="text-sm font-medium">{decision.label}</p>
-            {decision.detail ? (
-              <p className="mt-1 text-sm text-muted-foreground">{decision.detail}</p>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-function findRunForReference(
-  runs: readonly PaperRunFixture[],
-  reference: DomainObjectReference,
-) {
-  if (reference.kind === "run") {
-    return runs.find((run) => run.id === reference.id) ?? null
-  }
-
-  if (reference.kind === "decision") {
-    return runs.find((run) =>
-      run.decisions?.some((decision) => decision.id === reference.id)
-    ) ?? null
-  }
-
-  return null
-}
-
-function PositionsPanel({
-  paper,
-  currency,
-  onOpenRun,
-}: {
-  paper: PaperWorkspaceFixture
-  currency: string
-  onOpenRun: (run: PaperRunFixture) => void
-}) {
-  if (!paper.positionRows?.length) {
-    return (
-      <EmptyTableState
-        title="No positions"
-        detail="No position records were supplied."
-      />
-    )
-  }
-
-  return (
-    <TableShell label={`${paper.label} positions`}>
-      <thead className="bg-muted/50 text-xs text-muted-foreground">
-        <tr>
-          <TableHeading>Position</TableHeading>
-          <TableHeading align="right">Quantity</TableHeading>
-          <TableHeading align="right">Avg cost</TableHeading>
-          <TableHeading align="right">Mark</TableHeading>
-          <TableHeading align="right">Market value</TableHeading>
-          <TableHeading align="right">Weight</TableHeading>
-          <TableHeading align="right">Unrealized P&amp;L</TableHeading>
-          <TableHeading align="right">Daily P&amp;L</TableHeading>
-          <TableHeading>Evidence</TableHeading>
-        </tr>
-      </thead>
-      <tbody>
-        {paper.positionRows.map((position, index) => (
-          <tr key={position.id ?? `${position.symbol}-${index}`} className="border-t align-top">
-            <th scope="row" className="px-3 py-2 text-left font-medium">
-              <span className="block">{position.symbol}</span>
-              {position.name ? (
-                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                  {position.name}
-                </span>
-              ) : null}
-            </th>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalNumber value={position.quantity} />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalMoney
-                value={position.averageCost}
-                currency={currency}
-                maximumFractionDigits={2}
-              />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalMoney
-                value={position.markPrice}
-                currency={currency}
-                maximumFractionDigits={2}
-              />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalMoney value={position.marketValue} currency={currency} />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalPercentage value={position.weight} />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <span className="block">
-                <OptionalMoney
-                  value={position.unrealizedPnl}
-                  currency={currency}
-                  showSign
-                  maximumFractionDigits={2}
-                />
-              </span>
-              {position.unrealizedReturn !== undefined ? (
-                <span className="mt-0.5 block text-xs text-muted-foreground">
-                  <Percentage value={position.unrealizedReturn} showSign />
-                </span>
-              ) : null}
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalMoney
-                value={position.dailyPnl}
-                currency={currency}
-                showSign
-                maximumFractionDigits={2}
-              />
-            </td>
-            <td className="px-3 py-2">
-              <ProvenanceCell
-                provenance={position.provenance}
-                runs={paper.runs ?? []}
-                onOpenRun={onOpenRun}
-              />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </TableShell>
-  )
-}
-
-function OrdersPanel({
-  paper,
-  onOpenRun,
-}: {
-  paper: PaperWorkspaceFixture
-  onOpenRun: (run: PaperRunFixture) => void
-}) {
-  if (!paper.orderRows?.length) {
-    return <EmptyTableState title="No orders" detail="There are no open or historical orders." />
-  }
-
-  return (
-    <TableShell label={`${paper.label} orders`}>
-      <thead className="bg-muted/50 text-xs text-muted-foreground">
-        <tr>
-          <TableHeading>Order</TableHeading>
-          <TableHeading>Side / type</TableHeading>
-          <TableHeading align="right">Filled / quantity</TableHeading>
-          <TableHeading align="right">Pricing</TableHeading>
-          <TableHeading>Time in force</TableHeading>
-          <TableHeading>Status</TableHeading>
-          <TableHeading>Evidence</TableHeading>
-          <TableHeading>Created</TableHeading>
-        </tr>
-      </thead>
-      <tbody>
-        {paper.orderRows.map((order) => (
-          <tr key={order.id} className="border-t align-top">
-            <th scope="row" className="px-3 py-2 text-left font-medium">
-              <span className="block">{order.symbol}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                {order.id}
-              </span>
-            </th>
-            <td className="px-3 py-2">
-              <span className="block">{order.side}</span>
-              <span className="mt-0.5 block text-xs text-muted-foreground">
-                {order.orderType ?? "Unavailable"}
-              </span>
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OptionalNumber value={order.filledQuantity} /> /{" "}
-              <OptionalNumber value={order.quantity} />
-            </td>
-            <td className="px-3 py-2 text-right tabular-nums">
-              <OrderPricing order={order} currency={paper.currency ?? "USD"} />
-            </td>
-            <td className="px-3 py-2">{order.timeInForce ?? "Unavailable"}</td>
-            <td className="px-3 py-2">{order.status}</td>
-            <td className="px-3 py-2">
-              <ProvenanceCell
-                provenance={order.provenance}
-                runs={paper.runs ?? []}
-                onOpenRun={onOpenRun}
-              />
-            </td>
-            <td className="px-3 py-2">
-              <span className="block">{order.createdAt ?? "Unavailable"}</span>
-              {order.updatedAt ? (
-                <span className="mt-0.5 block text-xs text-muted-foreground">
-                  Updated {order.updatedAt}
-                </span>
-              ) : null}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </TableShell>
-  )
 }
 
 function OptionalNumber({ value }: { value: number | undefined }) {
   if (value === undefined) return <>Unavailable</>
-
-  return <>{new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(value)}</>
-}
-
-function OrderPricing({
-  order,
-  currency,
-}: {
-  order: PaperOrderRow
-  currency: string
-}) {
-  const hasPricing =
-    order.averageFillPrice !== undefined ||
-    order.limitPrice !== undefined ||
-    order.stopPrice !== undefined
-
-  if (!hasPricing) return <>Unavailable</>
-
   return (
-    <span className="space-y-0.5">
-      {order.averageFillPrice !== undefined ? (
-        <span className="block">
-          Avg fill{" "}
-          <Money
-            value={order.averageFillPrice}
-            currency={currency}
-            maximumFractionDigits={2}
-          />
-        </span>
-      ) : null}
-      {order.limitPrice !== undefined ? (
-        <span className="block">
-          Limit{" "}
-          <Money
-            value={order.limitPrice}
-            currency={currency}
-            maximumFractionDigits={2}
-          />
-        </span>
-      ) : null}
-      {order.stopPrice !== undefined ? (
-        <span className="block">
-          Stop{" "}
-          <Money
-            value={order.stopPrice}
-            currency={currency}
-            maximumFractionDigits={2}
-          />
-        </span>
-      ) : null}
-    </span>
-  )
-}
-
-function ProvenanceCell({
-  provenance,
-  runs,
-  onOpenRun,
-}: {
-  provenance: PaperRecordProvenance | undefined
-  runs: readonly PaperRunFixture[]
-  onOpenRun: (run: PaperRunFixture) => void
-}) {
-  const run = provenance?.runId
-    ? runs.find((candidate) => candidate.id === provenance.runId)
-    : undefined
-  const runLabel = run?.label ?? provenance?.runLabel ?? provenance?.runId
-  const decisionLabel = provenance?.decisionLabel ?? provenance?.decisionId
-  const hasProvenance = Boolean(
-    provenance?.source || provenance?.recordedAt || runLabel || decisionLabel
-  )
-
-  if (!hasProvenance) return <>Unavailable</>
-
-  return (
-    <span className="block min-w-28">
-      {provenance?.source ? (
-        <span className="block text-xs text-muted-foreground">
-          {provenance.source}
-        </span>
-      ) : null}
-      {runLabel ? (
-        run ? (
-          <Button
-            type="button"
-            variant="link"
-            size="xs"
-            className="h-auto justify-start p-0 text-left"
-            onClick={() => onOpenRun(run)}
-          >
-            {runLabel}
-          </Button>
-        ) : (
-          <span className="block">{runLabel}</span>
-        )
-      ) : null}
-      {decisionLabel ? (
-        <span className="block text-xs text-muted-foreground">
-          Decision: {decisionLabel}
-        </span>
-      ) : null}
-      {provenance?.recordedAt ? (
-        <span className="block text-xs text-muted-foreground">
-          Recorded {provenance.recordedAt}
-        </span>
-      ) : null}
-    </span>
-  )
-}
-
-function StrategyPanel({ paper }: { paper: PaperWorkspaceFixture }) {
-  return (
-    <div className="rounded-lg border">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-3">
-        <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
-          <LockKeyhole aria-hidden="true" className="size-3.5" />
-          {paper.strategy}
-        </span>
-        <span className="text-xs text-muted-foreground">{paper.source}</span>
-      </div>
-      {paper.strategyRules?.length ? (
-        <dl className="divide-y">
-          {paper.strategyRules.map((rule) => (
-            <div key={rule.label} className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt className="text-xs font-medium text-muted-foreground">{rule.label}</dt>
-              <dd className="text-sm">{rule.value}</dd>
-            </div>
-          ))}
-        </dl>
-      ) : (
-        <p className="px-4 py-5 text-sm text-muted-foreground">
-          The frozen strategy remains available by exact source reference.
-        </p>
+    <>
+      {new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(
+        value,
       )}
-    </div>
-  )
-}
-
-function CompactFact({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="bg-background px-4 py-3">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-sm font-medium tabular-nums">{value}</dd>
-    </div>
-  )
-}
-
-function EmptyTableState({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="grid min-h-28 place-items-center rounded-lg border border-dashed p-5 text-center">
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
-      </div>
-    </div>
-  )
-}
-
-function TableShell({
-  label,
-  children,
-}: {
-  label: string
-  children: ReactNode
-}) {
-  return (
-    <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full min-w-[72rem] text-sm">
-        <caption className="sr-only">{label}</caption>
-        {children}
-      </table>
-    </div>
+    </>
   )
 }
 
@@ -1493,7 +1086,10 @@ function TableHeading({
   align?: "left" | "right"
 }) {
   return (
-    <th scope="col" className={`px-3 py-2 font-medium ${align === "right" ? "text-right" : "text-left"}`}>
+    <th
+      scope="col"
+      className={`px-3 py-2 font-medium ${align === "right" ? "text-right" : "text-left"}`}
+    >
       {children}
     </th>
   )
@@ -1505,70 +1101,56 @@ export type PaperEquityPresentation =
   | { readonly state: "ready"; readonly model: PortfolioEquityReadModel }
 
 export function createPaperEquityPresentation(
-  paper: PaperWorkspaceFixture
+  paper: PaperWorkspaceFixture,
 ): PaperEquityPresentation {
   if (!paper.equityHistory?.length) return { state: "empty" }
-
   if (!paper.runs?.length) {
     return {
       state: "invalid",
-      reason: "Portfolio observations are present, but their completed run traces are missing.",
+      reason:
+        "Portfolio observations are present, but their completed run traces are missing.",
     }
   }
-
   const runsById = new Map(paper.runs.map((run) => [run.id, run]))
   const observations: PortfolioEquityObservation[] = []
-
   for (const point of paper.equityHistory) {
     const run = runsById.get(point.runId)
-
     if (!run) {
       return {
         state: "invalid",
         reason: `The observation at ${point.timestamp} does not resolve to a completed run trace.`,
       }
     }
-
     const decisionsById = new Map(
-      run.decisions?.map((decision) => [decision.id, decision]) ?? []
+      run.decisions?.map((decision) => [decision.id, decision]) ?? [],
     )
     const decisionReferences = []
-
     for (const decisionId of point.decisionIds ?? []) {
       const decision = decisionsById.get(decisionId)
-
       if (!decision) {
         return {
           state: "invalid",
           reason: `${run.label} references a decision that is unavailable in its trace.`,
         }
       }
-
       decisionReferences.push({
         kind: "decision" as const,
         id: decision.id,
         label: decision.label,
       })
     }
-
     observations.push({
       timestamp: point.timestamp,
       value: point.value,
       quality: point.quality ?? "confirmed",
-      reference: {
-        kind: "run" as const,
-        id: run.id,
-        label: run.label,
-      },
+      reference: { kind: "run" as const, id: run.id, label: run.label },
       decisionReferences,
     })
   }
-
   const first = paper.equityHistory[0]
   const last = paper.equityHistory.at(-1) ?? first
-  const timeZone = paper.timeZone ?? "America/Chicago"
   const benchmarkByTimestamp = new Map(
-    paper.benchmark?.history.map((point) => [point.timestamp, point]) ?? []
+    paper.benchmark?.history.map((point) => [point.timestamp, point]) ?? [],
   )
   const benchmark = paper.benchmark
     ? {
@@ -1581,12 +1163,14 @@ export function createPaperEquityPresentation(
           return {
             timestamp: observation.timestamp,
             value: point?.value ?? null,
-            quality: point?.value == null ? "missing" as const : point.quality ?? "confirmed" as const,
+            quality:
+              point?.value == null
+                ? ("missing" as const)
+                : (point.quality ?? ("confirmed" as const)),
           }
         }),
       }
     : undefined
-
   return {
     state: "ready",
     model: {
@@ -1608,7 +1192,7 @@ export function createPaperEquityPresentation(
         label: "Completed runs since launch",
         start: first.timestamp,
         end: last.timestamp,
-        timeZone,
+        timeZone: paper.timeZone ?? "America/Chicago",
       },
       freshness: {
         state: last.quality === "estimated" ? "estimated" : "current",
@@ -1621,21 +1205,12 @@ export function createPaperEquityPresentation(
       cadence: {
         kind: "completed-run",
         label: `${paper.runCadence} observations`,
-        disclosure: "Each point is recorded after a completed scheduled run. The dashed guide shows observation order and does not imply prices or portfolio values between runs.",
+        disclosure:
+          "Each point is recorded after a completed scheduled run. The dashed guide shows observation order and does not imply prices or portfolio values between runs.",
       },
       maxPoints: 240,
-      series: {
-        id: "paper-equity",
-        label: paper.label,
-        points: observations,
-      },
+      series: { id: "paper-equity", label: paper.label, points: observations },
       benchmark,
     },
   }
-}
-
-function getEquityChartHeight(completedPoints: number) {
-  if (completedPoints <= 4) return 192
-  if (completedPoints <= 12) return 208
-  return 224
 }

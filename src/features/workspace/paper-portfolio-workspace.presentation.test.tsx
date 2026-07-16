@@ -2,11 +2,6 @@ import type { ReactNode } from "react"
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import type {
-  DrawdownEvidenceReadModel,
-  PortfolioEquityReadModel,
-} from "@/lib/charts/contracts"
-
 import {
   PaperPortfolioWorkspace,
   PaperWorkspaceBottomPanel,
@@ -14,22 +9,14 @@ import {
   type PaperWorkspaceFixture,
 } from "./paper-portfolio-workspace"
 
-vi.mock("@/components/domain/charts/portfolio-equity-chart", () => ({
-  PortfolioEquityChart: ({ model }: { model: PortfolioEquityReadModel }) => (
-    <div data-testid="portfolio-equity-chart">{model.identity.title}</div>
-  ),
-}))
-
-vi.mock("@/components/domain/charts/drawdown-evidence-chart", () => ({
-  DrawdownEvidenceChart: ({ model }: { model: DrawdownEvidenceReadModel }) => (
-    <div data-testid="drawdown-evidence-chart">{model.identity.title}</div>
-  ),
-}))
-
 vi.mock("@/components/ui/scroll-area", () => ({
-  ScrollArea: ({ children, className }: { children: ReactNode; className?: string }) => (
-    <div className={className}>{children}</div>
-  ),
+  ScrollArea: ({
+    children,
+    className,
+  }: {
+    children: ReactNode
+    className?: string
+  }) => <div className={className}>{children}</div>,
 }))
 
 const completedRun = {
@@ -41,23 +28,23 @@ const completedRun = {
 } as const
 
 function createPaper(
-  overrides: Partial<PaperWorkspaceFixture> = {}
+  overrides: Partial<PaperWorkspaceFixture> = {},
 ): PaperWorkspaceFixture {
   return {
     label: "Paper V1",
     status: "Running",
     strategy: "Strategy V1",
-    source: "Draft V1 · checkpoint V1.2",
+    source: "Checkpoint 2",
     portfolioValue: 100_000,
-    totalReturn: 0.1,
-    dailyPnl: 120,
-    buyingPower: 25_000,
-    exposure: 0.75,
-    maxDrawdown: -0.02,
-    positions: 1,
+    totalReturn: 0,
+    dailyPnl: 0,
+    buyingPower: 100_000,
+    exposure: 0,
+    maxDrawdown: 0,
+    positions: 0,
     openOrders: 0,
-    nextRun: "Jul 24 · 4:15 PM ET",
-    runCadence: "Friday after market close",
+    nextRun: "Tomorrow 8:30 AM",
+    runCadence: "Trades daily at 9:30am ET.",
     freshness: "Current",
     ...overrides,
   }
@@ -65,7 +52,7 @@ function createPaper(
 
 function workspaceProps(
   paper: PaperWorkspaceFixture,
-  overrides: Partial<PaperPortfolioWorkspaceProps> = {}
+  overrides: Partial<PaperPortfolioWorkspaceProps> = {},
 ): PaperPortfolioWorkspaceProps {
   return {
     paper,
@@ -78,350 +65,222 @@ function workspaceProps(
   }
 }
 
-describe("Paper portfolio presentation facts", () => {
-  it("renders one operational-status badge without stray chevron text", () => {
-    const { container } = render(
-      <PaperPortfolioWorkspace {...workspaceProps(createPaper())} />
-    )
-    const header = screen.getByRole("heading", { name: "Paper V1" }).closest("header")
-    const elementsWithStrayChevronText = Array.from(
-      container.querySelectorAll("*")
-    ).filter((element) =>
-      Array.from(element.childNodes).some(
-        (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim() === ">"
-      )
-    )
-
-    expect(header).not.toBeNull()
-    expect(header!.querySelectorAll('[data-slot="badge"]')).toHaveLength(1)
-    expect(within(header!).getByText("Running")).toBeVisible()
-    expect(within(header!).queryByText("Simulated")).not.toBeInTheDocument()
-    expect(elementsWithStrayChevronText).toHaveLength(0)
-  })
-
-  it("keeps cash, buying power, deployed value, exposure, and P&L distinct", () => {
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({
-          account: {
-            accountValue: 112_500,
-            totalPnl: 12_500,
-            realizedPnl: 4_500,
-            unrealizedPnl: 8_000,
-            dailyPnl: 375,
-            totalReturn: 0.125,
-            cash: 12_000,
-            buyingPower: 37_000,
-            reservedCash: 2_500,
-            deployedValue: 100_500,
-            grossExposure: 0.91,
-          },
-        }))}
-      />
-    )
-
-    expect(
-      within(screen.getByText("Account value").parentElement!).getByText("$112,500")
-    ).toBeVisible()
-    expect(screen.getByText("+$12,500")).toBeVisible()
-    expect(screen.getByText("$12,000")).toBeVisible()
-    expect(screen.getByText("$37,000")).toBeVisible()
-    expect(screen.getByText("$100,500")).toBeVisible()
-    expect(screen.getByText("91%")).toBeVisible()
-    expect(screen.getByText(/Reserved/)).toHaveTextContent("Reserved $2,500")
-    expect(screen.getByText("+$4,500")).toBeVisible()
-    expect(screen.getByText("+$8,000")).toBeVisible()
-  })
-
-  it("does not reverse-engineer missing cash, deployed value, or total P&L", () => {
+describe("mirror-aligned Paper portfolio", () => {
+  it("renders only the portfolio facts evidenced in the mirror", () => {
     render(<PaperPortfolioWorkspace {...workspaceProps(createPaper())} />)
 
+    expect(screen.getByRole("heading", { name: "Portfolio" })).toBeVisible()
     expect(
-      within(screen.getByText("Total P&L").parentElement!).getByText("Unavailable")
+      screen.getByRole("heading", { name: "No positions yet" }),
     ).toBeVisible()
+    expect(screen.getByText("Account value")).toBeVisible()
     expect(
-      within(screen.getByText("Cash").parentElement!).getByText("Unavailable")
+      screen.getByRole("img", { name: "Account value history" }),
     ).toBeVisible()
+    for (const range of ["1D", "1W", "1M", "3M", "YTD", "1Y", "ALL"]) {
+      expect(screen.getByRole("button", { name: range })).toBeVisible()
+    }
+    for (const section of [
+      "Buying power",
+      "Schedule",
+      "Gainers",
+      "Detractors",
+      "Assets",
+      "Orders",
+    ]) {
+      expect(screen.getByRole("heading", { name: section })).toBeVisible()
+    }
+
+    expect(screen.queryByText("Total P&L")).not.toBeInTheDocument()
+    expect(screen.queryByText("Gross exposure")).not.toBeInTheDocument()
+    expect(screen.queryByText("Max drawdown")).not.toBeInTheDocument()
+    expect(screen.queryByText("Time-weighted return")).not.toBeInTheDocument()
     expect(
-      within(screen.getByText("Deployed").parentElement!).getByText("Unavailable")
+      screen.queryByRole("button", { name: "Stop" }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Open Draft" }),
+    ).not.toBeInTheDocument()
+  })
+
+  it("reproduces the captured Add funds and Edit schedule dialogs", () => {
+    render(<PaperPortfolioWorkspace {...workspaceProps(createPaper())} />)
+
+    fireEvent.click(screen.getByRole("button", { name: "Add funds" }))
+    expect(screen.getByRole("heading", { name: "Add funds" })).toBeVisible()
+    expect(
+      screen.getByText("Deposit capital into your portfolio."),
     ).toBeVisible()
-    expect(screen.queryByText("+$9,091")).not.toBeInTheDocument()
+    expect(screen.getByLabelText("Amount")).toBeVisible()
+    expect(screen.getByText("$1 – $100,000 per deposit.")).toBeVisible()
+    fireEvent.click(screen.getByRole("button", { name: "Close" }))
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }))
+    expect(screen.getByRole("heading", { name: "Edit schedule" })).toBeVisible()
+    expect(screen.getByText("When the bot runs.")).toBeVisible()
+    expect(screen.getByLabelText("Frequency")).toHaveValue("daily")
+    expect(screen.getByLabelText("Run time")).toHaveValue("market-open")
+    expect(screen.getByText("Run on market holidays")).toBeVisible()
   })
 })
 
-describe("Paper run presentation facts", () => {
-  it("shows unavailable instead of invented duration, counts, and historical buying power", () => {
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ runs: [completedRun] }), {
-          selectedReference: { kind: "run", id: completedRun.id },
-        })}
-      />
-    )
-
-    expect(screen.queryByText("8m 54s")).not.toBeInTheDocument()
-    expect(screen.getAllByText("Unavailable").length).toBeGreaterThanOrEqual(6)
-    for (const label of screen.getAllByText("Run buying power")) {
-      expect(label.parentElement).toHaveTextContent("Unavailable")
-      expect(label.parentElement).not.toHaveTextContent("$25,000")
-    }
-  })
-
-  it("does not synthesize an activity stream", () => {
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ runs: [completedRun] }), {
-          selectedReference: { kind: "run", id: completedRun.id },
-          runTab: "activity",
-        })}
-      />
-    )
-
-    expect(screen.getByText("Activity unavailable")).toBeVisible()
-    expect(screen.getByText("No event records were supplied for this run.")).toBeVisible()
-    expect(screen.queryByText("Run started")).not.toBeInTheDocument()
-    expect(screen.queryByText("Evaluated 0 candidates")).not.toBeInTheDocument()
-  })
-
-  it("presents supplied immutable run context without borrowing current Paper metadata", () => {
-    const contextualRun = {
-      ...completedRun,
-      portfolioReference: "Portfolio snapshot · ps-17",
-      strategyReference: "Strategy V1 · immutable",
-      scheduleReference: "Schedule · Fridays 4:15 PM ET",
-      freshness: "Confirmed at market close",
-    }
-
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ runs: [contextualRun] }), {
-          selectedReference: { kind: "run", id: contextualRun.id },
-        })}
-      />
-    )
-
-    expect(screen.getByRole("heading", { name: "Run context" })).toBeVisible()
-    expect(screen.getByText("Portfolio snapshot · ps-17")).toBeVisible()
-    expect(screen.getByText("Strategy V1 · immutable")).toBeVisible()
-    expect(screen.getByText("Schedule · Fridays 4:15 PM ET")).toBeVisible()
-  })
-})
-
-describe("Paper evidence tables", () => {
-  it("shows expanded position and order facts with run provenance", () => {
-    const onOpenRun = vi.fn()
+describe("mirror-aligned Paper sections", () => {
+  it("uses the captured Positions fields and search", () => {
     const paper = createPaper({
-      runs: [completedRun],
       positionRows: [
         {
           id: "position-aapl",
           symbol: "AAPL",
-          name: "Apple Inc.",
-          quantity: 12.5,
+          quantity: 10,
+          marketValue: 1_100,
+          unrealizedReturn: 0.1,
+          unrealizedPnl: 100,
+          weight: 0.11,
           averageCost: 100,
           markPrice: 110,
-          marketValue: 1_375,
-          weight: 0.1375,
-          unrealizedPnl: 125,
-          unrealizedReturn: 0.1,
           dailyPnl: 5,
-          provenance: {
-            source: "Execution ledger",
-            runId: completedRun.id,
-            decisionLabel: "Buy AAPL",
-          },
+          provenance: { source: "not shown" },
         },
-      ],
-      orderRows: [
         {
-          id: "order-1",
-          symbol: "AAPL",
-          side: "Buy",
-          orderType: "Limit",
-          quantity: 10,
-          filledQuantity: 4,
-          averageFillPrice: 108.25,
-          limitPrice: 109,
-          timeInForce: "DAY",
-          status: "Partially filled",
-          createdAt: "Jul 17 · 4:18 PM ET",
-          provenance: {
-            runId: completedRun.id,
-            decisionLabel: "Buy AAPL",
-          },
+          id: "position-msft",
+          symbol: "MSFT",
+          quantity: 5,
+          marketValue: 2_000,
+          unrealizedReturn: 0.04,
+          unrealizedPnl: 80,
+          weight: 0.2,
         },
       ],
     })
-    const { rerender } = render(
+
+    render(
       <PaperWorkspaceBottomPanel
         paper={paper}
         activeTab="positions"
         expanded
         onActiveTabChange={vi.fn()}
         onExpandedChange={vi.fn()}
-        onOpenRun={onOpenRun}
-      />
+        onOpenRun={vi.fn()}
+      />,
     )
 
-    expect(screen.getByRole("columnheader", { name: "Avg cost" })).toBeVisible()
-    expect(screen.getByRole("columnheader", { name: "Unrealized P&L" })).toBeVisible()
-    expect(screen.getByText("Apple Inc.")).toBeVisible()
-    expect(screen.getByText("Decision: Buy AAPL")).toBeVisible()
-    fireEvent.click(screen.getByRole("button", { name: "Run 1" }))
-    expect(onOpenRun).toHaveBeenCalledWith(completedRun)
+    for (const column of [
+      "Asset",
+      "Position",
+      "Value",
+      "Return",
+      "Profit",
+      "Allocation",
+    ]) {
+      expect(screen.getByRole("columnheader", { name: column })).toBeVisible()
+    }
+    expect(
+      screen.queryByRole("columnheader", { name: "Avg cost" }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText("not shown")).not.toBeInTheDocument()
 
-    rerender(
+    fireEvent.change(screen.getByLabelText("Search positions..."), {
+      target: { value: "MSFT" },
+    })
+    expect(screen.getByRole("rowheader", { name: "MSFT" })).toBeVisible()
+    expect(
+      screen.queryByRole("rowheader", { name: "AAPL" }),
+    ).not.toBeInTheDocument()
+  })
+
+  it("uses the captured Orders fields and search", () => {
+    const paper = createPaper({
+      runs: [completedRun],
+      orderRows: [
+        {
+          id: "order-1",
+          symbol: "AAPL",
+          side: "Buy",
+          quantity: 10,
+          status: "Filled",
+          timeInForce: "DAY",
+          createdAt: "Jul 17 · 4:18 PM ET",
+          averageFillPrice: 108.25,
+          provenance: { runId: completedRun.id, decisionLabel: "not shown" },
+        },
+      ],
+    })
+
+    render(
       <PaperWorkspaceBottomPanel
         paper={paper}
         activeTab="orders"
         expanded
         onActiveTabChange={vi.fn()}
         onExpandedChange={vi.fn()}
-        onOpenRun={onOpenRun}
-      />
+        onOpenRun={vi.fn()}
+      />,
     )
 
-    expect(
-      screen.getByRole("columnheader", { name: "Filled / quantity" })
-    ).toBeVisible()
-    expect(
-      screen.getByRole("cell", { name: /Avg fill \$108\.25/ })
-    ).toBeVisible()
-    expect(screen.getByRole("cell", { name: /Limit \$109/ })).toBeVisible()
-    expect(screen.getByText("Partially filled")).toBeVisible()
-  })
-})
-
-describe("Paper portfolio chart and lifecycle controls", () => {
-  it("uses the supplied benchmark name in the zero-history state", () => {
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({
-          benchmark: {
-            symbol: "R1000V",
-            label: "Russell 1000 Value",
-            methodology: "Sampled after each completed run.",
-            history: [],
-          },
-        }))}
-      />
-    )
-
-    const figure = screen.getByRole("figure", {
-      name: "Portfolio vs Russell 1000 Value",
-    })
-
-    expect(within(figure).getByText("Benchmark Russell 1000 Value")).toBeVisible()
-    expect(within(figure).queryByText(/SPY/)).not.toBeInTheDocument()
+    for (const column of [
+      "Asset",
+      "Order",
+      "Status",
+      "Expires",
+      "Run",
+      "Created",
+    ]) {
+      expect(screen.getByRole("columnheader", { name: column })).toBeVisible()
+    }
+    expect(screen.getByRole("cell", { name: "Run 1" })).toBeVisible()
+    expect(screen.queryByText("Avg fill")).not.toBeInTheDocument()
+    expect(screen.queryByText("not shown")).not.toBeInTheDocument()
   })
 
-  it("marks an absent benchmark and next-run fact as unavailable", () => {
-    render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ nextRun: "" }))}
-      />
-    )
-
-    const figure = screen.getByRole("figure", { name: "Portfolio value" })
-
-    expect(within(figure).getByText("Benchmark Unavailable")).toBeVisible()
-    expect(within(figure).getByText("First run Unavailable")).toBeVisible()
-    expect(within(figure).queryByText(/SPY/)).not.toBeInTheDocument()
-    expect(screen.getByRole("tab", { name: "Performance" })).toHaveAttribute(
-      "aria-disabled",
-      "true"
-    )
-  })
-
-  it("offers Value, Performance, and the existing Drawdown evidence view", () => {
-    const timestamp = "2026-07-17T20:18:00.000Z"
-    const paper = createPaper({
-      runs: [completedRun],
-      equityHistory: [
-        { timestamp, value: 100_000, runId: completedRun.id },
-      ],
-      benchmark: {
-        symbol: "SPY",
-        label: "SPY",
-        methodology: "Normalized at portfolio launch.",
-        history: [{ timestamp, value: 100_200 }],
-      },
-      drawdownModel: {
-        identity: {
-          id: "paper-drawdown",
-          title: "Paper drawdown evidence",
-          metric: "Drawdown",
-          entity: "Paper V1",
-          unit: { kind: "percent", fractionDigits: 2 },
-        },
-        range: {
-          id: "all",
-          label: "All completed runs",
-          start: timestamp,
-          end: timestamp,
-          timeZone: "America/Chicago",
-        },
-        freshness: { state: "current", cutoff: timestamp },
-        status: { state: "ready" },
-        points: [{ timestamp, value: -0.5, quality: "confirmed" }],
-      },
-    })
-
-    render(<PaperPortfolioWorkspace {...workspaceProps(paper)} />)
-
-    expect(screen.getByRole("tab", { name: "Value" })).toBeEnabled()
-    expect(screen.getByRole("tab", { name: "Performance" })).toBeEnabled()
-    expect(screen.getByRole("tab", { name: "Drawdown" })).toBeEnabled()
-    expect(screen.getByTestId("portfolio-equity-chart")).toHaveTextContent(
-      "Portfolio value vs SPY"
-    )
-
-    fireEvent.click(screen.getByRole("tab", { name: "Drawdown" }))
-    expect(screen.getByTestId("drawdown-evidence-chart")).toHaveTextContent(
-      "Paper drawdown evidence"
-    )
-  })
-
-  it("gates Stop, Archive, and Unarchive by operational state", () => {
-    const onStop = vi.fn()
-    const onArchive = vi.fn()
-    const onUnarchive = vi.fn()
+  it("keeps Runs to the captured list and Strategy to its read-only marker", () => {
+    const paper = createPaper({ runs: [completedRun] })
+    const onOpenRun = vi.fn()
     const { rerender } = render(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ operationalState: "active" }), {
-          onStop,
-          onArchive,
-          onUnarchive,
-        })}
-      />
+      <PaperWorkspaceBottomPanel
+        paper={paper}
+        activeTab="runs"
+        expanded
+        onActiveTabChange={vi.fn()}
+        onExpandedChange={vi.fn()}
+        onOpenRun={onOpenRun}
+      />,
     )
 
-    fireEvent.click(screen.getByRole("button", { name: "Stop" }))
-    expect(onStop).toHaveBeenCalledOnce()
-    expect(screen.queryByRole("button", { name: "Archive" })).not.toBeInTheDocument()
-
-    rerender(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ operationalState: "stopped" }), {
-          onStop,
-          onArchive,
-          onUnarchive,
-        })}
-      />
-    )
-    expect(screen.getByRole("button", { name: "Archive" })).toBeVisible()
-    expect(screen.queryByRole("button", { name: "Stop" })).not.toBeInTheDocument()
+    expect(
+      screen.getByText("Your strategy in action: researching and trading."),
+    ).toBeVisible()
+    fireEvent.click(screen.getByRole("button", { name: /Run 1/ }))
+    expect(onOpenRun).toHaveBeenCalledWith(completedRun)
+    expect(screen.queryByText("No trade")).not.toBeInTheDocument()
 
     rerender(
-      <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper({ operationalState: "archived" }), {
-          onStop,
-          onArchive,
-          onUnarchive,
-        })}
-      />
+      <PaperWorkspaceBottomPanel
+        paper={paper}
+        activeTab="strategy"
+        expanded
+        onActiveTabChange={vi.fn()}
+        onExpandedChange={vi.fn()}
+        onOpenRun={onOpenRun}
+      />,
     )
-    expect(screen.getByRole("button", { name: "Unarchive" })).toBeVisible()
-    expect(screen.queryByRole("button", { name: "Archive" })).not.toBeInTheDocument()
+    const strategy = screen.getByText("Read-only").parentElement!
+    expect(within(strategy).getByText("Strategy")).toBeVisible()
+    expect(screen.queryByText("Checkpoint 2")).not.toBeInTheDocument()
+  })
+
+  it("does not invent a run-detail body when the mirror did not capture one", () => {
+    render(
+      <PaperPortfolioWorkspace
+        {...workspaceProps(createPaper({ runs: [completedRun] }), {
+          selectedReference: { kind: "run", id: completedRun.id },
+        })}
+      />,
+    )
+
+    expect(screen.getByRole("heading", { name: "Run 1" })).toBeVisible()
+    expect(screen.getByText(completedRun.completedAt)).toBeVisible()
+    expect(screen.queryByText("Decision trace")).not.toBeInTheDocument()
+    expect(screen.queryByText("Before account value")).not.toBeInTheDocument()
+    expect(screen.queryByText("Activity")).not.toBeInTheDocument()
   })
 })

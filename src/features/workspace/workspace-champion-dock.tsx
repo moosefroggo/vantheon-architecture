@@ -146,7 +146,7 @@ export function WorkspaceChampionDock({
                     </div>
                   </div>
                 ))
-              ) : (
+              ) : viewedContext.toLowerCase().includes("paper") ? null : (
                 <div className="min-w-0 space-y-1">
                   <p className="text-xs font-medium">Atlas</p>
                   <p className="text-sm leading-relaxed">
@@ -255,10 +255,9 @@ function contextualPrompt(context: string) {
 function contextualPlaceholder(context: string) {
   const normalized = context.toLowerCase()
 
+  if (normalized.includes("paper")) return "What are you cooking up boss?"
   if (normalized.includes("dry run")) return "Ask Atlas about this Dry Run…"
   if (normalized.includes("· run ")) return "Ask Atlas about this run…"
-  if (normalized.endsWith("· runs")) return "Ask Atlas about completed runs…"
-  if (normalized.includes("paper")) return "Ask Atlas about this Paper portfolio…"
   if (normalized.includes("live")) return "Ask Atlas about Live readiness…"
   if (normalized.includes("document")) return "Ask Atlas about the strategy document…"
   return "Build or change this strategy with Atlas…"

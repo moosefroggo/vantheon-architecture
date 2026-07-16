@@ -146,11 +146,11 @@ export function WorkspaceChampionDock({
                     </div>
                   </div>
                 ))
-              ) : viewedContext.toLowerCase().includes("paper") ? null : (
+              ) : composerContext.toLowerCase().includes("paper") ? null : (
                 <div className="min-w-0 space-y-1">
                   <p className="text-xs font-medium">Atlas</p>
                   <p className="text-sm leading-relaxed">
-                    {contextualPrompt(viewedContext)}
+                    {contextualPrompt(composerContext)}
                   </p>
                 </div>
               )}
@@ -236,6 +236,9 @@ export function WorkspaceChampionDock({
 function contextualPrompt(context: string) {
   const normalized = context.toLowerCase()
 
+  if (normalized.startsWith("strategy v")) {
+    return "What would you like to change? I’ll keep this Strategy attached as the source and won’t create a new version until there is an actual change to review."
+  }
   if (normalized.includes("dry run") || normalized.includes("· run ")) {
     return "Ask why a candidate passed, failed, or produced an order. I can carry anything we learn into the current Draft for review."
   }
@@ -255,6 +258,7 @@ function contextualPrompt(context: string) {
 function contextualPlaceholder(context: string) {
   const normalized = context.toLowerCase()
 
+  if (normalized.startsWith("strategy v")) return "What would you like to change?"
   if (normalized.includes("paper")) return "What are you cooking up boss?"
   if (normalized.includes("dry run")) return "Ask Atlas about this Dry Run…"
   if (normalized.includes("· run ")) return "Ask Atlas about this run…"

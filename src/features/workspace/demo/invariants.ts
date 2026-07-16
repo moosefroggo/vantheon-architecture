@@ -129,6 +129,24 @@ export async function validateWorkspaceScenario(
         "A launched read-only Draft must resolve to its one Paper portfolio."
       );
     }
+    const strategyVersions = Object.values(scenario.strategies)
+      .filter((strategy) => strategy.championId === champion.id)
+      .map((strategy) => strategy.version)
+      .sort((left, right) => left - right);
+    const expectedVersions = Array.from(
+      { length: Math.max(0, draft.generation - 1) },
+      (_, index) => index + 1
+    );
+    if (
+      draft.status !== "active" ||
+      canonicalJson(strategyVersions) !== canonicalJson(expectedVersions)
+    ) {
+      add(
+        "strategy-draft-version-sequence-mismatch",
+        `champions.${champion.id}`,
+        "Immutable Strategy versions must be Champion-wide and contiguous, with one active Draft exactly one version ahead."
+      );
+    }
   }
 
   for (const draft of Object.values(scenario.drafts)) {
@@ -156,6 +174,20 @@ export async function validateWorkspaceScenario(
         "checkpoint-draft-mismatch",
         `drafts.${draft.id}.currentCheckpointId`,
         "Current checkpoint must belong to the Draft generation."
+      );
+    }
+    if (
+      draft.status === "launched" &&
+      !Object.values(scenario.portfolios).some(
+        (portfolio) =>
+          portfolio.championId === draft.championId &&
+          portfolio.sourceCheckpointId === draft.currentCheckpointId
+      )
+    ) {
+      add(
+        "launched-draft-without-paper",
+        `drafts.${draft.id}.status`,
+        "Every launched Draft generation must resolve to its one Paper portfolio."
       );
     }
   }
@@ -212,6 +244,21 @@ export async function validateWorkspaceScenario(
             "Accepted-change origin must resolve to the accepting change set."
           );
         }
+      } else if (checkpoint.origin.kind === "inherited") {
+        const sourceStrategy =
+          scenario.strategies[checkpoint.origin.sourceStrategyId];
+        if (
+          !sourceStrategy ||
+          sourceStrategy.championId !== checkpoint.championId ||
+          sourceStrategy.version !== checkpoint.generation - 1 ||
+          sourceStrategy.strategyHash !== checkpoint.strategyHash
+        ) {
+          add(
+            "invalid-inherited-checkpoint-origin",
+            `${path}.origin`,
+            "An inherited Draft checkpoint must exactly follow its source Strategy version."
+          );
+        }
       }
     })
   );
@@ -224,6 +271,7 @@ export async function validateWorkspaceScenario(
       if (
         !source ||
         source.championId !== strategy.championId ||
+        source.generation !== strategy.version ||
         source.strategyHash !== strategy.strategyHash ||
         actualHash !== strategy.strategyHash
       ) {
@@ -561,6 +609,7 @@ export async function validateWorkspaceScenario(
     if (
       !observation ||
       observation.runId !== run.id ||
+      observation.portfolioId !== run.portfolioId ||
       observation.benchmarkId !== run.benchmarkId ||
       observation.observedAt !== run.completedAt
     ) {
@@ -638,12 +687,22 @@ export async function validateWorkspaceScenario(
   }
 
   for (const observation of Object.values(scenario.benchmarkObservations)) {
-    const run = scenario.runs[observation.runId];
-    if (!run || run.benchmarkObservationId !== observation.id) {
+    const portfolio = scenario.portfolios[observation.portfolioId];
+    const run = observation.runId
+      ? scenario.runs[observation.runId]
+      : undefined;
+    if (
+      !portfolio ||
+      portfolio.benchmarkId !== observation.benchmarkId ||
+      (observation.runId &&
+        (!run ||
+          run.portfolioId !== observation.portfolioId ||
+          run.benchmarkObservationId !== observation.id))
+    ) {
       add(
         "orphan-benchmark-observation",
         `benchmarkObservations.${observation.id}`,
-        "Benchmark observation must be owned by exactly one run."
+        "Benchmark observation must belong to its Paper portfolio and, when present, its run."
       );
     }
   }

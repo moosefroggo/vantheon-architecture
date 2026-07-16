@@ -5,6 +5,7 @@ import {
   revisionToken,
   schemaVersion,
 } from "@/domain/identity";
+import type { ActorReference } from "@/domain/identity";
 
 import { hashStrategy } from "./hash";
 import type {
@@ -23,9 +24,9 @@ import type {
   WorkspaceScenario,
 } from "./types";
 
-export const WORKSPACE_DEMO_SEED_VERSION = 4;
+export const WORKSPACE_DEMO_SEED_VERSION = 5;
 export const WORKSPACE_DEMO_SCHEMA_VERSION = schemaVersion(
-  "workspace-demo-scenario/v4"
+  "workspace-demo-scenario/v5"
 );
 const STRATEGY_SCHEMA_VERSION = schemaVersion("structured-strategy/v1");
 const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
@@ -33,14 +34,18 @@ const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
 export const WORKSPACE_DEMO_IDS = {
   scenario: entityId("workspace-scenario", "scenario_workspace_demo"),
   user: entityId("user", "user_demo_founder"),
+  spyBenchmark: entityId("benchmark", "benchmark_spy_total_return"),
   mara: {
     champion: entityId("champion", "champion_mara"),
     lineage: entityId("strategy-lineage", "lineage_mara"),
     draftV1: entityId("draft", "draft_mara_v1"),
     checkpointV11: entityId("draft-checkpoint", "checkpoint_mara_v1_1"),
-    checkpointV12: entityId("draft-checkpoint", "checkpoint_mara_v1_2"),
-    benchmark: entityId("benchmark", "benchmark_sp500_total_return"),
-    evaluation: entityId("evaluation", "evaluation_mara_v1_2"),
+    draftV10: entityId("draft", "draft_mara_v10"),
+    checkpointV101: entityId("draft-checkpoint", "checkpoint_mara_v10_1"),
+    checkpointV102: entityId("draft-checkpoint", "checkpoint_mara_v10_2"),
+    checkpointV12: entityId("draft-checkpoint", "checkpoint_mara_v10_2"),
+    benchmark: entityId("benchmark", "benchmark_spy_total_return"),
+    evaluation: entityId("evaluation", "evaluation_mara_v10_2"),
     source: entityId("source-artifact", "source_mara_2026_06_30"),
   },
   iris: {
@@ -49,12 +54,12 @@ export const WORKSPACE_DEMO_IDS = {
     draftV1: entityId("draft", "draft_iris_v1"),
     draftV2: entityId("draft", "draft_iris_v2"),
     checkpointV11: entityId("draft-checkpoint", "checkpoint_iris_v1_1"),
-    checkpointV20: entityId("draft-checkpoint", "checkpoint_iris_v2_0"),
+    checkpointV20: entityId("draft-checkpoint", "checkpoint_iris_v2_1"),
     strategyV1: entityId("immutable-strategy", "strategy_iris_v1"),
     portfolio: entityId("paper-portfolio", "portfolio_iris_income"),
     deployment: entityId("deployment", "deployment_iris_income_v1"),
     schedule: entityId("schedule", "schedule_iris_monthly_v1"),
-    benchmark: entityId("benchmark", "benchmark_russell_1000_value_tr"),
+    benchmark: entityId("benchmark", "benchmark_spy_total_return"),
     evaluation: entityId("evaluation", "evaluation_iris_v1_1"),
     source: entityId("source-artifact", "source_iris_2026_01_15"),
     launchAccountSnapshot: entityId(
@@ -70,41 +75,41 @@ export const WORKSPACE_DEMO_IDS = {
 
 export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
   const actor = entityReference("user", WORKSPACE_DEMO_IDS.user);
-  const maraV11 = createMaraStrategy(10);
-  const maraV12 = createMaraStrategy(8);
+  const maraV101 = createMaraStrategy(10, "Lower-volatility momentum");
+  const maraV102 = createMaraStrategy(8, "Lower-volatility momentum");
   const irisV11 = createIrisStrategy();
-  const [maraV11Hash, maraV12Hash, irisV11Hash] = await Promise.all([
-    hashStrategy(maraV11),
-    hashStrategy(maraV12),
+  const [maraV101Hash, maraV102Hash, irisV11Hash] = await Promise.all([
+    hashStrategy(maraV101),
+    hashStrategy(maraV102),
     hashStrategy(irisV11),
   ]);
-
-  const maraCheckpoints: DraftCheckpointRecord[] = [
+  const maraHistory = await createMaraHistory(actor);
+  const maraCurrentCheckpoints: DraftCheckpointRecord[] = [
     {
-      id: WORKSPACE_DEMO_IDS.mara.checkpointV11,
+      id: WORKSPACE_DEMO_IDS.mara.checkpointV101,
       championId: WORKSPACE_DEMO_IDS.mara.champion,
-      draftId: WORKSPACE_DEMO_IDS.mara.draftV1,
-      generation: 1,
+      draftId: WORKSPACE_DEMO_IDS.mara.draftV10,
+      generation: 10,
       ordinal: 1,
-      label: "V1.1",
+      label: "V10.1",
       origin: { kind: "initial" },
-      strategy: maraV11,
-      strategyHash: maraV11Hash,
+      strategy: maraV101,
+      strategyHash: maraV101Hash,
       createdBy: actor,
       createdAt: isoTimestamp("2026-07-14T19:51:00.000Z"),
       revision: revision(1),
     },
     {
-      id: WORKSPACE_DEMO_IDS.mara.checkpointV12,
+      id: WORKSPACE_DEMO_IDS.mara.checkpointV102,
       championId: WORKSPACE_DEMO_IDS.mara.champion,
-      draftId: WORKSPACE_DEMO_IDS.mara.draftV1,
-      generation: 1,
+      draftId: WORKSPACE_DEMO_IDS.mara.draftV10,
+      generation: 10,
       ordinal: 2,
-      label: "V1.2",
-      previousCheckpointId: WORKSPACE_DEMO_IDS.mara.checkpointV11,
+      label: "V10.2",
+      previousCheckpointId: WORKSPACE_DEMO_IDS.mara.checkpointV101,
       origin: { kind: "initial" },
-      strategy: maraV12,
-      strategyHash: maraV12Hash,
+      strategy: maraV102,
+      strategyHash: maraV102Hash,
       createdBy: actor,
       createdAt: isoTimestamp("2026-07-14T20:20:00.000Z"),
       revision: revision(1),
@@ -123,6 +128,23 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
     strategyHash: irisV11Hash,
     createdBy: actor,
     createdAt: isoTimestamp("2026-01-15T21:35:00.000Z"),
+    revision: revision(1),
+  };
+  const irisCheckpointV21: DraftCheckpointRecord = {
+    id: WORKSPACE_DEMO_IDS.iris.checkpointV20,
+    championId: WORKSPACE_DEMO_IDS.iris.champion,
+    draftId: WORKSPACE_DEMO_IDS.iris.draftV2,
+    generation: 2,
+    ordinal: 1,
+    label: "V2.1",
+    origin: {
+      kind: "inherited",
+      sourceStrategyId: WORKSPACE_DEMO_IDS.iris.strategyV1,
+    },
+    strategy: structuredClone(irisV11),
+    strategyHash: irisV11Hash,
+    createdBy: actor,
+    createdAt: isoTimestamp("2026-01-16T14:00:00.000Z"),
     revision: revision(1),
   };
   const sourceArtifacts = [
@@ -145,8 +167,8 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
   ] satisfies SourceArtifactRecord[];
 
   const { evaluations, events, decisions } = createSeedEvaluations({
-    maraStrategy: maraV12,
-    maraHash: maraV12Hash,
+    maraStrategy: maraV102,
+    maraHash: maraV102Hash,
     irisStrategy: irisV11,
     irisHash: irisV11Hash,
   });
@@ -173,7 +195,7 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         initials: "MA",
         workspaceTitle: "Lower-volatility momentum",
         lineageId: WORKSPACE_DEMO_IDS.mara.lineage,
-        currentDraftId: WORKSPACE_DEMO_IDS.mara.draftV1,
+        currentDraftId: WORKSPACE_DEMO_IDS.mara.draftV10,
         revision: revision(1),
       },
       {
@@ -182,18 +204,19 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         initials: "IR",
         workspaceTitle: "Quality income compounders",
         lineageId: WORKSPACE_DEMO_IDS.iris.lineage,
-        currentDraftId: WORKSPACE_DEMO_IDS.iris.draftV1,
+        currentDraftId: WORKSPACE_DEMO_IDS.iris.draftV2,
         revision: revision(1),
       },
     ]),
     drafts: table([
+      ...maraHistory.drafts,
       {
-        id: WORKSPACE_DEMO_IDS.mara.draftV1,
+        id: WORKSPACE_DEMO_IDS.mara.draftV10,
         championId: WORKSPACE_DEMO_IDS.mara.champion,
         lineageId: WORKSPACE_DEMO_IDS.mara.lineage,
-        generation: 1,
+        generation: 10,
         status: "active",
-        currentCheckpointId: WORKSPACE_DEMO_IDS.mara.checkpointV12,
+        currentCheckpointId: WORKSPACE_DEMO_IDS.mara.checkpointV102,
         revision: revision(1),
         createdAt: isoTimestamp("2026-07-14T19:30:00.000Z"),
       },
@@ -207,12 +230,25 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         revision: revision(2),
         createdAt: isoTimestamp("2026-01-10T15:00:00.000Z"),
       },
+      {
+        id: WORKSPACE_DEMO_IDS.iris.draftV2,
+        championId: WORKSPACE_DEMO_IDS.iris.champion,
+        lineageId: WORKSPACE_DEMO_IDS.iris.lineage,
+        generation: 2,
+        status: "active",
+        currentCheckpointId: WORKSPACE_DEMO_IDS.iris.checkpointV20,
+        revision: revision(1),
+        createdAt: isoTimestamp("2026-01-16T14:00:00.000Z"),
+      },
     ]),
     checkpoints: table([
-      ...maraCheckpoints,
+      ...maraHistory.checkpoints,
+      ...maraCurrentCheckpoints,
       irisCheckpointV11,
+      irisCheckpointV21,
     ]),
     strategies: table([
+      ...maraHistory.strategies,
       {
         id: WORKSPACE_DEMO_IDS.iris.strategyV1,
         championId: WORKSPACE_DEMO_IDS.iris.champion,
@@ -234,6 +270,7 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
     orders: table(paperEvidence.orders),
     fills: table(paperEvidence.fills),
     portfolios: table([
+      ...maraHistory.portfolios,
       {
         id: WORKSPACE_DEMO_IDS.iris.portfolio,
         championId: WORKSPACE_DEMO_IDS.iris.champion,
@@ -251,9 +288,13 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
         revision: revision(1),
       },
     ]),
-    accountSnapshots: table(paperEvidence.accountSnapshots),
+    accountSnapshots: table([
+      ...maraHistory.accountSnapshots,
+      ...paperEvidence.accountSnapshots,
+    ]),
     positions: table(paperEvidence.positions),
     deployments: table([
+      ...maraHistory.deployments,
       {
         id: WORKSPACE_DEMO_IDS.iris.deployment,
         portfolioId: WORKSPACE_DEMO_IDS.iris.portfolio,
@@ -265,6 +306,7 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
       },
     ]),
     schedules: table([
+      ...maraHistory.schedules,
       {
         id: WORKSPACE_DEMO_IDS.iris.schedule,
         portfolioId: WORKSPACE_DEMO_IDS.iris.portfolio,
@@ -276,32 +318,213 @@ export async function createWorkspaceDemoSeed(): Promise<WorkspaceScenario> {
     ]),
     benchmarks: table([
       {
-        id: WORKSPACE_DEMO_IDS.mara.benchmark,
-        symbol: "SP500TR",
-        displayName: "S&P 500 Total Return",
+        id: WORKSPACE_DEMO_IDS.spyBenchmark,
+        symbol: "SPY",
+        displayName: "SPDR S&P 500 ETF Trust",
         methodology:
-          "Total-return index sampled at each completed evaluation cutoff.",
-        revision: revision(1),
-      },
-      {
-        id: WORKSPACE_DEMO_IDS.iris.benchmark,
-        symbol: "R1000VTR",
-        displayName: "Russell 1000 Value Total Return",
-        methodology:
-          "Russell 1000 Value total return sampled at every completed monthly run.",
+          "SPY total return normalized from each Paper portfolio launch.",
         revision: revision(1),
       },
     ]),
-    benchmarkObservations: table(paperEvidence.observations),
+    benchmarkObservations: table([
+      ...maraHistory.benchmarkObservations,
+      ...paperEvidence.observations,
+    ]),
     runs: table(paperEvidence.runs),
     atlasExchanges: {},
     receipts: {},
   };
 }
 
-function createMaraStrategy(maximumPositions: number): StructuredStrategy {
+async function createMaraHistory(
+  actor: ActorReference
+) {
+  const titles = [
+    "Defensive quality",
+    "Earnings revision leaders",
+    "Dividend growth",
+    "Cash-flow compounders",
+    "Low-beta trend",
+    "Healthcare quality",
+    "Industrial momentum",
+    "Small-cap profitability",
+    "Balanced factor rotation",
+  ] as const;
+  const checkpointOrdinals = [1, 3, 2, 4, 2, 5, 3, 2, 4] as const;
+  const launchedAtValues = [
+    "2025-05-05T20:15:00.000Z",
+    "2025-06-06T20:15:00.000Z",
+    "2025-07-07T20:15:00.000Z",
+    "2025-08-08T20:15:00.000Z",
+    "2025-09-08T20:15:00.000Z",
+    "2025-10-10T20:15:00.000Z",
+    "2025-11-10T21:15:00.000Z",
+    "2026-01-09T21:15:00.000Z",
+    "2026-03-06T21:15:00.000Z",
+  ] as const;
+  const strategies = titles.map((title, index) =>
+    createMaraStrategy(6 + ((index + 2) % 5), title)
+  );
+  const hashes = await Promise.all(strategies.map(hashStrategy));
+  const drafts: WorkspaceScenario["drafts"][string][] = [];
+  const checkpoints: WorkspaceScenario["checkpoints"][string][] = [];
+  const immutableStrategies: WorkspaceScenario["strategies"][string][] = [];
+  const portfolios: WorkspaceScenario["portfolios"][string][] = [];
+  const accountSnapshots: WorkspaceScenario["accountSnapshots"][string][] = [];
+  const deployments: WorkspaceScenario["deployments"][string][] = [];
+  const schedules: WorkspaceScenario["schedules"][string][] = [];
+  const benchmarkObservations: WorkspaceScenario["benchmarkObservations"][string][] = [];
+
+  titles.forEach((title, index) => {
+    const version = index + 1;
+    const ordinal = checkpointOrdinals[index];
+    const draftId = version === 1
+      ? WORKSPACE_DEMO_IDS.mara.draftV1
+      : entityId("draft", `draft_mara_v${version}`);
+    const checkpointId = version === 1
+      ? WORKSPACE_DEMO_IDS.mara.checkpointV11
+      : entityId("draft-checkpoint", `checkpoint_mara_v${version}_${ordinal}`);
+    const strategyId = entityId("immutable-strategy", `strategy_mara_v${version}`);
+    const portfolioId = entityId("paper-portfolio", `portfolio_mara_v${version}`);
+    const deploymentId = entityId("deployment", `deployment_mara_v${version}`);
+    const scheduleId = entityId("schedule", `schedule_mara_v${version}`);
+    const snapshotId = entityId(
+      "portfolio-account-snapshot",
+      `account_mara_v${version}`
+    );
+    const launchedAt = isoTimestamp(launchedAtValues[index]);
+    const state = version === 9 ? "active" as const : "archived" as const;
+
+    drafts.push({
+      id: draftId,
+      championId: WORKSPACE_DEMO_IDS.mara.champion,
+      lineageId: WORKSPACE_DEMO_IDS.mara.lineage,
+      generation: version,
+      status: "launched",
+      currentCheckpointId: checkpointId,
+      revision: revision(2),
+      createdAt: launchedAt,
+    });
+    checkpoints.push({
+      id: checkpointId,
+      championId: WORKSPACE_DEMO_IDS.mara.champion,
+      draftId,
+      generation: version,
+      ordinal,
+      label: `V${version}.${ordinal}`,
+      origin: { kind: "initial" },
+      strategy: strategies[index],
+      strategyHash: hashes[index],
+      createdBy: actor,
+      createdAt: launchedAt,
+      revision: revision(1),
+    });
+    immutableStrategies.push({
+      id: strategyId,
+      championId: WORKSPACE_DEMO_IDS.mara.champion,
+      lineageId: WORKSPACE_DEMO_IDS.mara.lineage,
+      version,
+      label: `Strategy V${version}`,
+      sourceCheckpointId: checkpointId,
+      strategy: structuredClone(strategies[index]),
+      strategyHash: hashes[index],
+      createdAt: launchedAt,
+      revision: revision(1),
+    });
+    portfolios.push({
+      id: portfolioId,
+      championId: WORKSPACE_DEMO_IDS.mara.champion,
+      displayName: `${title} · Paper`,
+      strategyId,
+      sourceCheckpointId: checkpointId,
+      deploymentId,
+      scheduleId,
+      benchmarkId: WORKSPACE_DEMO_IDS.spyBenchmark,
+      currentAccountSnapshotId: snapshotId,
+      state,
+      simulatedCapital: 100_000,
+      launchedAt,
+      revision: revision(1),
+    });
+    accountSnapshots.push({
+      id: snapshotId,
+      portfolioId,
+      asOf: SEEDED_AT,
+      currency: "USD",
+      cash: 100_000,
+      reservedCash: 0,
+      buyingPower: 100_000,
+      positionsMarketValue: 0,
+      grossExposureValue: 0,
+      netExposureValue: 0,
+      accountValue: 100_000,
+      netContributions: 100_000,
+      realizedPnl: 0,
+      unrealizedPnl: 0,
+      income: 0,
+      fees: 0,
+      dailyPnlExFlows: 0,
+      cumulativeTimeWeightedReturn: 0,
+      revision: revision(1),
+    });
+    deployments.push({
+      id: deploymentId,
+      portfolioId,
+      strategyId,
+      scheduleId,
+      state: version === 9 ? "active" : "stopped",
+      startedAt: launchedAt,
+      ...(version === 9 ? {} : { stoppedAt: SEEDED_AT }),
+      revision: revision(1),
+    });
+    schedules.push({
+      id: scheduleId,
+      portfolioId,
+      definition: structuredClone(strategies[index].schedule),
+      effectiveFrom: launchedAt,
+      ...(version === 9
+        ? { nextRunAt: isoTimestamp("2026-07-17T20:15:00.000Z") }
+        : {}),
+      revision: revision(1),
+    });
+    benchmarkObservations.push(
+      {
+        id: entityId("benchmark-observation", `benchmark_mara_v${version}_launch`),
+        benchmarkId: WORKSPACE_DEMO_IDS.spyBenchmark,
+        portfolioId,
+        observedAt: launchedAt,
+        normalizedValue: 100_000,
+        revision: revision(1),
+      },
+      {
+        id: entityId("benchmark-observation", `benchmark_mara_v${version}_current`),
+        benchmarkId: WORKSPACE_DEMO_IDS.spyBenchmark,
+        portfolioId,
+        observedAt: SEEDED_AT,
+        normalizedValue: 100_000 + version * 350,
+        revision: revision(1),
+      }
+    );
+  });
+
+  return {
+    drafts,
+    checkpoints,
+    strategies: immutableStrategies,
+    portfolios,
+    accountSnapshots,
+    deployments,
+    schedules,
+    benchmarkObservations,
+  };
+}
+
+function createMaraStrategy(
+  maximumPositions: number,
+  title = "Lower-volatility momentum"
+): StructuredStrategy {
   return createStrategy({
-    title: "Lower-volatility momentum",
+    title,
     objective:
       "Participate in durable U.S. equity momentum with controlled concentration.",
     schedule: {
@@ -482,8 +705,8 @@ function createSeedEvaluations({
     {
       id: WORKSPACE_DEMO_IDS.mara.evaluation,
       championId: WORKSPACE_DEMO_IDS.mara.champion,
-      draftId: WORKSPACE_DEMO_IDS.mara.draftV1,
-      checkpointId: WORKSPACE_DEMO_IDS.mara.checkpointV12,
+      draftId: WORKSPACE_DEMO_IDS.mara.draftV10,
+      checkpointId: WORKSPACE_DEMO_IDS.mara.checkpointV102,
       strategyHash: maraHash,
       setup: {
         window: { start: "2019-01-01", end: "2026-06-30" },
@@ -788,6 +1011,7 @@ function createIrisMonthlyEvidence() {
       observations.push({
         id: observationId,
         benchmarkId: WORKSPACE_DEMO_IDS.iris.benchmark,
+        portfolioId: WORKSPACE_DEMO_IDS.iris.portfolio,
         runId,
         observedAt: isoTimestamp(completedAt),
         normalizedValue: benchmarkValue,

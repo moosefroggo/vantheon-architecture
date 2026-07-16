@@ -124,6 +124,10 @@ export interface DraftRecord {
 export type DraftCheckpointOrigin =
   | { kind: "initial" }
   | {
+      kind: "inherited";
+      sourceStrategyId: EntityId<"immutable-strategy">;
+    }
+  | {
       kind: "accepted-change-set";
       changeSetId: EntityId<"change-set">;
     };
@@ -429,7 +433,8 @@ export interface BenchmarkRecord {
 export interface BenchmarkObservationRecord {
   id: EntityId<"benchmark-observation">;
   benchmarkId: EntityId<"benchmark">;
-  runId: EntityId<"portfolio-run">;
+  portfolioId: EntityId<"paper-portfolio">;
+  runId?: EntityId<"portfolio-run">;
   observedAt: IsoTimestamp;
   normalizedValue: number;
   revision: RevisionToken;
@@ -606,6 +611,8 @@ export type WorkspaceCommandResult =
       portfolioId: EntityId<"paper-portfolio">;
       strategyId: EntityId<"immutable-strategy">;
       initialAccountSnapshotId: EntityId<"portfolio-account-snapshot">;
+      nextDraftId: EntityId<"draft">;
+      nextCheckpointId: EntityId<"draft-checkpoint">;
     }
   | {
       kind: "portfolio-state-changed";

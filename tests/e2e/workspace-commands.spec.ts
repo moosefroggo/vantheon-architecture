@@ -17,6 +17,14 @@ type AuthoritySnapshot = {
       status: string;
     }
   >;
+  strategies: Record<
+    string,
+    {
+      id: string;
+      championId: string;
+      version: number;
+    }
+  >;
   checkpoints: Record<
     string,
     {
@@ -131,6 +139,23 @@ test.describe("Mara command authority", () => {
     expectAppliedReceipts(rejected, "reject", 1, "change-set-rejected");
   });
 
+  test("attaches Fork strategy to Atlas without creating a version", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario();
+    const before = await readAuthority(page);
+
+    await page.getByRole("button", { name: "Fork strategy" }).click();
+    const atlas = page.getByRole("complementary", { name: "Atlas conversation" });
+    await expect(atlas.getByText("Strategy V9 · Balanced factor rotation", { exact: true })).toBeVisible();
+    await expect(atlas.getByText(/What would you like to change/)).toBeVisible();
+
+    const after = await readAuthority(page);
+    expect(Object.keys(after.strategies)).toEqual(Object.keys(before.strategies));
+    expect(Object.keys(after.drafts)).toEqual(Object.keys(before.drafts));
+  });
+
   test("accepts one proposal into exactly one reload-persistent checkpoint", async ({
     page,
     openScenario,
@@ -151,7 +176,7 @@ test.describe("Mara command authority", () => {
       /\/champions\/mara\/draft\/checkpoints\/draft_checkpoint_[^/?]+$/,
     );
     await expect(
-      page.getByRole("heading", { name: "Strategy V1 · Checkpoint 3" }),
+      page.getByRole("heading", { name: "Strategy V10 · Checkpoint 3" }),
     ).toBeVisible();
 
     const checkpointId = decodeURIComponent(new URL(page.url()).pathname.split("/").at(-1)!);
@@ -191,7 +216,7 @@ test.describe("Mara command authority", () => {
       new RegExp(`/champions/mara/draft/checkpoints/${checkpointId}$`),
     );
     await expect(
-      page.getByRole("heading", { name: "Strategy V1 · Checkpoint 3" }),
+      page.getByRole("heading", { name: "Strategy V10 · Checkpoint 3" }),
     ).toBeVisible();
     const reloaded = await readAuthority(page);
     expect(recordsForChampion(reloaded.checkpoints, maraId)).toHaveLength(
@@ -264,7 +289,7 @@ test.describe("Mara command authority", () => {
     expectAppliedReceipts(after, "evaluate", 2, "evaluation-completed");
   });
 
-  test("launches one Paper portfolio and freezes the same Strategy Draft", async ({
+  test("launches one Paper and opens the next Draft version", async ({
     page,
     openScenario,
   }) => {
@@ -272,7 +297,7 @@ test.describe("Mara command authority", () => {
     const before = await readAuthority(page);
     const maraId = championIdFor(before, "Mara");
 
-    await reviewAndConfirmPaperLaunch(page, "evaluation_mara_v1_2");
+    await reviewAndConfirmPaperLaunch(page, "evaluation_mara_v10_2");
     await expect(page).toHaveURL(
       /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
     );
@@ -283,28 +308,29 @@ test.describe("Mara command authority", () => {
       page
         .getByRole("navigation", { name: "Champion workspace navigation" })
         .getByRole("button", {
-          name: /Lower-volatility momentum.*Strategy V1.*Active portfolio/,
+          name: /Lower-volatility momentum.*Draft.*Checkpoint 1/,
         }),
     ).toBeVisible();
-    await expect(page.getByText("Read only", { exact: true })).toBeVisible();
+    await expect(page.getByText("Read only", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(6);
 
     const launched = await readAuthority(page);
     const maraPortfolios = recordsForChampion(launched.portfolios, maraId);
-    expect(maraPortfolios).toHaveLength(1);
-    expect(maraPortfolios[0]).toMatchObject({ state: "active" });
-    expect(recordsForChampion(launched.drafts, maraId)).toEqual([
-      expect.objectContaining({ generation: 1, status: "launched" }),
-    ]);
+    expect(maraPortfolios).toHaveLength(10);
+    expect(maraPortfolios.filter((portfolio) => portfolio.state === "active")).toHaveLength(2);
+    expect(recordsForChampion(launched.drafts, maraId)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ generation: 10, status: "launched" }),
+        expect.objectContaining({ generation: 11, status: "active" }),
+      ]),
+    );
     expectAppliedReceipts(launched, "launch", 1, "paper-launched");
 
     const response = await page.goto("/champions/mara/paper");
     expect(response?.ok()).toBe(true);
-    await expect(page).toHaveURL(
-      /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
-    );
-    await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
+    await expect(page).toHaveURL(/\/champions\/mara\/paper$/);
+    await expect(page.getByRole("heading", { name: "Paper portfolios" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Compare two" })).toHaveCount(0);
   });
 });

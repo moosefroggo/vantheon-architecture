@@ -8,7 +8,7 @@ import {
 export const workspaceScenarios = {
   "mara-draft": "/champions/mara/draft",
   "mara-evaluated":
-    "/champions/mara/draft/evaluations/evaluation_mara_v1_2",
+    "/champions/mara/draft/evaluations/evaluation_mara_v10_2",
   "iris-paper": "/champions/iris/paper/portfolio_iris_income",
   "invalid-resource": "/champions/missing/draft",
   "transient-reset": "/champions/mara/draft",
@@ -131,7 +131,7 @@ async function waitForScenarioProjection(page: Page) {
   if (pathname.startsWith("/champions/mara/")) {
     await expect(
       navigation.getByRole("button", {
-        name: /Lower-volatility momentum.*V1.*Checkpoint 2/,
+        name: /Lower-volatility momentum.*Draft.*Checkpoint 2/,
       }),
     ).toBeVisible();
   }
@@ -139,7 +139,7 @@ async function waitForScenarioProjection(page: Page) {
   if (pathname.startsWith("/champions/iris/")) {
     await expect(
       navigation.getByRole("button", {
-        name: /Quality income compounders.*Strategy V1.*Active portfolio/,
+        name: /Quality income compounders.*Draft.*Checkpoint 1/,
       }),
     ).toBeVisible();
   }

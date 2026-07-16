@@ -9,7 +9,6 @@ import {
   CircleUserRound,
   Database,
   LockKeyhole,
-  NotebookTabs,
 } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -226,20 +225,11 @@ type WorkspaceRuntimeState = {
 type DemoStrategyNavigationEntry = {
   id: string
   title: string
+  version: number
   status: string
+  href: string
+  kind: "draft" | "paper"
 }
-
-const maraStrategyExamples: readonly DemoStrategyNavigationEntry[] = [
-  { id: "mara-defensive-quality", title: "Defensive quality", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-earnings-revisions", title: "Earnings revision leaders", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-dividend-growth", title: "Dividend growth", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-cash-flow", title: "Cash-flow compounders", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-low-beta", title: "Low-beta trend", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-healthcare", title: "Healthcare quality", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-industrials", title: "Industrial momentum", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-small-cap", title: "Small-cap profitability", status: "Strategy V1 · Checkpoint 1" },
-  { id: "mara-balanced-factor", title: "Balanced factor rotation", status: "Strategy V1 · Checkpoint 1" },
-]
 
 export function ChampionWorkspace() {
   const pathname = usePathname()
@@ -266,12 +256,6 @@ export function ChampionWorkspace() {
   const [resetReviewOpen, setResetReviewOpen] = useState(false)
   const [evaluationReviewOpen, setEvaluationReviewOpen] = useState(false)
   const [schemaResetNotice, setSchemaResetNotice] = useState(false)
-  const [selectedStrategyByChampion, setSelectedStrategyByChampion] = useState<
-    Record<string, string>
-  >({})
-  const [forkedStrategiesByChampion, setForkedStrategiesByChampion] = useState<
-    Record<string, DemoStrategyNavigationEntry[]>
-  >({})
   const [bottomPanel, setBottomPanel] = useState<{
     tab: WorkspaceEvidenceTab
     expanded: boolean
@@ -334,6 +318,15 @@ export function ChampionWorkspace() {
   }, [route, router])
 
   const championId = route.championId
+  const scenarioChampion = demo.scenario
+    ? findScenarioChampion(demo.scenario, championId)
+    : undefined
+  const scenarioDraft = scenarioChampion
+    ? demo.scenario?.drafts[scenarioChampion.currentDraftId]
+    : undefined
+  const scenarioCurrentCheckpoint = scenarioDraft
+    ? demo.scenario?.checkpoints[scenarioDraft.currentCheckpointId]
+    : undefined
   const requestedWorkspaceFixture = findWorkspaceFixture(championId)
   const workspaceFixture: WorkspaceFixture =
     requestedWorkspaceFixture ?? workspaceFixtures[0]
@@ -353,48 +346,69 @@ export function ChampionWorkspace() {
     authorityOperation,
     authorityError,
   } = session
-  const primaryStrategyId = `${championId}-primary`
-  const strategyEntries: DemoStrategyNavigationEntry[] = [
-    {
-      id: primaryStrategyId,
-      title: workspaceFixture.draft.title,
-      status: "",
-    },
-    ...(championId === "mara" ? maraStrategyExamples : []),
-    ...(forkedStrategiesByChampion[championId] ?? []),
-  ]
-  const requestedStrategyId = selectedStrategyByChampion[championId]
+  const strategyEntries = useMemo<DemoStrategyNavigationEntry[]>(() => {
+    if (!demo.scenario || !scenarioChampion) {
+      return [{
+        id: `${championId}-draft`,
+        title: workspaceFixture.draft.title,
+        version: 1,
+        status: "Draft",
+        href: draftHref(championId),
+        kind: "draft",
+      }]
+    }
+    const scenario = demo.scenario
+    const currentDraft = scenario.drafts[scenarioChampion.currentDraftId]
+    const currentCheckpoint = currentDraft
+      ? scenario.checkpoints[currentDraft.currentCheckpointId]
+      : undefined
+    const draftEntry: DemoStrategyNavigationEntry[] = currentDraft && currentCheckpoint
+      ? [{
+          id: currentDraft.id,
+          title: currentCheckpoint.strategy.title,
+          version: currentDraft.generation,
+          status: `Draft · Checkpoint ${currentCheckpoint.ordinal}`,
+          href: draftHref(championId),
+          kind: "draft",
+        }]
+      : []
+    const paperEntries = Object.values(scenario.strategies)
+      .filter((strategy) => strategy.championId === scenarioChampion.id)
+      .sort((left, right) => right.version - left.version)
+      .flatMap((strategy) => {
+        const portfolio = Object.values(scenario.portfolios).find(
+          (candidate) => candidate.strategyId === strategy.id
+        )
+        if (!portfolio) return []
+        return [{
+          id: strategy.id,
+          title: strategy.strategy.title,
+          version: strategy.version,
+          status: paperSidebarStatus(scenario, portfolio),
+          href: paperPortfolioHref(championId, portfolio.id),
+          kind: "paper" as const,
+        }]
+      })
+    return [...draftEntry, ...paperEntries]
+  }, [championId, demo.scenario, scenarioChampion, workspaceFixture.draft.title])
+  const selectedStrategyId =
+    route.kind === "paper-portfolio" || route.kind === "paper-run"
+      ? demo.scenario?.portfolios[route.portfolioId]?.strategyId
+      : scenarioChampion?.currentDraftId
   const selectedStrategy =
-    strategyEntries.find((entry) => entry.id === requestedStrategyId) ??
+    strategyEntries.find((entry) => entry.id === selectedStrategyId) ??
     strategyEntries[0]
-  const primaryStrategySelected = selectedStrategy.id === primaryStrategyId
-  const evaluations = useMemo(
-    () => (primaryStrategySelected ? sessionEvaluations : []),
-    [primaryStrategySelected, sessionEvaluations]
-  )
-  const paperPortfolios = useMemo(
-    () => (primaryStrategySelected ? sessionPaperPortfolios : []),
-    [primaryStrategySelected, sessionPaperPortfolios]
-  )
+  const evaluations = sessionEvaluations
+  const paperPortfolios = sessionPaperPortfolios
   const activeContext = contextFromRoute(route)
   const checkpoint = draftState.checkpoint
   const paperLaunched = paperPortfolios.length > 0
   const draftLabel = formatDraftLabel(draftLabelFromCheckpoint(checkpoint))
   const strategyLabel = draftLabel.replace(/^Drafting\s+/, "Strategy ")
   const checkpointLabel = formatCheckpointLabel(checkpoint)
-  const activePaperPortfolio = paperPortfolios.find(
-    (portfolio) => portfolio.operationalState === "active"
-  )
-  const activePaperRecord = activePaperPortfolio && demo.scenario
-    ? demo.scenario.portfolios[activePaperPortfolio.id]
-    : undefined
-  const activePaperStrategy = activePaperRecord && demo.scenario
-    ? demo.scenario.strategies[activePaperRecord.strategyId]
-    : undefined
-  const strategySidebarStatus = activePaperPortfolio
-    ? `${activePaperStrategy ? `Strategy V${activePaperStrategy.version}` : strategyLabel} · Active portfolio`
-    : `${strategyLabel} · ${checkpointLabel}`
-  const draftReadOnly = paperLaunched || !primaryStrategySelected
+  const draftReadOnly = scenarioChampion && demo.scenario
+    ? demo.scenario.drafts[scenarioChampion.currentDraftId]?.status !== "active"
+    : false
   const currentEvaluation =
     evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
@@ -455,7 +469,7 @@ export function ChampionWorkspace() {
 
   const draftView = {
     ...workspaceFixture.draft,
-    title: selectedStrategy.title,
+    title: scenarioCurrentCheckpoint?.strategy.title ?? workspaceFixture.draft.title,
     label: draftLabel,
     checkpoint,
     rules: draftState.rules,
@@ -491,9 +505,6 @@ export function ChampionWorkspace() {
     return <UnavailableChampionWorkspace championId={championId} />
   }
 
-  const scenarioChampion = demo.scenario
-    ? findScenarioChampion(demo.scenario, championId)
-    : undefined
   const routedChangeSet =
     route.kind === "draft-change" && scenarioChampion
       ? demo.scenario?.changeSets[route.changeSetId]
@@ -502,12 +513,6 @@ export function ChampionWorkspace() {
     routedChangeSet?.championId === scenarioChampion?.id ? routedChangeSet : undefined
   const routedChangeSetBase = validRoutedChangeSet
     ? demo.scenario?.checkpoints[validRoutedChangeSet.baseCheckpointId]
-    : undefined
-  const scenarioDraft = scenarioChampion
-    ? demo.scenario?.drafts[scenarioChampion.currentDraftId]
-    : undefined
-  const scenarioCurrentCheckpoint = scenarioDraft
-    ? demo.scenario?.checkpoints[scenarioDraft.currentCheckpointId]
     : undefined
   const evaluationSetupTemplate = scenarioChampion
     ? Object.values(demo.scenario?.evaluations ?? {})
@@ -699,45 +704,38 @@ export function ChampionWorkspace() {
     navigate(nextHref)
   }
 
-  function selectStrategy(strategyId: string) {
-    setSelectedStrategyByChampion((current) => ({
-      ...current,
-      [championId]: strategyId,
-    }))
+  function selectStrategy(strategy: DemoStrategyNavigationEntry) {
     setBottomPanel({ tab: "activity", expanded: false })
-    navigate(draftHref(championId))
+    navigate(strategy.href)
   }
 
   function forkCurrentStrategy() {
-    const sequence = (forkedStrategiesByChampion[championId]?.length ?? 0) + 1
-    const fork: DemoStrategyNavigationEntry = {
-      id: `${championId}-fork-${Date.now()}`,
-      title: `${draftView.title} fork ${sequence}`,
-      status: "Strategy V1 · Checkpoint 1",
-    }
-    setForkedStrategiesByChampion((current) => ({
-      ...current,
-      [championId]: [...(current[championId] ?? []), fork],
-    }))
-    setSelectedStrategyByChampion((current) => ({
-      ...current,
-      [championId]: fork.id,
-    }))
-    setBottomPanel({ tab: "activity", expanded: false })
-    navigate(draftHref(championId))
+    const latestStrategy = demo.scenario && scenarioChampion
+      ? Object.values(demo.scenario.strategies)
+          .filter((strategy) => strategy.championId === scenarioChampion.id)
+          .sort((left, right) => right.version - left.version)[0]
+      : undefined
+    const source = latestStrategy
+      ? `Strategy V${latestStrategy.version} · ${latestStrategy.strategy.title}`
+      : `${draftView.title} · ${checkpointLabel}`
+    focusChampionConversation(championId, source)
   }
 
   function selectWorkspaceContext(
     sourceChampionId: string,
     context: WorkspaceContext
   ) {
-    const selectedId = selectedStrategyByChampion[sourceChampionId]
-    const primarySelected = !selectedId || selectedId === `${sourceChampionId}-primary`
-    const paperPortfolio = primarySelected
-      ? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
-          (portfolio) => portfolio.operationalState !== "archived"
-        )
-      : undefined
+    const paperPortfolio =
+      (route.kind === "paper-portfolio" || route.kind === "paper-run") &&
+      route.championId === sourceChampionId
+        ? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
+            (portfolio) => portfolio.id === route.portfolioId
+          )
+        : runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
+            (portfolio) => portfolio.operationalState === "active"
+          ) ?? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
+            (portfolio) => portfolio.operationalState !== "archived"
+          )
     updateChampionSession(sourceChampionId, (current) => ({
       ...current,
       conversation: {
@@ -1087,8 +1085,6 @@ export function ChampionWorkspace() {
       runtimeRef.current = next
       setRuntime(next)
       setBottomPanel({ tab: "activity", expanded: false })
-      setSelectedStrategyByChampion({})
-      setForkedStrategiesByChampion({})
       resetInteractions()
       setResetReviewOpen(false)
       setProfileOpen(false)
@@ -1378,15 +1374,18 @@ export function ChampionWorkspace() {
                         activeContext !== "live" &&
                         route.kind !== "paper-archived"
                       }
-                      onClick={() => selectStrategy(strategy.id)}
+                      onClick={() => selectStrategy(strategy)}
                     >
-                      <NotebookTabs />
+                      <span
+                        aria-hidden="true"
+                        className="grid size-7 shrink-0 place-items-center rounded-md border bg-background text-[0.6875rem] font-semibold tabular-nums"
+                      >
+                        V{strategy.version}
+                      </span>
                       <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                         <span className="truncate">{strategy.title}</span>
                         <span className="truncate text-xs text-foreground">
-                          {strategy.id === primaryStrategyId
-                            ? strategySidebarStatus
-                            : strategy.status}
+                          {strategy.status}
                         </span>
                       </span>
                     </SidebarMenuButton>
@@ -1456,12 +1455,45 @@ export function ChampionWorkspace() {
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <div className="shrink-0 border-b">
-          <div className="flex min-h-11 items-center gap-3 px-3 py-2">
-            <SidebarTrigger />
-            <h1 className="min-w-0 truncate text-sm font-semibold">
-              {activeContext === "live" ? "Live" : draftView.title}
-            </h1>
+        <div className="shrink-0 border-b px-3 pt-3">
+          <div className="flex min-h-11 items-start gap-3">
+            <SidebarTrigger className="mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-center gap-2">
+                {activeContext !== "live" ? (
+                  <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
+                    V{selectedStrategy.version}
+                  </span>
+                ) : null}
+                <h1 className="min-w-0 truncate text-base font-semibold">
+                  {activeContext === "live" ? "Live" : selectedStrategy.title}
+                </h1>
+              </div>
+              {activeContext !== "live" ? (
+                <Tabs
+                  value={activeContext}
+                  onValueChange={(value) =>
+                    selectWorkspaceContext(championId, value as WorkspaceContext)
+                  }
+                  className="mt-2"
+                >
+                  <TabsList variant="line">
+                    <TabsTrigger
+                      value="draft"
+                      onClick={() => selectWorkspaceContext(championId, "draft")}
+                    >
+                      {selectedStrategy.kind === "paper" ? "Strategy" : "Drafting"}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="paper"
+                      onClick={() => selectWorkspaceContext(championId, "paper")}
+                    >
+                      Paper
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              ) : null}
+            </div>
             <WorkspaceContextStatus
               {...(activeContext === "live"
                 ? { kind: "live" as const }
@@ -1469,7 +1501,7 @@ export function ChampionWorkspace() {
                   ? {
                       kind: "paper" as const,
                       freshness: paperView?.freshness ?? "Paper collection · local evidence",
-                      marketRelevant: true,
+                      marketRelevant: false,
                       marketSession: marketSessionFixture,
                     }
                   : selectedDryRun
@@ -1483,31 +1515,6 @@ export function ChampionWorkspace() {
                     : { kind: "draft" as const, label: localSaveStatus })}
             />
           </div>
-          {activeContext !== "live" ? (
-            <div className="px-12">
-              <Tabs
-                value={activeContext}
-                onValueChange={(value) =>
-                  selectWorkspaceContext(championId, value as WorkspaceContext)
-                }
-              >
-                <TabsList variant="line">
-                  <TabsTrigger
-                    value="draft"
-                    onClick={() => selectWorkspaceContext(championId, "draft")}
-                  >
-                    {paperLaunched ? "Strategy" : "Drafting"}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="paper"
-                    onClick={() => selectWorkspaceContext(championId, "paper")}
-                  >
-                    Paper
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          ) : null}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
@@ -1938,7 +1945,7 @@ export function ChampionWorkspace() {
             exchanges={conversation.exchanges}
             paperLaunchReviewAvailable={
               activeContext === "draft" &&
-              !paperLaunched &&
+              scenarioDraft?.status === "active" &&
               paperLaunchReviewAvailable
             }
             onMessageChange={(message) =>
@@ -2457,28 +2464,35 @@ function projectPaperWorkspace(
       ],
     }
   })
-  const equityHistory = runs.flatMap((run) => {
-    const after = scenario.accountSnapshots[run.afterAccountSnapshotId]
-    return after
-      ? [
-          {
-            timestamp: run.completedAt,
-            value: after.accountValue,
-            quality: "confirmed" as const,
-            runId: run.id,
-            decisionIds: [...run.decisionIds],
-          },
-        ]
-      : []
-  })
-  const benchmarkHistory = runs.map((run) => {
-    const observation = scenario.benchmarkObservations[run.benchmarkObservationId]
-    return {
-      timestamp: run.completedAt,
-      value: observation?.normalizedValue ?? null,
-      quality: observation ? "confirmed" as const : "estimated" as const,
-    }
-  })
+  const accountHistory = Object.values(scenario.accountSnapshots)
+    .filter((snapshot) => snapshot.portfolioId === portfolio.id)
+    .sort((left, right) => left.asOf.localeCompare(right.asOf))
+  const equityHistory = [
+    {
+      timestamp: portfolio.launchedAt,
+      value: portfolio.simulatedCapital,
+      quality: "confirmed" as const,
+    },
+    ...accountHistory
+      .filter((snapshot) => snapshot.asOf !== portfolio.launchedAt)
+      .map((snapshot) => ({
+        timestamp: snapshot.asOf,
+        value: snapshot.accountValue,
+        quality: "confirmed" as const,
+        runId: snapshot.sourceRunId,
+        decisionIds: snapshot.sourceRunId
+          ? [...(scenario.runs[snapshot.sourceRunId]?.decisionIds ?? [])]
+          : [],
+      })),
+  ]
+  const benchmarkHistory = Object.values(scenario.benchmarkObservations)
+    .filter((observation) => observation.portfolioId === portfolio.id)
+    .sort((left, right) => left.observedAt.localeCompare(right.observedAt))
+    .map((observation) => ({
+      timestamp: observation.observedAt,
+      value: observation.normalizedValue,
+      quality: "confirmed" as const,
+    }))
   const totalPnl = account
     ? account.realizedPnl +
       account.unrealizedPnl +
@@ -2746,6 +2760,35 @@ function computeMaxDrawdown(values: number[]) {
     if (peak > 0) drawdown = Math.min(drawdown, value / peak - 1)
   }
   return drawdown
+}
+
+function paperSidebarStatus(
+  scenario: WorkspaceScenario,
+  portfolio: PaperPortfolioRecord
+) {
+  if (portfolio.state !== "active") {
+    return `Paper · ${titleCase(portfolio.state)}`
+  }
+  const account = scenario.accountSnapshots[portfolio.currentAccountSnapshotId]
+  const portfolioReturn = account?.cumulativeTimeWeightedReturn ?? 0
+  const benchmarkPoints = Object.values(scenario.benchmarkObservations)
+    .filter((point) => point.portfolioId === portfolio.id)
+    .sort((left, right) => left.observedAt.localeCompare(right.observedAt))
+  const firstBenchmark = benchmarkPoints[0]?.normalizedValue
+  const lastBenchmark = benchmarkPoints.at(-1)?.normalizedValue
+  const spyReturn = firstBenchmark && lastBenchmark
+    ? lastBenchmark / firstBenchmark - 1
+    : 0
+  return `Paper ${formatSignedPercent(portfolioReturn)} · vs SPY ${formatSignedPercent(portfolioReturn - spyReturn)}`
+}
+
+function formatSignedPercent(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+    signDisplay: "always",
+  }).format(value)
 }
 
 function describeScheduleDefinition(schedule: StructuredStrategy["schedule"]) {

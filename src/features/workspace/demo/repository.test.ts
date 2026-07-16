@@ -112,7 +112,7 @@ describe("in-memory workspace authority", () => {
       afterAccept.currentCheckpointId
     );
     expect(acceptedCheckpoint).toMatchObject({
-      label: "V1.3",
+      label: "V10.3",
       previousCheckpointId: beforeCheckpoint.id,
       origin: { kind: "accepted-change-set", changeSetId },
     });
@@ -176,7 +176,7 @@ describe("in-memory workspace authority", () => {
       checkpoint.id
     );
     expect(await repository.listCheckpoints(WORKSPACE_DEMO_IDS.mara.champion)).toHaveLength(
-      2
+      11
     );
   });
 
@@ -186,7 +186,7 @@ describe("in-memory workspace authority", () => {
     const current = await requiredCheckpoint(repository, draft.currentCheckpointId);
     const source = await requiredCheckpoint(
       repository,
-      WORKSPACE_DEMO_IDS.mara.checkpointV11
+      WORKSPACE_DEMO_IDS.mara.checkpointV101
     );
     const proposed = await repository.restoreCheckpoint({
       ...commandBase("restore", 1),
@@ -217,12 +217,12 @@ describe("in-memory workspace authority", () => {
       repository,
       restoredDraft.currentCheckpointId
     );
-    expect(restored.label).toBe("V1.3");
+    expect(restored.label).toBe("V10.3");
     expect(restored.id).not.toBe(source.id);
     expect(restored.strategyHash).toBe(source.strategyHash);
     expect(restored.strategy).toEqual(source.strategy);
     expect(await repository.listCheckpoints(WORKSPACE_DEMO_IDS.mara.champion)).toHaveLength(
-      3
+      12
     );
   });
 
@@ -305,7 +305,7 @@ describe("in-memory workspace authority", () => {
       simulatedCapital: 125_000,
     });
     expect(strategy).toMatchObject({
-      label: "Strategy V1",
+      label: "Strategy V10",
       sourceCheckpointId: checkpoint.id,
       strategyHash: checkpoint.strategyHash,
     });
@@ -320,17 +320,30 @@ describe("in-memory workspace authority", () => {
       result.initialAccountSnapshotId
     );
     expect(snapshot.drafts[draft.id].status).toBe("launched");
-    expect(snapshot.champions[draft.championId].currentDraftId).toBe(draft.id);
+    expect(snapshot.champions[draft.championId].currentDraftId).toBe(result.nextDraftId);
+    expect(snapshot.drafts[result.nextDraftId]).toMatchObject({
+      generation: 11,
+      status: "active",
+      currentCheckpointId: result.nextCheckpointId,
+    });
+    expect(snapshot.checkpoints[result.nextCheckpointId]).toMatchObject({
+      label: "V11.1",
+      origin: { kind: "inherited", sourceStrategyId: strategy.id },
+    });
     expect(Object.values(snapshot.drafts).filter(
       (candidate) => candidate.championId === draft.championId
-    )).toHaveLength(1);
+    )).toHaveLength(11);
 
-    const launchedDraft = await requiredCurrentDraft(repository, "mara");
+    const nextDraft = await requiredCurrentDraft(repository, "mara");
+    const nextCheckpoint = await requiredCheckpoint(
+      repository,
+      nextDraft.currentCheckpointId
+    );
     const reevaluation = await repository.runEvaluation({
       ...commandBase("evaluate", 2),
-      draftId: launchedDraft.id,
-      expectedDraftRevision: launchedDraft.revision,
-      checkpointId: checkpoint.id,
+      draftId: nextDraft.id,
+      expectedDraftRevision: nextDraft.revision,
+      checkpointId: nextCheckpoint.id,
       setup: evaluationSetup("mara"),
     } satisfies EvaluateDraftCommand);
     expect(reevaluation.outcome).toBe("applied");
@@ -360,7 +373,8 @@ describe("in-memory workspace authority", () => {
     });
 
     expect(first.outcome).toBe("applied");
-    const frozenDraft = await requiredCurrentDraft(repository, "mara");
+    const snapshotAfterFirst = await repository.readSnapshot();
+    const frozenDraft = snapshotAfterFirst.drafts[firstDraft.id];
     const second = await repository.launch({
       ...commandBase("launch", 2),
       draftId: frozenDraft.id,
@@ -378,11 +392,9 @@ describe("in-memory workspace authority", () => {
     const portfolios = await repository.listPortfolios(
       WORKSPACE_DEMO_IDS.mara.champion
     );
-    expect(portfolios.map((portfolio) => portfolio.displayName)).toEqual([
-      "Mara paper one",
-    ]);
+    expect(portfolios.filter((portfolio) => portfolio.displayName === "Mara paper one")).toHaveLength(1);
     const currentDraft = await requiredCurrentDraft(repository, "mara");
-    expect(currentDraft).toMatchObject({ generation: 1, status: "launched" });
+    expect(currentDraft).toMatchObject({ generation: 11, status: "active" });
     await expect(
       validateWorkspaceScenario(await repository.readSnapshot())
     ).resolves.toEqual([]);

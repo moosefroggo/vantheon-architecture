@@ -11,7 +11,7 @@ describe("normalized workspace demo seed", () => {
     await expect(validateWorkspaceScenario(scenario)).resolves.toEqual([]);
   });
 
-  it("models Iris Strategy V1 with one Paper portfolio and a read-only Draft", async () => {
+  it("models Iris Strategy V1 with one Paper and automatically opens Draft V2", async () => {
     const scenario = await createWorkspaceDemoSeed();
     const champion = scenario.champions[WORKSPACE_DEMO_IDS.iris.champion];
     const currentDraft = scenario.drafts[champion.currentDraftId];
@@ -19,8 +19,8 @@ describe("normalized workspace demo seed", () => {
       scenario.checkpoints[currentDraft.currentCheckpointId];
     const frozen = scenario.strategies[WORKSPACE_DEMO_IDS.iris.strategyV1];
 
-    expect(currentDraft).toMatchObject({ generation: 1, status: "launched" });
-    expect(currentCheckpoint.label).toBe("V1.1");
+    expect(currentDraft).toMatchObject({ generation: 2, status: "active" });
+    expect(currentCheckpoint.label).toBe("V2.1");
     expect(frozen.label).toBe("Strategy V1");
     expect(frozen.sourceCheckpointId).toBe(
       WORKSPACE_DEMO_IDS.iris.checkpointV11
@@ -28,8 +28,11 @@ describe("normalized workspace demo seed", () => {
     expect(currentCheckpoint.strategyHash).toBe(frozen.strategyHash);
     expect(currentCheckpoint.strategy).toEqual(frozen.strategy);
     expect(currentCheckpoint.strategy).not.toBe(frozen.strategy);
-    expect(champion.currentDraftId).toBe(WORKSPACE_DEMO_IDS.iris.draftV1);
-    expect(scenario.drafts[WORKSPACE_DEMO_IDS.iris.draftV2]).toBeUndefined();
+    expect(currentCheckpoint.origin).toEqual({
+      kind: "inherited",
+      sourceStrategyId: WORKSPACE_DEMO_IDS.iris.strategyV1,
+    });
+    expect(champion.currentDraftId).toBe(WORKSPACE_DEMO_IDS.iris.draftV2);
   });
 
   it("uses monthly Iris runs and the launch benchmark consistently", async () => {
@@ -59,11 +62,12 @@ describe("normalized workspace demo seed", () => {
     );
     expect(
       scenario.benchmarks[WORKSPACE_DEMO_IDS.iris.benchmark].displayName
-    ).toBe("Russell 1000 Value Total Return");
+    ).toBe("SPDR S&P 500 ETF Trust");
     for (const run of runs) {
       const observation =
         scenario.benchmarkObservations[run.benchmarkObservationId];
       expect(observation).toMatchObject({
+        portfolioId: WORKSPACE_DEMO_IDS.iris.portfolio,
         runId: run.id,
         benchmarkId: run.benchmarkId,
         observedAt: run.completedAt,
@@ -71,13 +75,18 @@ describe("normalized workspace demo seed", () => {
     }
   });
 
-  it("keeps Mara historical checkpoint content distinct", async () => {
+  it("keeps Mara history sequential and the current checkpoint content distinct", async () => {
     const scenario = await createWorkspaceDemoSeed();
-    const v11 = scenario.checkpoints[WORKSPACE_DEMO_IDS.mara.checkpointV11];
-    const v12 = scenario.checkpoints[WORKSPACE_DEMO_IDS.mara.checkpointV12];
-    expect(v11.strategyHash).not.toBe(v12.strategyHash);
-    expect(v11.strategy.sections[3].rules[0].value).toContain("10 positions");
-    expect(v12.strategy.sections[3].rules[0].value).toContain("8 positions");
+    const v101 = scenario.checkpoints[WORKSPACE_DEMO_IDS.mara.checkpointV101];
+    const v102 = scenario.checkpoints[WORKSPACE_DEMO_IDS.mara.checkpointV102];
+    const versions = Object.values(scenario.strategies)
+      .filter((strategy) => strategy.championId === WORKSPACE_DEMO_IDS.mara.champion)
+      .map((strategy) => strategy.version)
+      .sort((left, right) => left - right);
+    expect(versions).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(v101.strategyHash).not.toBe(v102.strategyHash);
+    expect(v101.strategy.sections[3].rules[0].value).toContain("10 positions");
+    expect(v102.strategy.sections[3].rules[0].value).toContain("8 positions");
   });
 
   it("keeps Mara Evaluation decision references unique and summary-derived", async () => {
@@ -148,7 +157,7 @@ describe("normalized workspace demo seed", () => {
       WORKSPACE_DEMO_IDS.mara.checkpointV12
     ].strategy.sections[0].rules[0].value = "Tampered";
     const firstRun = Object.values(scenario.runs)[0];
-    firstRun.benchmarkId = WORKSPACE_DEMO_IDS.mara.benchmark;
+    firstRun.benchmarkId = entityId("benchmark", "benchmark_invalid");
     firstRun.scheduledFor = firstRun.scheduledFor.replace(
       "2026-02-02",
       "2026-02-09"

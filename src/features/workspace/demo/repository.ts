@@ -662,13 +662,24 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
         const initialAccountSnapshotId = this.runtime.createId(
           "portfolio-account-snapshot"
         );
-        const strategyVersion =
-          Math.max(
-            0,
-            ...Object.values(scenario.strategies)
-              .filter((strategy) => strategy.lineageId === draft.lineageId)
-              .map((strategy) => strategy.version)
-          ) + 1;
+        const benchmarkObservationId = this.runtime.createId(
+          "benchmark-observation"
+        );
+        const nextDraftId = this.runtime.createId("draft");
+        const nextCheckpointId = this.runtime.createId("draft-checkpoint");
+        const strategyVersion = draft.generation;
+        if (
+          Object.values(scenario.strategies).some(
+            (strategy) =>
+              strategy.lineageId === draft.lineageId &&
+              strategy.version === strategyVersion
+          )
+        ) {
+          reject(
+            "invalid-state",
+            `Strategy V${strategyVersion} already has its immutable Paper version.`
+          );
+        }
         scenario.strategies[strategyId] = {
           id: strategyId,
           championId: draft.championId,
@@ -733,14 +744,52 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
           cumulativeTimeWeightedReturn: 0,
           revision: initialRevision(),
         };
+        scenario.benchmarkObservations[benchmarkObservationId] = {
+          id: benchmarkObservationId,
+          benchmarkId: evaluation.setup.benchmarkId,
+          portfolioId,
+          observedAt: now,
+          normalizedValue: 100_000,
+          revision: initialRevision(),
+        };
         draft.status = "launched";
         draft.revision = incrementRevision(draft.revision);
+        const nextGeneration = strategyVersion + 1;
+        scenario.checkpoints[nextCheckpointId] = {
+          id: nextCheckpointId,
+          championId: draft.championId,
+          draftId: nextDraftId,
+          generation: nextGeneration,
+          ordinal: 1,
+          label: `V${nextGeneration}.1`,
+          origin: { kind: "inherited", sourceStrategyId: strategyId },
+          strategy: structuredClone(checkpoint.strategy),
+          strategyHash: checkpoint.strategyHash,
+          createdBy: command.actor,
+          createdAt: now,
+          revision: initialRevision(),
+        };
+        scenario.drafts[nextDraftId] = {
+          id: nextDraftId,
+          championId: draft.championId,
+          lineageId: draft.lineageId,
+          generation: nextGeneration,
+          status: "active",
+          currentCheckpointId: nextCheckpointId,
+          revision: initialRevision(),
+          createdAt: now,
+        };
+        const champion = scenario.champions[draft.championId];
+        champion.currentDraftId = nextDraftId;
+        champion.revision = incrementRevision(champion.revision);
 
         return {
           kind: "paper-launched",
           portfolioId,
           strategyId,
           initialAccountSnapshotId,
+          nextDraftId,
+          nextCheckpointId,
         };
       }
     );

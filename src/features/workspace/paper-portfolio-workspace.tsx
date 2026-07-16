@@ -167,7 +167,7 @@ export type PaperWorkspaceFixture = {
     readonly timestamp: string
     readonly value: number
     readonly quality?: "confirmed" | "estimated"
-    readonly runId: string
+    readonly runId?: string
     readonly decisionIds?: readonly string[]
   }[]
   readonly benchmark?: {
@@ -236,7 +236,8 @@ export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
 
 function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
   const currency = paper.currency ?? "USD"
-  const [range, setRange] = useState<PortfolioRange>("1D")
+  const [range, setRange] = useState<PortfolioRange>("ALL")
+  const [chartView, setChartView] = useState<PaperChartView>("value")
   const [fundsOpen, setFundsOpen] = useState(false)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [deposit, setDeposit] = useState("1,000")
@@ -273,6 +274,7 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
       <WorkspacePageHeader
         title="Portfolio"
         titleId="paper-workspace-title"
+        titleLevel={2}
         action={
           <Button type="button" disabled title="Live deployment is coming soon">
             Deploy Live
@@ -284,8 +286,8 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
         <section className="rounded-lg border px-4 py-3">
           <h2 className="text-sm font-semibold">No positions yet</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            This champion hasn’t placed any trades yet. Check back in 16 hours,
-            after your first run completes.
+            No completed run has created a filled order yet. Positions will
+            appear here when that evidence exists.
           </p>
         </section>
       ) : null}
@@ -342,25 +344,38 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
               </p>
             ) : null}
           </div>
-          <div
-            className="flex flex-wrap justify-end gap-1"
-            aria-label="Portfolio range"
-          >
-            {portfolioRanges.map((candidate) => (
-              <Button
-                key={candidate}
-                type="button"
-                size="xs"
-                variant={range === candidate ? "secondary" : "ghost"}
-                aria-pressed={range === candidate}
-                onClick={() => setRange(candidate)}
-              >
-                {candidate}
-              </Button>
-            ))}
+          <div className="space-y-2">
+            <div className="flex flex-wrap justify-end gap-1" aria-label="Chart mode">
+              {(["value", "performance", "drawdown"] as const).map((view) => (
+                <Button
+                  key={view}
+                  type="button"
+                  size="xs"
+                  variant={chartView === view ? "secondary" : "ghost"}
+                  aria-pressed={chartView === view}
+                  onClick={() => setChartView(view)}
+                >
+                  {view === "value" ? "Value" : view === "performance" ? "Performance vs SPY" : "Drawdown"}
+                </Button>
+              ))}
+            </div>
+            <div className="flex flex-wrap justify-end gap-1" aria-label="Portfolio range">
+              {portfolioRanges.map((candidate) => (
+                <Button
+                  key={candidate}
+                  type="button"
+                  size="xs"
+                  variant={range === candidate ? "secondary" : "ghost"}
+                  aria-pressed={range === candidate}
+                  onClick={() => setRange(candidate)}
+                >
+                  {candidate}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
-        <MirrorPortfolioChart paper={paper} range={range} />
+        <MirrorPortfolioChart paper={paper} range={range} view={chartView} />
       </section>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -621,81 +636,151 @@ function EmptyLine({ children }: { children: ReactNode }) {
 }
 
 function benchmarkFact(paper: PaperWorkspaceFixture, accountValue: number) {
-  const benchmarkPoint = paper.performanceModel?.benchmark?.points
-    .filter((point) => point.value !== null)
-    .at(-1)
-  if (!paper.benchmark || benchmarkPoint?.value == null) return null
+  const benchmarkValues = paper.benchmark?.history
+    .map((point) => point.value)
+    .filter((value): value is number => value !== null)
+  const firstBenchmark = benchmarkValues?.[0]
+  const lastBenchmark = benchmarkValues?.at(-1)
+  if (!paper.benchmark || !firstBenchmark || !lastBenchmark) return null
+  const benchmarkReturn = lastBenchmark / firstBenchmark - 1
   const portfolioReturn = paper.account?.totalReturn ?? paper.totalReturn
   const startingValue =
     portfolioReturn === -1 ? accountValue : accountValue / (1 + portfolioReturn)
   return {
     symbol: paper.benchmark.symbol,
-    returnValue: benchmarkPoint.value,
-    amount: startingValue * benchmarkPoint.value,
-    ahead: portfolioReturn >= benchmarkPoint.value,
+    returnValue: benchmarkReturn,
+    amount: startingValue * benchmarkReturn,
+    ahead: portfolioReturn >= benchmarkReturn,
   }
 }
 
 function MirrorPortfolioChart({
   paper,
   range,
+  view,
 }: {
   paper: PaperWorkspaceFixture
   range: PortfolioRange
+  view: PaperChartView
 }) {
-  const points = useMemo(
+  const portfolioPoints = useMemo(
     () => filterRange(paper.equityHistory ?? [], range),
     [paper.equityHistory, range],
   )
-  const values = points.map((point) => point.value)
+  const benchmarkPoints = useMemo(
+    () => filterRange(paper.benchmark?.history ?? [], range),
+    [paper.benchmark?.history, range],
+  )
+  const firstPortfolioValue = paper.equityHistory?.[0]?.value ?? paper.portfolioValue
+  const firstBenchmarkValue = paper.benchmark?.history.find((point) => point.value !== null)?.value ?? null
+  const plottedPortfolio = portfolioPoints.map((point, index) => {
+    const normalized = point.value / firstPortfolioValue - 1
+    const peak = Math.max(
+      firstPortfolioValue,
+      ...portfolioPoints.slice(0, index + 1).map((candidate) => candidate.value),
+    )
+    return {
+      timestamp: point.timestamp,
+      value:
+        view === "value"
+          ? point.value
+          : view === "performance"
+            ? normalized
+            : point.value / peak - 1,
+    }
+  })
+  const plottedBenchmark = view === "drawdown" || !firstBenchmarkValue
+    ? []
+    : benchmarkPoints.flatMap((point) => point.value === null ? [] : [{
+        timestamp: point.timestamp,
+        value: view === "value"
+          ? firstPortfolioValue * (point.value / firstBenchmarkValue)
+          : point.value / firstBenchmarkValue - 1,
+      }])
+  const values = [...plottedPortfolio, ...plottedBenchmark].map((point) => point.value)
   const min = Math.min(...values)
   const max = Math.max(...values)
   const span = Math.max(max - min, 1)
-  const polyline = points
-    .map((point, index) => {
-      const x = points.length <= 1 ? 50 : (index / (points.length - 1)) * 100
-      const y = 88 - ((point.value - min) / span) * 68
-      return `${x},${y}`
-    })
-    .join(" ")
+  const polyline = chartPolyline(plottedPortfolio, min, span)
+  const benchmarkPolyline = chartPolyline(plottedBenchmark, min, span)
+
+  const hasPortfolioEvidence = (paper.runs?.length ?? 0) > 0
 
   return (
-    <div className="mt-5 h-52" role="img" aria-label="Account value history">
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="size-full"
-        aria-hidden="true"
+    <div className="mt-5">
+      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-foreground" />Paper</span>
+        {view !== "drawdown" ? (
+          <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-blue-500" />SPY</span>
+        ) : null}
+      </div>
+      <div
+        className="mt-2 h-52"
+        role="img"
+        aria-label={`${view === "value" ? "Account value" : view === "performance" ? "Performance versus SPY" : "Portfolio drawdown"} history`}
       >
-        <line
-          x1="0"
-          y1="88"
-          x2="100"
-          y2="88"
-          stroke="currentColor"
-          strokeOpacity="0.16"
-          strokeDasharray="1 1"
-        />
-        {polyline ? (
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="size-full"
+          aria-hidden="true"
+        >
+          <line
+            x1="0"
+            y1="88"
+            x2="100"
+            y2="88"
+            stroke="currentColor"
+            strokeOpacity="0.16"
+            strokeDasharray="1 1"
+          />
           <polyline
-            points={polyline}
+            points={polyline || "0,50 100,50"}
             fill="none"
             stroke="currentColor"
             strokeWidth="1.2"
             vectorEffect="non-scaling-stroke"
           />
-        ) : null}
-      </svg>
+          {benchmarkPolyline ? (
+            <polyline
+              points={benchmarkPolyline}
+              fill="none"
+              stroke="rgb(59 130 246)"
+              strokeWidth="1.2"
+              strokeDasharray="3 2"
+              vectorEffect="non-scaling-stroke"
+            />
+          ) : null}
+        </svg>
+      </div>
+      {!hasPortfolioEvidence ? (
+        <p className="mt-2 text-sm text-muted-foreground">
+          No completed runs yet. Paper remains flat from launch; SPY continues from the same launch baseline.
+        </p>
+      ) : null}
     </div>
   )
 }
 
-function filterRange(
-  points: readonly NonNullable<
-    PaperWorkspaceFixture["equityHistory"]
-  >[number][],
-  range: PortfolioRange,
+function chartPolyline(
+  points: readonly { timestamp: string; value: number }[],
+  min: number,
+  span: number,
 ) {
+  if (points.length === 1) return "0,50 100,50"
+  return points
+    .map((point, index) => {
+      const x = (index / (points.length - 1)) * 100
+      const y = 88 - ((point.value - min) / span) * 68
+      return `${x},${y}`
+    })
+    .join(" ")
+}
+
+function filterRange<TPoint extends { readonly timestamp: string }>(
+  points: readonly TPoint[],
+  range: PortfolioRange,
+): TPoint[] {
   if (range === "ALL" || points.length < 2) return [...points]
   const end = new Date(points.at(-1)!.timestamp)
   const start = new Date(end)
@@ -806,7 +891,15 @@ function RunsPanel({
             </Button>
           ))}
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-3 rounded-lg border px-4 py-6 text-center">
+          <p className="text-sm font-medium">No completed runs yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The portfolio is tracking from launch. Its first completed schedule
+            event will add a numbered run with decisions, orders, and account evidence.
+          </p>
+        </div>
+      )}
     </section>
   )
 }
@@ -1262,7 +1355,7 @@ export function createPaperEquityPresentation(
   const runsById = new Map(paper.runs.map((run) => [run.id, run]))
   const observations: PortfolioEquityObservation[] = []
   for (const point of paper.equityHistory) {
-    const run = runsById.get(point.runId)
+    const run = point.runId ? runsById.get(point.runId) : undefined
     if (!run) {
       return {
         state: "invalid",

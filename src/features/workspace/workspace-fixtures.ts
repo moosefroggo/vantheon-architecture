@@ -291,7 +291,7 @@ const maraWorkspaceFixture = {
     duration: "18s",
     setup: [
       { label: "Window", value: "Jan 2019 – Jun 2026" },
-      { label: "Benchmark", value: "S&P 500 Total Return" },
+      { label: "Benchmark", value: "SPY" },
       { label: "Capital", value: "$100,000 simulated" },
       { label: "Data cutoff", value: "Jun 30, 2026 · 4:00 PM ET" },
       {
@@ -468,7 +468,7 @@ const irisWorkspaceFixture = {
     duration: "21s",
     setup: [
       { label: "Window", value: "Jan 2014 – Jun 2026" },
-      { label: "Benchmark", value: "Russell 1000 Value Total Return" },
+      { label: "Benchmark", value: "SPY" },
       { label: "Capital", value: "$100,000 simulated" },
       { label: "Data cutoff", value: "Jun 30, 2026 · 4:00 PM ET" },
       {
@@ -547,9 +547,9 @@ const irisWorkspaceFixture = {
     runCadence: "First business day of each month",
     freshness: "Current · Jul 14, 3:31 PM CT",
     benchmark: {
-      symbol: "Russell 1000 Value",
-      label: "Russell 1000 Value",
-      methodology: "Russell 1000 Value total return sampled at each completed-run cutoff and normalized to the portfolio launch value.",
+      symbol: "SPY",
+      label: "SPY",
+      methodology: "SPY total return sampled at each completed-run cutoff and normalized to the portfolio launch value.",
       history: [
         { timestamp: "2026-02-02T21:15:00.000Z", value: 100_000 },
         { timestamp: "2026-03-02T21:15:00.000Z", value: 100_600 },

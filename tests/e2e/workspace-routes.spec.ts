@@ -124,11 +124,24 @@ test.describe("Mara evaluated scenario", () => {
     await openScenario();
 
     await expect(page).toHaveURL(
-      /\/champions\/mara\/draft\/evaluations\/evaluation_mara_v1_2$/,
+      /\/champions\/mara\/draft\/evaluations\/evaluation_mara_v10_2$/,
     );
     const dryRun = page.getByRole("region", { name: "Dry Run 1 details" });
     await expect(dryRun).toBeVisible();
     await expect(page.getByRole("tab", { name: "Drafting", selected: true })).toBeVisible();
+    const navigation = page.getByRole("navigation", {
+      name: "Champion workspace navigation",
+    });
+    await expect(
+      navigation.getByRole("button", {
+        name: /Lower-volatility momentum.*Draft.*Checkpoint 2/,
+      }),
+    ).toContainText("V10");
+    await expect(
+      navigation.getByRole("button", {
+        name: /Balanced factor rotation.*Paper.*vs SPY/,
+      }),
+    ).toContainText("V9");
     const evaluationBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
     await expect(
       evaluationBreadcrumb.getByRole("button", { name: "Drafting" }),
@@ -144,6 +157,23 @@ test.describe("Mara evaluated scenario", () => {
     await expect(dryRun.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
     await page.goBack();
     await expect(dryRun.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
+  });
+
+  test("keeps zero-run Paper chart modes visible with SPY from launch", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario("/champions/mara/paper/portfolio_mara_v9");
+
+    await expect(page.getByRole("heading", { name: "Balanced factor rotation" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Value", pressed: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Performance vs SPY" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Drawdown" })).toBeVisible();
+    await expect(page.getByText(/Paper remains flat from launch; SPY continues/)).toBeVisible();
+    await expect(page.getByRole("img", { name: "Account value history" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Performance vs SPY" }).click();
+    await expect(page.getByRole("img", { name: "Performance versus SPY history" })).toBeVisible();
   });
 });
 
@@ -163,7 +193,7 @@ test.describe("Iris Paper scenario", () => {
     );
     await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();
-    await expect(page.getByRole("status", { name: /Market (open|closed)/i })).toBeVisible();
+    await expect(page.getByRole("status", { name: /Portfolio as of/i })).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();

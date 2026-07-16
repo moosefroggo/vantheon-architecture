@@ -15,6 +15,7 @@ export type WorkspacePageHeaderProps = {
   details?: ReactNode
   action?: ReactNode
   className?: string
+  titleLevel?: 1 | 2
 }
 
 export function WorkspacePageHeader({
@@ -24,7 +25,9 @@ export function WorkspacePageHeader({
   details,
   action,
   className,
+  titleLevel = 1,
 }: WorkspacePageHeaderProps) {
+  const Title = titleLevel === 1 ? "h1" : "h2"
   return (
     <header
       className={cn(
@@ -35,9 +38,9 @@ export function WorkspacePageHeader({
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {title ? (
-            <h1 id={titleId} className="text-2xl font-semibold tracking-tight">
+            <Title id={titleId} className="text-2xl font-semibold tracking-tight">
               {title}
-            </h1>
+            </Title>
           ) : null}
           {badges.map((badge) => (
             <Badge key={badge.label} variant={badge.variant ?? "outline"}>

@@ -27,6 +27,19 @@ test.describe("Mara Draft scenario", () => {
     await expect(page.getByRole("heading", { name: "Lower-volatility momentum" })).toBeVisible();
     await expect(page.getByRole("status", { name: /Saved locally/ })).toBeVisible();
     await expectWorkspaceShell(page);
+    await expect(page.getByRole("tab", { name: "Activity" })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+    await expect(page.getByRole("tab", { name: "Dry Runs" })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+    await expect(page.getByRole("tab", { name: /Checkpoints \(\d+\)/ })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+    await expect(page.getByRole("tab", { name: "Datasets" })).toHaveCount(0);
 
     await page.reload();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
@@ -70,7 +83,7 @@ test.describe("Mara Draft scenario", () => {
   }) => {
     await openScenario("/champions/mara/draft");
 
-    await page.getByRole("tab", { name: "Datasets", exact: true }).click();
+    await page.getByRole("button", { name: "Datasets", exact: true }).click();
 
     await expect(page).toHaveURL(/\/champions\/mara\/draft\/data$/);
     await expect(page.getByRole("region", { name: "Datasets" })).toHaveCount(1);
@@ -92,6 +105,40 @@ test.describe("Mara Draft scenario", () => {
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0);
     await expect(page.getByRole("status", { name: /Saved locally/ })).toBeVisible();
+  });
+
+  test("keeps immutable Strategy and Paper on the same version", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario("/champions/mara/paper/portfolio_mara_v9");
+
+    await expect(page.getByText("Paper · Active", { exact: false })).toHaveCount(9);
+    await expect(page.getByText("V9", { exact: true }).last()).toBeVisible();
+
+    await page.getByRole("tab", { name: "Strategy", exact: true }).click();
+    await expect(page).toHaveURL(
+      /\/champions\/mara\/draft\/checkpoints\/checkpoint_mara_v9_4$/,
+    );
+    await expect(page.getByRole("heading", { name: "Balanced factor rotation" })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Paper", exact: true }).click();
+    await expect(page).toHaveURL(/\/champions\/mara\/paper\/portfolio_mara_v9$/);
+  });
+
+  test("redirects the current checkpoint to its existing Draft view", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario(
+      "/champions/mara/draft/checkpoints/checkpoint_mara_v10_2",
+    );
+
+    await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
+    await page.getByRole("tab", { name: /Checkpoints \(2\)/ }).click();
+    const currentRow = page.getByRole("row").filter({ hasText: "Active Draft" });
+    await expect(currentRow.getByText("Current", { exact: true })).toBeVisible();
+    await expect(currentRow.getByRole("button", { name: "Open" })).toHaveCount(0);
   });
 
   test("exposes the Live readiness route and context status without a market badge", async ({

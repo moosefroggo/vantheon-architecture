@@ -228,6 +228,8 @@ type DemoStrategyNavigationEntry = {
   version: number
   status: string
   href: string
+  draftHref: string
+  paperHref?: string
   kind: "draft" | "paper"
 }
 
@@ -257,9 +259,9 @@ export function ChampionWorkspace() {
   const [evaluationReviewOpen, setEvaluationReviewOpen] = useState(false)
   const [schemaResetNotice, setSchemaResetNotice] = useState(false)
   const [bottomPanel, setBottomPanel] = useState<{
-    tab: WorkspaceEvidenceTab
+    tab: WorkspaceEvidenceTab | null
     expanded: boolean
-  }>({ tab: "activity", expanded: false })
+  }>({ tab: null, expanded: false })
   const runtimeRef = useRef(runtime)
   const conversationSequenceRef = useRef(0)
   const demo = useWorkspaceDemoScenario()
@@ -354,6 +356,7 @@ export function ChampionWorkspace() {
         version: 1,
         status: "Draft",
         href: draftHref(championId),
+        draftHref: draftHref(championId),
         kind: "draft",
       }]
     }
@@ -369,6 +372,7 @@ export function ChampionWorkspace() {
           version: currentDraft.generation,
           status: `Draft · Checkpoint ${currentCheckpoint.ordinal}`,
           href: draftHref(championId),
+          draftHref: draftHref(championId),
           kind: "draft",
         }]
       : []
@@ -386,6 +390,8 @@ export function ChampionWorkspace() {
           version: strategy.version,
           status: paperSidebarStatus(scenario, portfolio),
           href: paperPortfolioHref(championId, portfolio.id),
+          draftHref: checkpointHref(championId, strategy.sourceCheckpointId),
+          paperHref: paperPortfolioHref(championId, portfolio.id),
           kind: "paper" as const,
         }]
       })
@@ -394,6 +400,10 @@ export function ChampionWorkspace() {
   const selectedStrategyId =
     route.kind === "paper-portfolio" || route.kind === "paper-run"
       ? demo.scenario?.portfolios[route.portfolioId]?.strategyId
+      : route.kind === "draft-checkpoint"
+        ? Object.values(demo.scenario?.strategies ?? {}).find(
+            (strategy) => strategy.sourceCheckpointId === route.checkpointId
+          )?.id
       : scenarioChampion?.currentDraftId
   const selectedStrategy =
     strategyEntries.find((entry) => entry.id === selectedStrategyId) ??
@@ -441,6 +451,15 @@ export function ChampionWorkspace() {
       )
     }
   }, [paperPortfolios, route, router])
+
+  useEffect(() => {
+    if (
+      route.kind === "draft-checkpoint" &&
+      route.checkpointId === scenarioCurrentCheckpoint?.id
+    ) {
+      router.replace(draftHref(route.championId) as Route)
+    }
+  }, [route, router, scenarioCurrentCheckpoint?.id])
 
   const paperSnapshot = selectedPortfolioId
     ? paperPortfolios.find((portfolio) => portfolio.id === selectedPortfolioId) ?? null
@@ -537,7 +556,11 @@ export function ChampionWorkspace() {
       : false
   const checkpointHistory = scenarioChampion
     ? Object.values(demo.scenario?.checkpoints ?? {})
-        .filter((candidate) => candidate.championId === scenarioChampion.id)
+        .filter(
+          (candidate) =>
+            candidate.championId === scenarioChampion.id &&
+            candidate.generation === selectedStrategy.version
+        )
         .sort(
           (left, right) =>
             left.generation - right.generation || left.ordinal - right.ordinal
@@ -588,8 +611,8 @@ export function ChampionWorkspace() {
       ? route.tab
       : paperSelection.detailsTab
   const paperRunTab = route.kind === "paper-run" ? route.tab : paperSelection.runTab
-  const evidenceTab: WorkspaceEvidenceTab =
-    route.kind === "data" ? "data" : route.panel ?? bottomPanel.tab
+  const evidenceTab: WorkspaceEvidenceTab | null =
+    route.panel ?? bottomPanel.tab
   const evidenceExpanded =
     route.kind !== "data" &&
     (route.panel !== undefined || bottomPanel.expanded)
@@ -697,7 +720,7 @@ export function ChampionWorkspace() {
         },
       }
     })
-    setBottomPanel({ tab: "activity", expanded: false })
+    setBottomPanel({ tab: null, expanded: false })
     setEvaluationReviewOpen(false)
     setResetReviewOpen(false)
     setProfileOpen(false)
@@ -705,7 +728,7 @@ export function ChampionWorkspace() {
   }
 
   function selectStrategy(strategy: DemoStrategyNavigationEntry) {
-    setBottomPanel({ tab: "activity", expanded: false })
+    setBottomPanel({ tab: null, expanded: false })
     navigate(strategy.href)
   }
 
@@ -725,17 +748,6 @@ export function ChampionWorkspace() {
     sourceChampionId: string,
     context: WorkspaceContext
   ) {
-    const paperPortfolio =
-      (route.kind === "paper-portfolio" || route.kind === "paper-run") &&
-      route.championId === sourceChampionId
-        ? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
-            (portfolio) => portfolio.id === route.portfolioId
-          )
-        : runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
-            (portfolio) => portfolio.operationalState === "active"
-          ) ?? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
-            (portfolio) => portfolio.operationalState !== "archived"
-          )
     updateChampionSession(sourceChampionId, (current) => ({
       ...current,
       conversation: {
@@ -746,11 +758,9 @@ export function ChampionWorkspace() {
 
     navigate(
       context === "draft"
-        ? draftHref(sourceChampionId)
+        ? selectedStrategy.draftHref
         : context === "paper"
-          ? paperPortfolio
-            ? paperPortfolioHref(sourceChampionId, paperPortfolio.id)
-            : paperIndexHref(sourceChampionId)
+          ? selectedStrategy.paperHref ?? paperIndexHref(sourceChampionId)
           : liveHref(sourceChampionId)
     )
   }
@@ -1084,7 +1094,7 @@ export function ChampionWorkspace() {
       const next = createInitialRuntime()
       runtimeRef.current = next
       setRuntime(next)
-      setBottomPanel({ tab: "activity", expanded: false })
+      setBottomPanel({ tab: null, expanded: false })
       resetInteractions()
       setResetReviewOpen(false)
       setProfileOpen(false)
@@ -1430,13 +1440,10 @@ export function ChampionWorkspace() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 isActive={
-                  route.kind === "data" ||
-                  (activeContext === "draft" &&
-                    evidenceExpanded &&
-                    evidenceTab === "data")
+                  route.kind === "data"
                 }
                 onClick={() => {
-                  setBottomPanel({ tab: "data", expanded: false })
+                  setBottomPanel({ tab: null, expanded: false })
                   navigate(dataHref(championId))
                 }}
               >
@@ -1829,23 +1836,20 @@ export function ChampionWorkspace() {
                 evaluation={currentEvaluation}
                 evaluations={evaluations}
                 baseline={evidenceBaseline}
-                template={workspaceFixture.evaluation}
                 authorityError={authorityError}
                 activity={workspaceActivity}
                 activeTab={evidenceTab}
                 expanded={evidenceExpanded}
                 onActiveTabChange={(tab) => {
-                  if (tab === "data") {
-                    setBottomPanel({ tab: "data", expanded: false })
-                    navigate(dataHref(championId))
-                  } else {
-                    setBottomPanel((current) => ({ ...current, tab }))
-                    navigate(`${draftHref(championId)}?panel=${encodeURIComponent(tab)}`)
-                  }
+                  setBottomPanel({ tab, expanded: true })
+                  navigate(`${draftHref(championId)}?panel=${encodeURIComponent(tab)}`)
                 }}
                 onExpandedChange={(expanded) =>
                   {
-                    setBottomPanel((current) => ({ ...current, expanded }))
+                    setBottomPanel((current) => ({
+                      tab: expanded ? current.tab : null,
+                      expanded,
+                    }))
                     if (!expanded) updateRouteQuery({ panel: null })
                   }
                 }
@@ -2779,7 +2783,7 @@ function paperSidebarStatus(
   const spyReturn = firstBenchmark && lastBenchmark
     ? lastBenchmark / firstBenchmark - 1
     : 0
-  return `Paper ${formatSignedPercent(portfolioReturn)} · vs SPY ${formatSignedPercent(portfolioReturn - spyReturn)}`
+  return `Paper · Active · ${formatSignedPercent(portfolioReturn)} · vs SPY ${formatSignedPercent(portfolioReturn - spyReturn)}`
 }
 
 function formatSignedPercent(value: number) {

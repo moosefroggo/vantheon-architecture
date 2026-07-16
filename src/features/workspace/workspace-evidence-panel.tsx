@@ -34,7 +34,6 @@ import { formatCheckpointLabel } from "@/lib/version-labels"
 import type {
   WorkspaceEvaluationBaselineFixture,
   WorkspaceEvaluationFixture,
-  WorkspaceEvaluationTemplate,
 } from "./workspace-fixtures"
 
 type WorkspaceEvidencePanelProps = {
@@ -42,10 +41,9 @@ type WorkspaceEvidencePanelProps = {
   evaluation: WorkspaceEvaluationFixture | null
   evaluations: readonly WorkspaceEvaluationFixture[]
   baseline: WorkspaceEvaluationBaselineFixture
-  template: WorkspaceEvaluationTemplate
   authorityError: string | null
   activity: readonly WorkspaceActivityItem[]
-  activeTab: WorkspaceEvidenceTab
+  activeTab: WorkspaceEvidenceTab | null
   expanded: boolean
   onActiveTabChange: (tab: WorkspaceEvidenceTab) => void
   onExpandedChange: (expanded: boolean) => void
@@ -63,7 +61,7 @@ type WorkspaceEvidencePanelProps = {
   onOpenDryRun: (dryRunId: string) => void
 }
 
-export type WorkspaceEvidenceTab = "activity" | "dry-runs" | "checkpoints" | "data"
+export type WorkspaceEvidenceTab = "activity" | "dry-runs" | "checkpoints"
 
 export type WorkspaceActivityItem = {
   id: string
@@ -76,7 +74,6 @@ export function WorkspaceEvidencePanel({
   evaluation,
   evaluations,
   baseline,
-  template,
   authorityError,
   activity,
   activeTab,
@@ -96,7 +93,7 @@ export function WorkspaceEvidencePanel({
 
   return (
     <Tabs
-      value={activeTab}
+      value={activeTab ?? "__closed__"}
       onValueChange={(value) => {
         onActiveTabChange(value as WorkspaceEvidenceTab)
         onExpandedChange(true)
@@ -112,10 +109,7 @@ export function WorkspaceEvidencePanel({
             Dry Runs{evaluations.length ? ` (${evaluations.length})` : ""}
           </TabsTrigger>
           <TabsTrigger value="checkpoints" onClick={() => onExpandedChange(true)}>
-            Checkpoints
-          </TabsTrigger>
-          <TabsTrigger value="data" onClick={() => onActiveTabChange("data")}>
-            Datasets
+            Checkpoints ({checkpoints?.length ?? 2})
           </TabsTrigger>
         </TabsList>
 
@@ -261,18 +255,24 @@ export function WorkspaceEvidencePanel({
                                 Restore
                               </Button>
                             ) : null}
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                onOpenCheckpoint
-                                  ? onOpenCheckpoint(item.label)
-                                  : setOpenedCheckpoint(item.label)
-                              }
-                            >
-                              Open
-                            </Button>
+                            {item.current ? (
+                              <span className="px-2 text-xs font-medium text-muted-foreground">
+                                Current
+                              </span>
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  onOpenCheckpoint
+                                    ? onOpenCheckpoint(item.label)
+                                    : setOpenedCheckpoint(item.label)
+                                }
+                              >
+                                Open
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -309,28 +309,6 @@ export function WorkspaceEvidencePanel({
             </Card>
           </TabsContent>
 
-          <TabsContent value="data">
-            <Card size="sm">
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Input</TableHead>
-                      <TableHead>Value</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {template.setup.map((item) => (
-                      <TableRow key={item.label}>
-                        <TableCell className="font-medium">{item.label}</TableCell>
-                        <TableCell>{item.value}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </ScrollArea>
       ) : null}
 

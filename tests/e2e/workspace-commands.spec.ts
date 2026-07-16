@@ -303,14 +303,17 @@ test.describe("Mara command authority", () => {
     );
     await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
     await page.getByRole("tab", { name: "Strategy" }).click();
+    await expect(page).toHaveURL(
+      /\/champions\/mara\/draft\/checkpoints\/checkpoint_mara_v10_2$/,
+    );
+    const nextDraft = page
+      .getByRole("navigation", { name: "Champion workspace navigation" })
+      .getByRole("button", {
+        name: /Lower-volatility momentum.*Draft.*Checkpoint 1/,
+      });
+    await expect(nextDraft).toBeVisible();
+    await nextDraft.click();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
-    await expect(
-      page
-        .getByRole("navigation", { name: "Champion workspace navigation" })
-        .getByRole("button", {
-          name: /Lower-volatility momentum.*Draft.*Checkpoint 1/,
-        }),
-    ).toBeVisible();
     await expect(page.getByText("Read only", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(6);
@@ -318,7 +321,7 @@ test.describe("Mara command authority", () => {
     const launched = await readAuthority(page);
     const maraPortfolios = recordsForChampion(launched.portfolios, maraId);
     expect(maraPortfolios).toHaveLength(10);
-    expect(maraPortfolios.filter((portfolio) => portfolio.state === "active")).toHaveLength(2);
+    expect(maraPortfolios.filter((portfolio) => portfolio.state === "active")).toHaveLength(10);
     expect(recordsForChampion(launched.drafts, maraId)).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ generation: 10, status: "launched" }),

@@ -89,6 +89,24 @@ describe("normalized workspace demo seed", () => {
     expect(v102.strategy.sections[3].rules[0].value).toContain("8 positions");
   });
 
+  it("allows every Mara strategy version to keep an independently active Paper", async () => {
+    const scenario = await createWorkspaceDemoSeed();
+    const portfolios = Object.values(scenario.portfolios).filter(
+      (portfolio) => portfolio.championId === WORKSPACE_DEMO_IDS.mara.champion
+    );
+    const deployments = portfolios.map(
+      (portfolio) => scenario.deployments[portfolio.deploymentId]
+    );
+
+    expect(portfolios).toHaveLength(9);
+    expect(new Set(portfolios.map((portfolio) => portfolio.state))).toEqual(
+      new Set(["active"])
+    );
+    expect(new Set(deployments.map((deployment) => deployment.state))).toEqual(
+      new Set(["active"])
+    );
+  });
+
   it("keeps Mara Evaluation decision references unique and summary-derived", async () => {
     const scenario = await createWorkspaceDemoSeed();
     const evaluation = scenario.evaluations[WORKSPACE_DEMO_IDS.mara.evaluation];

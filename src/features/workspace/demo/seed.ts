@@ -24,9 +24,9 @@ import type {
   WorkspaceScenario,
 } from "./types";
 
-export const WORKSPACE_DEMO_SEED_VERSION = 5;
+export const WORKSPACE_DEMO_SEED_VERSION = 6;
 export const WORKSPACE_DEMO_SCHEMA_VERSION = schemaVersion(
-  "workspace-demo-scenario/v5"
+  "workspace-demo-scenario/v6"
 );
 const STRATEGY_SCHEMA_VERSION = schemaVersion("structured-strategy/v1");
 const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
@@ -393,7 +393,7 @@ async function createMaraHistory(
       `account_mara_v${version}`
     );
     const launchedAt = isoTimestamp(launchedAtValues[index]);
-    const state = version === 9 ? "active" as const : "archived" as const;
+    const state = "active" as const;
 
     drafts.push({
       id: draftId,
@@ -472,9 +472,8 @@ async function createMaraHistory(
       portfolioId,
       strategyId,
       scheduleId,
-      state: version === 9 ? "active" : "stopped",
+      state: "active",
       startedAt: launchedAt,
-      ...(version === 9 ? {} : { stoppedAt: SEEDED_AT }),
       revision: revision(1),
     });
     schedules.push({
@@ -482,9 +481,7 @@ async function createMaraHistory(
       portfolioId,
       definition: structuredClone(strategies[index].schedule),
       effectiveFrom: launchedAt,
-      ...(version === 9
-        ? { nextRunAt: isoTimestamp("2026-07-17T20:15:00.000Z") }
-        : {}),
+      nextRunAt: isoTimestamp("2026-07-17T20:15:00.000Z"),
       revision: revision(1),
     });
     benchmarkObservations.push(

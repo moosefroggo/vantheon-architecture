@@ -1,10 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import type { ReactNode } from "react"
+
 import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixtures"
 
 type StrategyDocumentProps = {
@@ -39,76 +34,80 @@ export function StrategyDocument({
   const schedule = byGroup.get("Schedule")
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Complete strategy</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <DocumentSection title="Objective">{objective}</DocumentSection>
-        {thesis ? (
-          <>
-            <Separator />
-            <DocumentSection title="Thesis">{thesis}</DocumentSection>
-          </>
-        ) : null}
-        <Separator />
-        <DocumentSection title="Selection">
-          The eligible universe is {sentence(universe?.value)} {universe?.constraint}. At
-          each evaluation, the Champion selects {sentence(entry?.value)} {entry?.constraint}.
+    <article className="mx-auto max-w-[52rem] px-2 py-4 sm:px-6 sm:py-6">
+      <div className="space-y-10">
+        <DocumentSection title="Thesis">
+          <p>{thesis ?? objective}</p>
         </DocumentSection>
-        <Separator />
+
+        <DocumentSection title="Universe and selection">
+          <DocumentParagraph>
+            The investable universe contains <RuleText rule={universe} />
+          </DocumentParagraph>
+          <DocumentParagraph>
+            At each scheduled evaluation, candidates qualify through <RuleText rule={entry} />
+          </DocumentParagraph>
+        </DocumentSection>
+
         <DocumentSection title="Portfolio construction">
-          The portfolio uses {sentence(portfolio?.value)} {portfolio?.constraint}.
-          {sizingExample ? ` Example: ${sizingExample}` : ""}
+          <DocumentParagraph>
+            Positions follow <RuleText rule={portfolio} />
+          </DocumentParagraph>
+          {sizingExample ? (
+            <aside className="rounded-lg border-l-2 bg-muted/40 px-4 py-3">
+              <h3 className="text-sm font-semibold text-foreground">Sizing example</h3>
+              <p className="mt-1">{sizingExample}</p>
+            </aside>
+          ) : null}
         </DocumentSection>
-        <Separator />
-        <DocumentSection title="Risk and exits">
-          The strategy enforces {sentence(risk?.value)} {risk?.constraint}. Positions exit
-          when {sentence(exit?.value)} {exit?.constraint}.
+
+        <DocumentSection title="Risk management and exits">
+          <DocumentParagraph>
+            The strategy enforces <RuleText rule={risk} />
+          </DocumentParagraph>
+          <DocumentParagraph>
+            Positions follow this exit rule: <RuleText rule={exit} />
+          </DocumentParagraph>
         </DocumentSection>
-        <Separator />
+
         <DocumentSection title="Execution">
-          The Champion evaluates the strategy {sentence(schedule?.value)} {schedule?.constraint}.
-          Every run preserves its inputs, decisions, rejected orders, and final outcome.
+          <DocumentParagraph>
+            The decision cadence is <RuleText rule={schedule} lowercase={false} />
+          </DocumentParagraph>
         </DocumentSection>
+
         {rulePrecedence.length ? (
-          <>
-            <Separator />
-            <DocumentSection title="Rule precedence">
-              <TextList items={rulePrecedence} ordered />
-            </DocumentSection>
-          </>
+          <DocumentSection title="Rule precedence">
+            <p>
+              When instructions compete, the strategy applies them in this order:
+            </p>
+            <TextList items={rulePrecedence} ordered />
+          </DocumentSection>
         ) : null}
+
         {assumptions.length ? (
-          <>
-            <Separator />
-            <DocumentSection title="Assumptions">
-              <TextList items={assumptions} />
-            </DocumentSection>
-          </>
+          <DocumentSection title="Assumptions">
+            <TextList items={assumptions} />
+          </DocumentSection>
         ) : null}
+
         {exclusions.length ? (
-          <>
-            <Separator />
-            <DocumentSection title="Exclusions">
-              <TextList items={exclusions} />
-            </DocumentSection>
-          </>
+          <DocumentSection title="Exclusions">
+            <TextList items={exclusions} />
+          </DocumentSection>
         ) : null}
+
         {dataFailurePolicy || cooldownPolicy ? (
-          <>
-            <Separator />
-            <DocumentSection title="Failure and cooldown behavior">
-              <TextList
-                items={[dataFailurePolicy, cooldownPolicy].filter(
-                  (value): value is string => Boolean(value)
-                )}
-              />
-            </DocumentSection>
-          </>
+          <DocumentSection title="Failure and cooldown behavior">
+            <TextList
+              items={[dataFailurePolicy, cooldownPolicy].filter(
+                (value): value is string => Boolean(value)
+              )}
+            />
+          </DocumentSection>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   )
 }
 
@@ -120,10 +119,39 @@ function DocumentSection({
   children: ReactNode
 }) {
   return (
-    <section className="grid gap-2 md:grid-cols-[12rem_1fr] md:gap-6">
-      <h2 className="font-medium">{title}</h2>
-      <div className="text-sm leading-6 text-muted-foreground">{children}</div>
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">
+        {title}
+      </h2>
+      <div className="space-y-4 text-base leading-7 text-muted-foreground">
+        {children}
+      </div>
     </section>
+  )
+}
+
+function DocumentParagraph({ children }: { children: ReactNode }) {
+  return <p>{children}</p>
+}
+
+function RuleText({
+  rule,
+  lowercase = true,
+}: {
+  rule: StrategyRuleFixture | undefined
+  lowercase?: boolean
+}) {
+  if (!rule) return <>the defined rule.</>
+
+  return (
+    <>
+      <strong className="font-semibold text-foreground">
+        {lowercase
+          ? lowerFirst(withoutTerminalPunctuation(rule.value))
+          : withoutTerminalPunctuation(rule.value)}
+      </strong>
+      . {asSentence(rule.constraint)}
+    </>
   )
 }
 
@@ -136,7 +164,13 @@ function TextList({
 }) {
   const List = ordered ? "ol" : "ul"
   return (
-    <List className={ordered ? "list-decimal space-y-1 pl-5" : "list-disc space-y-1 pl-5"}>
+    <List
+      className={
+        ordered
+          ? "list-decimal space-y-2 pl-6 marker:font-medium marker:text-foreground"
+          : "list-disc space-y-2 pl-6 marker:text-muted-foreground"
+      }
+    >
       {items.map((item) => (
         <li key={item}>{item}</li>
       ))}
@@ -144,8 +178,17 @@ function TextList({
   )
 }
 
-function sentence(value: string | undefined) {
-  if (!value) return "the defined rule."
-  return value.charAt(0).toLowerCase() + value.slice(1) + "."
+function asSentence(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return ""
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`
 }
-import type { ReactNode } from "react"
+
+function withoutTerminalPunctuation(value: string) {
+  return value.trim().replace(/[.!?]+$/, "")
+}
+
+function lowerFirst(value: string) {
+  if (!value) return value
+  return `${value.charAt(0).toLowerCase()}${value.slice(1)}`
+}

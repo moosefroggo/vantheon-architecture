@@ -551,7 +551,7 @@ export function ChampionWorkspace() {
         ? "Drafting · Datasets"
         : selectedDryRun
         ? `Evaluation · ${selectedDryRun.label} · ${titleCase(dryRunTab)}`
-        : `Drafting · ${titleCase(draftSelection.surface)}`
+        : `Drafting · ${titleCase(draftSurface)}`
       : activeContext === "paper"
         ? paperLaunched
           ? selectedPaperRun

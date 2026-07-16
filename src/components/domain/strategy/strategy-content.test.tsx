@@ -16,7 +16,10 @@ describe("strategy content headers", () => {
 
     rerender(<StrategyDocument objective="Preserve capital." rules={[]} />)
 
-    expect(screen.getByText("Complete strategy")).toBeVisible()
+    expect(screen.getByRole("article")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Thesis" })).toBeVisible()
+    expect(screen.getByText("Preserve capital.")).toBeVisible()
+    expect(screen.queryByText("Complete strategy")).not.toBeInTheDocument()
     expect(screen.queryByText(/Editable working document/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/Checkpoint/i)).not.toBeInTheDocument()
   })

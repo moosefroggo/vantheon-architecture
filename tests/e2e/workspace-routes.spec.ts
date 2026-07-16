@@ -45,7 +45,14 @@ test.describe("Mara Draft scenario", () => {
     await expect(
       page.getByRole("tab", { name: "Checkpoints", selected: true }),
     ).toBeVisible();
-    await expect(page.getByText("Complete strategy", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Thesis" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Universe and selection" })).toBeVisible();
+    await expect(
+      page.getByRole("complementary", { name: "Atlas conversation" }).getByText(
+        "Drafting · Document",
+        { exact: true },
+      ),
+    ).toBeVisible();
 
     await page.reload();
     await expect(page).toHaveURL(

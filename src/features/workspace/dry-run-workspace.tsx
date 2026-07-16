@@ -19,6 +19,7 @@ import type {
   StrategyRuleFixture,
   WorkspaceEvaluationFixture,
 } from "./workspace-fixtures"
+import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 
 export type DryRunTab = "summary" | "activity"
 
@@ -26,6 +27,8 @@ type DryRunWorkspaceProps = {
   run: WorkspaceEvaluationFixture
   activeTab: DryRunTab
   onActiveTabChange: (tab: DryRunTab) => void
+  onBack: () => void
+  onOpenRuns: () => void
   onOpenSource?: (sourceArtifactId: string) => void
 }
 
@@ -33,6 +36,8 @@ export function DryRunWorkspace({
   run,
   activeTab,
   onActiveTabChange,
+  onBack,
+  onOpenRuns,
   onOpenSource,
 }: DryRunWorkspaceProps) {
   const eligibleDecisions = run.decisions.filter(
@@ -51,6 +56,15 @@ export function DryRunWorkspace({
       className="flex h-full min-h-0 flex-col"
       aria-label={`${run.label} details`}
     >
+      <div className="shrink-0 border-b px-5 py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[
+            { label: "Drafting", onSelect: onBack },
+            { label: "Dry Runs", onSelect: onOpenRuns },
+            { label: run.label },
+          ]}
+        />
+      </div>
       <Tabs
         value={activeTab}
         onValueChange={(value) => onActiveTabChange(value as DryRunTab)}

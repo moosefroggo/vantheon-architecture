@@ -57,24 +57,34 @@ test.describe("Mara Draft scenario", () => {
     ).toBeVisible();
   });
 
-  test("opens Data once without duplicating the bottom-panel body", async ({
+  test("opens the mirror-backed Datasets catalogue without invented subtabs", async ({
     page,
     openScenario,
   }) => {
     await openScenario("/champions/mara/draft");
 
-    await page.getByRole("tab", { name: "Data", exact: true }).click();
+    await page.getByRole("tab", { name: "Datasets", exact: true }).click();
 
     await expect(page).toHaveURL(/\/champions\/mara\/draft\/data$/);
-    await expect(page.getByRole("region", { name: "Data" })).toHaveCount(1);
+    await expect(page.getByRole("region", { name: "Datasets" })).toHaveCount(1);
+    await expect(page.getByRole("heading", { name: "Datasets" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Research & News" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Prices & Charts" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Options" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Who's Buying & Selling" })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Evaluation setup" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Capabilities" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Demo bindings" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Sources" })).toHaveCount(0);
     await expect(
       page.getByRole("complementary", { name: "Atlas conversation" }).getByText(
-        "Drafting · Data",
+        "Drafting · Datasets",
         { exact: true },
       ),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0);
-    await expect(page.getByRole("status", { name: /Data cutoff/ })).toBeVisible();
+    await expect(page.getByRole("status", { name: /Saved locally/ })).toBeVisible();
   });
 
   test("exposes the Live readiness route and context status without a market badge", async ({
@@ -113,6 +123,14 @@ test.describe("Mara evaluated scenario", () => {
       page.getByRole("region", {
         name: "Evaluation evaluation_mara_v1_2 details",
       }),
+    ).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Drafting", selected: true })).toBeVisible();
+    const evaluationBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
+    await expect(
+      evaluationBreadcrumb.getByRole("button", { name: "Drafting" }),
+    ).toBeVisible();
+    await expect(
+      evaluationBreadcrumb.getByRole("button", { name: "Dry Runs" }),
     ).toBeVisible();
     await expect(page.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
     await expect(page.getByRole("status", { name: /Data cutoff/ })).toBeVisible();
@@ -158,6 +176,10 @@ test.describe("Iris Paper scenario", () => {
     await expect(page.getByRole("heading", { name: "Run 1", exact: true })).toBeVisible();
     await expect(page.getByText(/Feb 2, 2026/)).toBeVisible();
     await expect(page).toHaveURL(/decision=decision_iris_run1_pg$/);
+    await expect(page.getByRole("tab", { name: "Paper", selected: true })).toBeVisible();
+    const runBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
+    await expect(runBreadcrumb.getByRole("button", { name: "Paper" })).toBeVisible();
+    await expect(runBreadcrumb.getByRole("button", { name: "Runs" })).toBeVisible();
     await expect(page.getByText("Decision trace", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("tab", { name: "Activity" })).toHaveCount(0);
 

@@ -59,6 +59,8 @@ function workspaceProps(
     selectedReference: null,
     runTab: "summary",
     onOpenDraft: vi.fn(),
+    onOpenPortfolio: vi.fn(),
+    onOpenRuns: vi.fn(),
     onRunTabChange: vi.fn(),
     onSelectedReferenceChange: vi.fn(),
     ...overrides,

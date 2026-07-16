@@ -108,7 +108,7 @@ export function WorkspaceEvidencePanel({
             Checkpoints
           </TabsTrigger>
           <TabsTrigger value="data" onClick={() => onActiveTabChange("data")}>
-            Data
+            Datasets
           </TabsTrigger>
         </TabsList>
 

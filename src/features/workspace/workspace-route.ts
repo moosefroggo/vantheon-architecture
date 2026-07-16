@@ -1,6 +1,5 @@
 export type DraftView = "summary" | "document"
 export type EvaluationView = "summary" | "activity"
-export type DataView = "setup" | "capabilities" | "bindings" | "sources"
 export type PaperView = "overview" | "runs" | "positions" | "orders" | "strategy"
 export type EvidencePanelView = "problems" | "dry-runs" | "checkpoints" | "data"
 
@@ -18,7 +17,7 @@ export type WorkspaceRoute =
       evaluationId: string
       tab: EvaluationView
     })
-  | (RouteBase & { kind: "data"; tab: DataView })
+  | (RouteBase & { kind: "data" })
   | (RouteBase & { kind: "paper-index" })
   | (RouteBase & {
       kind: "paper-portfolio"
@@ -98,11 +97,7 @@ export function parseWorkspaceRoute(
   }
 
   if (environment === "draft" && section === "data" && workspace.length === 2) {
-    return {
-      ...base,
-      kind: "data",
-      tab: parseEnum(searchParams.get("tab"), dataViews) ?? "setup",
-    }
+    return { ...base, kind: "data" }
   }
 
   if (environment === "paper" && workspace.length === 1) {
@@ -184,10 +179,8 @@ export function changeSetHref(championId: string, changeSetId: string) {
   return `/champions/${encodeURIComponent(championId)}/draft/changes/${encodeURIComponent(changeSetId)}`
 }
 
-export function dataHref(championId: string, tab: DataView = "setup") {
-  return withQuery(`/champions/${encodeURIComponent(championId)}/draft/data`, {
-    tab: tab === "setup" ? undefined : tab,
-  })
+export function dataHref(championId: string) {
+  return `/champions/${encodeURIComponent(championId)}/draft/data`
 }
 
 export function paperIndexHref(championId: string) {
@@ -275,6 +268,5 @@ function decodeSegment(value: string) {
 
 const draftViews = ["summary", "document"] as const
 const evaluationViews = ["summary", "activity"] as const
-const dataViews = ["setup", "capabilities", "bindings", "sources"] as const
 const paperViews = ["overview", "runs", "positions", "orders", "strategy"] as const
 const evidencePanels = ["problems", "dry-runs", "checkpoints", "data"] as const

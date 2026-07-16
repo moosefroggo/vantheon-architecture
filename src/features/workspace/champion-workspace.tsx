@@ -86,7 +86,6 @@ import {
   WorkspaceEvidencePanel,
   type WorkspaceEvidenceTab,
 } from "./workspace-evidence-panel"
-import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 import { WorkspaceContextStatus } from "./workspace-context-status"
 import { WorkspaceEnvironmentNavigationItem } from "./workspace-environment-navigation-item"
 import { WorkspacePageHeader } from "./workspace-page-header"
@@ -549,7 +548,7 @@ export function ChampionWorkspace() {
   const defaultViewedContext =
     activeContext === "draft"
       ? route.kind === "data"
-        ? "Drafting · Data"
+        ? "Drafting · Datasets"
         : selectedDryRun
         ? `Evaluation · ${selectedDryRun.label} · ${titleCase(dryRunTab)}`
         : `Drafting · ${titleCase(draftSelection.surface)}`
@@ -1071,6 +1070,22 @@ export function ChampionWorkspace() {
     navigate(draftHref(championId))
   }
 
+  function returnToDraftRuns() {
+    updateChampionSession(championId, (current) => ({
+      ...current,
+      draftSelection: {
+        ...current.draftSelection,
+        dryRunId: null,
+      },
+      conversation: {
+        ...current.conversation,
+        context: null,
+      },
+    }))
+    setBottomPanel({ tab: "dry-runs", expanded: true })
+    navigate(`${draftHref(championId)}?panel=dry-runs`)
+  }
+
   function returnToPaperOverview() {
     updateChampionSession(championId, (current) => ({
       ...current,
@@ -1326,7 +1341,7 @@ export function ChampionWorkspace() {
                 }}
               >
                 <Database />
-                <span>Data</span>
+                <span>Datasets</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -1342,22 +1357,7 @@ export function ChampionWorkspace() {
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
         <div className="flex h-12 shrink-0 items-center gap-3 border-b px-3">
           <SidebarTrigger />
-          {activeContext === "draft" && selectedDryRun ? (
-            <WorkspaceHeaderBreadcrumbs
-              items={[
-                { label: strategyLabel, onSelect: returnToDraftWorkspace },
-                { label: selectedDryRun.label },
-              ]}
-            />
-          ) : activeContext === "paper" && selectedPaperRun ? (
-            <WorkspaceHeaderBreadcrumbs
-              items={[
-                { label: "Paper", onSelect: returnToPaperOverview },
-                { label: "Runs", onSelect: openPaperRuns },
-                { label: selectedPaperRun.label },
-              ]}
-            />
-          ) : activeContext === "live" ? (
+          {activeContext === "live" ? (
             <span className="text-sm font-medium md:hidden">Live</span>
           ) : (
             <Tabs
@@ -1400,15 +1400,6 @@ export function ChampionWorkspace() {
                           (item) => item.label === "Data cutoff"
                         )?.value ?? "Unavailable",
                     }
-                  : route.kind === "data"
-                    ? {
-                        kind: "evaluation" as const,
-                        dataCutoff: evaluationSetupTemplate
-                          ? formatDemoTimestamp(
-                              evaluationSetupTemplate.setup.dataCutoff
-                            )
-                          : "Unavailable",
-                      }
                   : { kind: "draft" as const, label: localSaveStatus })}
           />
         </div>
@@ -1468,18 +1459,10 @@ export function ChampionWorkspace() {
                 )
               ) : route.kind === "data" ? (
                 demo.scenario && scenarioChampion ? (
-                  <DataWorkspace
-                    scenario={demo.scenario}
-                    championId={scenarioChampion.id}
-                    activeTab={route.tab}
-                    onTabChange={(tab) => navigate(dataHref(championId, tab))}
-                    onOpenSource={(sourceId) =>
-                      navigate(sourceArtifactHref(championId, sourceId))
-                    }
-                  />
+                  <DataWorkspace />
                 ) : (
                   <UnavailableWorkspaceResource
-                    label="Data"
+                    label="Datasets"
                     onBack={() => navigate(draftHref(championId))}
                   />
                 )
@@ -1487,12 +1470,12 @@ export function ChampionWorkspace() {
                 routedSource && routedSourceBelongsToChampion ? (
                   <SourceArtifactWorkspace
                     source={routedSource}
-                    onBack={() => navigate(dataHref(championId, "sources"))}
+                    onBack={() => navigate(dataHref(championId))}
                   />
                 ) : (
                   <UnavailableWorkspaceResource
                     label="Source artifact"
-                    onBack={() => navigate(dataHref(championId, "sources"))}
+                    onBack={() => navigate(dataHref(championId))}
                   />
                 )
               ) : route.kind === "evaluation" && !selectedDryRun ? (
@@ -1505,6 +1488,8 @@ export function ChampionWorkspace() {
                   <DryRunWorkspace
                     run={selectedDryRun}
                     activeTab={dryRunTab}
+                    onBack={returnToDraftWorkspace}
+                    onOpenRuns={returnToDraftRuns}
                     onActiveTabChange={(dryRunTab) => {
                       updateChampionSession(championId, (current) => ({
                         ...current,
@@ -1634,6 +1619,8 @@ export function ChampionWorkspace() {
                     selectedReference={selectedPaperReference}
                     runTab={paperRunTab}
                     onOpenDraft={() => selectWorkspaceContext(championId, "draft")}
+                    onOpenPortfolio={returnToPaperOverview}
+                    onOpenRuns={openPaperRuns}
                     lifecycleOperation={selectedPaperLifecycleOperation}
                     onStop={() => reviewPaperLifecycle("stop")}
                     onArchive={() => reviewPaperLifecycle("archive")}

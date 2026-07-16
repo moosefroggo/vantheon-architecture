@@ -33,6 +33,7 @@ import type {
 } from "@/lib/charts/contracts"
 
 import { WorkspacePageHeader } from "./workspace-page-header"
+import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 
 export type PaperRunFixture = {
   readonly id: string
@@ -196,6 +197,8 @@ export type PaperPortfolioWorkspaceProps = {
   selectedReference: DomainObjectReference | null
   runTab: PaperRunTab
   onOpenDraft: () => void
+  onOpenPortfolio: () => void
+  onOpenRuns: () => void
   lifecycleOperation?: PaperLifecycleAction | null
   onStop?: () => void
   onArchive?: () => void
@@ -217,7 +220,15 @@ export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
     ? findRunForReference(paper.runs ?? [], selectedReference)
     : null
 
-  if (selectedRun) return <PaperRunWorkspace run={selectedRun} />
+  if (selectedRun) {
+    return (
+      <PaperRunWorkspace
+        run={selectedRun}
+        onOpenPortfolio={props.onOpenPortfolio}
+        onOpenRuns={props.onOpenRuns}
+      />
+    )
+  }
 
   return <PortfolioOverview paper={paper} />
 }
@@ -797,9 +808,24 @@ function RunsPanel({
   )
 }
 
-function PaperRunWorkspace({ run }: { run: PaperRunFixture }) {
+function PaperRunWorkspace({
+  run,
+  onOpenPortfolio,
+  onOpenRuns,
+}: {
+  run: PaperRunFixture
+  onOpenPortfolio: () => void
+  onOpenRuns: () => void
+}) {
   return (
-    <section aria-labelledby="paper-run-title">
+    <section aria-labelledby="paper-run-title" className="space-y-3">
+      <WorkspaceHeaderBreadcrumbs
+        items={[
+          { label: "Paper", onSelect: onOpenPortfolio },
+          { label: "Runs", onSelect: onOpenRuns },
+          { label: run.label },
+        ]}
+      />
       <WorkspacePageHeader
         title={run.label}
         titleId="paper-run-title"

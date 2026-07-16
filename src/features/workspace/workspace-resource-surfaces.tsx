@@ -13,16 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import type {
   ChangeSetRecord,
   DraftCheckpointRecord,
   EvaluationRecord,
   SourceArtifactRecord,
-  WorkspaceScenario,
 } from "./demo"
-import type { DataView } from "./workspace-route"
 import { WorkspacePageHeader } from "./workspace-page-header"
 
 export function ChangeSetReviewWorkspace({
@@ -204,86 +200,40 @@ export function CheckpointDetailWorkspace({
   )
 }
 
-export function DataWorkspace({
-  scenario,
-  championId,
-  activeTab,
-  onTabChange,
-  onOpenSource,
-}: {
-  scenario: WorkspaceScenario
-  championId: string
-  activeTab: DataView
-  onTabChange: (tab: DataView) => void
-  onOpenSource: (sourceId: string) => void
-}) {
-  const evaluations = Object.values(scenario.evaluations)
-    .filter((evaluation) => evaluation.championId === championId)
-    .sort((left, right) => right.startedAt.localeCompare(left.startedAt))
-  const latest = evaluations[0]
-  const draft = Object.values(scenario.drafts).find(
-    (candidate) => candidate.championId === championId && candidate.status === "active"
-  )
-  const checkpoint = draft ? scenario.checkpoints[draft.currentCheckpointId] : undefined
-  const rules = checkpoint?.strategy.sections.flatMap((section) => section.rules) ?? []
-  const sources = [...new Set(evaluations.flatMap((evaluation) => evaluation.sourceArtifactIds))]
-    .map((id) => scenario.sourceArtifacts[id])
-    .filter((source): source is SourceArtifactRecord => Boolean(source))
-
+export function DataWorkspace() {
   return (
-    <section className="flex h-full min-h-0 flex-col" aria-label="Data">
+    <section className="flex h-full min-h-0 flex-col" aria-label="Datasets">
       <WorkspacePageHeader
-        title="Data"
-        badges={[{ label: latest ? `Cutoff ${formatTimestamp(latest.setup.dataCutoff)}` : "No Evaluation" }]}
-        details="Evaluation setup, available capabilities, demo bindings, and immutable source artifacts are represented separately."
+        title="Datasets"
+        details="Everything your champion has access to."
         className="px-6 py-4"
       />
-      <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as DataView)} className="min-h-0 flex-1 px-6 pb-6">
-        <TabsList>
-          <TabsTrigger value="setup">Evaluation setup</TabsTrigger>
-          <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-          <TabsTrigger value="bindings">Demo bindings</TabsTrigger>
-          <TabsTrigger value="sources">Sources</TabsTrigger>
-        </TabsList>
-        <TabsContent value="setup"><EvaluationSetupCard evaluation={latest} scenario={scenario} /></TabsContent>
-        <TabsContent value="capabilities">
-          <SimpleTable
-            headers={["Capability", "Status", "Freshness"]}
-            rows={rules.map((rule) => [
-              rule.dataRequirementIds.join(", ") || "Schedule clock",
-              rule.dataRequirementIds.length ? "Bound in demo" : "Built-in",
-              latest ? formatTimestamp(latest.setup.dataCutoff) : "Unavailable",
-            ])}
-          />
-        </TabsContent>
-        <TabsContent value="bindings">
-          <SimpleTable
-            headers={["Strategy rule", "Capability binding", "Failure behavior"]}
-            rows={rules.map((rule) => [
-              rule.label,
-              rule.dataRequirementIds.join(", ") || "Schedule clock",
-              "Unavailable result · no order",
-            ])}
-          />
-        </TabsContent>
-        <TabsContent value="sources">
-          <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader><TableRow><TableHead>Artifact</TableHead><TableHead>Provider</TableHead><TableHead>As of</TableHead><TableHead /></TableRow></TableHeader>
-              <TableBody>
-                {sources.map((source) => (
-                  <TableRow key={source.id}>
-                    <TableCell className="font-medium">{source.dataset}</TableCell>
-                    <TableCell>{source.provider}</TableCell>
-                    <TableCell>{formatTimestamp(source.asOf)}</TableCell>
-                    <TableCell className="text-right"><Button type="button" variant="ghost" size="sm" onClick={() => onOpenSource(source.id)}>Open</Button></TableCell>
-                  </TableRow>
+      <div className="min-h-0 flex-1 overflow-auto px-6 pb-6">
+        <div className="space-y-7">
+          {datasetGroups.map((group) => (
+            <section key={group.label} aria-labelledby={`dataset-${group.slug}`}>
+              <h2
+                id={`dataset-${group.slug}`}
+                className="mb-3 text-xs font-semibold uppercase tracking-wide"
+              >
+                {group.label}
+              </h2>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {group.items.map((item) => (
+                  <Card key={item.label} className="shadow-none">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">{item.label}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
     </section>
   )
 }
@@ -301,7 +251,7 @@ export function SourceArtifactWorkspace({
         title={source.dataset}
         badges={[{ label: "Immutable source artifact" }]}
         details="This artifact is evidence referenced by rule evaluations; it is not a mutable dataset configuration."
-        action={<Button type="button" variant="outline" onClick={onBack}>Back to Data</Button>}
+        action={<Button type="button" variant="outline" onClick={onBack}>Back to Datasets</Button>}
       />
       <Card className="mt-4 max-w-3xl">
         <CardHeader><CardTitle className="flex items-center gap-2"><LockKeyhole className="size-4" /> Provenance</CardTitle></CardHeader>
@@ -337,38 +287,58 @@ export function UnavailableWorkspaceResource({
   )
 }
 
-function EvaluationSetupCard({ evaluation, scenario }: { evaluation?: EvaluationRecord; scenario: WorkspaceScenario }) {
-  if (!evaluation) return <p className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">Evaluation setup is unavailable.</p>
-  const benchmark = scenario.benchmarks[evaluation.setup.benchmarkId]
-  return (
-    <SimpleTable
-      headers={["Locked field", "Value"]}
-      rows={[
-        ["Checkpoint", evaluation.checkpointId],
-        ["Strategy hash", evaluation.strategyHash],
-        ["Universe / source", `${evaluation.setup.source.provider} · ${evaluation.setup.source.dataset}`],
-        ["Benchmark", benchmark?.displayName ?? "Unavailable"],
-        ["Window", `${evaluation.setup.window.start} – ${evaluation.setup.window.end}`],
-        ["Capital", `$${evaluation.setup.startingCapital.toLocaleString()} simulated`],
-        ["Costs", `${evaluation.setup.transactionCostBps} bps · ${evaluation.setup.fillModel}`],
-        ["Timezone", evaluation.setup.timezone],
-        ["Cutoff", formatTimestamp(evaluation.setup.dataCutoff)],
-        ["Limitations", "Deterministic demo · no real orders or capital"],
-      ]}
-    />
-  )
-}
-
-function SimpleTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
-  return (
-    <div className="overflow-hidden rounded-lg border">
-      <Table>
-        <TableHeader><TableRow>{headers.map((header) => <TableHead key={header}>{header}</TableHead>)}</TableRow></TableHeader>
-        <TableBody>{rows.map((row, index) => <TableRow key={index}>{row.map((value, cell) => <TableCell key={cell} className={cell === 0 ? "font-medium" : undefined}>{value}</TableCell>)}</TableRow>)}</TableBody>
-      </Table>
-    </div>
-  )
-}
+const datasetGroups = [
+  {
+    label: "Portfolio",
+    slug: "portfolio",
+    items: [
+      { label: "Positions", description: "What the champion currently holds, with size and value." },
+      { label: "Buying Power", description: "How much cash the strategy has to spend on new buys right now." },
+    ],
+  },
+  {
+    label: "Research & News",
+    slug: "research-news",
+    items: [
+      { label: "Asset Search", description: "Look up any stock, coin, or option by name or ticker." },
+      { label: "Web Search", description: "Quick answers and links from across the web on any topic." },
+      { label: "Deep Research", description: "A deeper, multi-source dig when a quick search isn’t enough." },
+      { label: "Stock Screener", description: "Find stocks that match filters like size, industry, or dividend." },
+      { label: "News", description: "Recent news articles about a company or the market." },
+      { label: "Fundamentals", description: "A company’s earnings, revenue, debt, and financial health." },
+      { label: "Market Info", description: "Whether the market is open, plus movers and key dates." },
+      { label: "Macro Economics", description: "The economy and market at a glance: inflation, rates, the VIX." },
+    ],
+  },
+  {
+    label: "Prices & Charts",
+    slug: "prices-charts",
+    items: [
+      { label: "Price History", description: "How a stock or coin has traded over time, from minutes to years." },
+      { label: "Live Quotes", description: "The current price, bid, and ask for any ticker right now." },
+      { label: "Technical Indicators", description: "Chart signals like RSI and moving averages built from prices." },
+    ],
+  },
+  {
+    label: "Options",
+    slug: "options",
+    items: [
+      { label: "Options Chains", description: "Every option contract available for a stock, with its prices." },
+      { label: "Options Greeks", description: "How an option’s price reacts to moves, time, and volatility." },
+      { label: "Volatility Surface", description: "How expensive options are across strikes and expirations." },
+      { label: "Options Flow", description: "Unusual options bets as they happen, and how they lean." },
+    ],
+  },
+  {
+    label: "Who's Buying & Selling",
+    slug: "buying-selling",
+    items: [
+      { label: "Dark Pool", description: "Large trades made privately, away from the public exchanges." },
+      { label: "Congressional Trades", description: "Stocks that members of Congress have recently bought and sold." },
+      { label: "Insider Trades", description: "Stocks that a company’s own executives have bought and sold." },
+    ],
+  },
+] as const
 
 function ReviewFact({ label, value }: { label: string; value: string }) {
   return <Card><CardHeader><CardTitle>{label}</CardTitle></CardHeader><CardContent><p className="text-sm">{value}</p></CardContent></Card>

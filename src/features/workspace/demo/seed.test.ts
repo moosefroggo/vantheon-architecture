@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { entityId } from "@/domain/identity";
+
 import { validateWorkspaceScenario } from "./invariants";
 import { createWorkspaceDemoSeed, WORKSPACE_DEMO_IDS } from "./seed";
 
@@ -172,5 +174,21 @@ describe("normalized workspace demo seed", () => {
         "duplicate-evaluation-decision-reference",
       ])
     );
+  });
+
+  it("rejects more than one Paper portfolio for an immutable strategy version", async () => {
+    const scenario = await createWorkspaceDemoSeed();
+    const source = scenario.portfolios[WORKSPACE_DEMO_IDS.iris.portfolio];
+    const duplicateId = entityId("paper-portfolio", "paper_portfolio_duplicate");
+    scenario.portfolios[duplicateId] = {
+      ...structuredClone(source),
+      id: duplicateId,
+      displayName: "Invalid duplicate",
+    };
+
+    const codes = (await validateWorkspaceScenario(scenario)).map(
+      (violation) => violation.code
+    );
+    expect(codes).toContain("strategy-paper-cardinality-mismatch");
   });
 });

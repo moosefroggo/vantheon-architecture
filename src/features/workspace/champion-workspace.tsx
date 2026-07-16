@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import {
+  Archive,
   CircleUserRound,
   Database,
   LockKeyhole,
@@ -1224,7 +1225,9 @@ export function ChampionWorkspace() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     size="lg"
-                    isActive={activeContext === "draft"}
+                    isActive={
+                      activeContext !== "live" && route.kind !== "paper-archived"
+                    }
                     onClick={() => selectWorkspaceContext(championId, "draft")}
                   >
                     <NotebookTabs />
@@ -1237,64 +1240,38 @@ export function ChampionWorkspace() {
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <WorkspaceEnvironmentNavigationItem
-                    label="Paper"
-                    status={
-                      paperPortfolios.some(
-                        (portfolio) => portfolio.operationalState !== "archived"
-                      )
-                        ? {
-                            kind: "running",
-                            portfolioCount: paperPortfolios.filter(
-                              (portfolio) => portfolio.operationalState !== "archived"
-                            ).length,
-                          }
-                        : paperLaunched
-                          ? {
-                              kind: "archived",
-                              portfolioCount: paperPortfolios.length,
-                            }
-                          : { kind: "empty", environment: "paper" }
-                    }
-                    active={activeContext === "paper"}
-                    onClick={() => selectWorkspaceContext(championId, "paper")}
-                  />
-                </SidebarMenuItem>
-                {paperPortfolios
-                  .filter((portfolio) => portfolio.operationalState !== "archived")
-                  .map((portfolio) => (
-                    <SidebarMenuItem key={portfolio.id}>
-                      <WorkspaceEnvironmentNavigationItem
-                        label={portfolio.label}
-                        status={
-                          portfolio.operationalState === "stopped"
-                            ? { kind: "stopped" }
-                            : { kind: "running", portfolioCount: 1 }
-                        }
-                        active={selectedPortfolioId === portfolio.id}
-                        onClick={() =>
-                          navigate(paperPortfolioHref(championId, portfolio.id))
-                        }
-                      />
-                    </SidebarMenuItem>
-                  ))}
-                <SidebarMenuItem>
-                  <WorkspaceEnvironmentNavigationItem
-                    label="Archived Paper"
-                    status={{
-                      kind: "archived",
-                      portfolioCount: paperPortfolios.filter(
-                        (portfolio) => portfolio.operationalState === "archived"
-                      ).length,
-                    }}
-                    active={route.kind === "paper-archived"}
-                    onClick={() => navigate(paperArchivedHref(championId))}
-                  />
-                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {paperLaunched ? (
+            <SidebarGroup>
+              <SidebarGroupLabel>Archive</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={route.kind === "paper-archived"}
+                      onClick={() => navigate(paperArchivedHref(championId))}
+                    >
+                      <Archive />
+                      <span className="grid min-w-0 flex-1 text-left leading-tight">
+                        <span>Archived Paper</span>
+                        <span className="text-xs text-muted-foreground">
+                          {
+                            paperPortfolios.filter(
+                              (portfolio) => portfolio.operationalState === "archived"
+                            ).length
+                          }{" "}
+                          retained
+                        </span>
+                      </span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ) : null}
         </SidebarContent>
 
         <SidebarFooter className="border-t">

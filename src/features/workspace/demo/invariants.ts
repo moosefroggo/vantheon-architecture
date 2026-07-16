@@ -415,6 +415,17 @@ export async function validateWorkspaceScenario(
     const currentAccount =
       scenario.accountSnapshots[portfolio.currentAccountSnapshotId];
     if (
+      Object.values(scenario.portfolios).filter(
+        (candidate) => candidate.strategyId === portfolio.strategyId
+      ).length !== 1
+    ) {
+      add(
+        "strategy-paper-cardinality-mismatch",
+        `${path}.strategyId`,
+        "One immutable strategy version must resolve to exactly one Paper portfolio."
+      );
+    }
+    if (
       !strategy ||
       !checkpoint ||
       strategy.sourceCheckpointId !== checkpoint.id ||

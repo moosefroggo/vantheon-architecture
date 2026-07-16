@@ -330,6 +330,18 @@ export function ChampionWorkspace() {
   const paperLaunched = paperPortfolios.length > 0
   const draftLabel = formatDraftLabel(draftLabelFromCheckpoint(checkpoint))
   const checkpointLabel = formatCheckpointLabel(checkpoint)
+  const activePaperPortfolio = paperPortfolios.find(
+    (portfolio) => portfolio.operationalState === "active"
+  )
+  const activePaperRecord = activePaperPortfolio && demo.scenario
+    ? demo.scenario.portfolios[activePaperPortfolio.id]
+    : undefined
+  const activePaperStrategy = activePaperRecord && demo.scenario
+    ? demo.scenario.strategies[activePaperRecord.strategyId]
+    : undefined
+  const strategySidebarStatus = activePaperPortfolio
+    ? `${activePaperStrategy ? `Paper V${activePaperStrategy.version}` : "Paper"} · Active portfolio`
+    : `${draftLabel.replace(/^Drafting\s+/, "")} · ${checkpointLabel}`
   const currentEvaluation =
     evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
@@ -1231,8 +1243,7 @@ export function ChampionWorkspace() {
                     <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate">{draftView.title}</span>
                       <span className="truncate text-xs text-foreground">
-                        {draftLabel} · {checkpointLabel} ·{" "}
-                        {evaluationComplete ? "Tested" : "Untested"}
+                        {strategySidebarStatus}
                       </span>
                     </span>
                   </SidebarMenuButton>

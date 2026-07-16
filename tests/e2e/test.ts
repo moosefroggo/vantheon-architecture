@@ -131,7 +131,7 @@ async function waitForScenarioProjection(page: Page) {
   if (pathname.startsWith("/champions/mara/")) {
     await expect(
       navigation.getByRole("button", {
-        name: /Lower-volatility momentum.*Tested/,
+        name: /Lower-volatility momentum.*V1.*Checkpoint 2/,
       }),
     ).toBeVisible();
   }
@@ -139,7 +139,7 @@ async function waitForScenarioProjection(page: Page) {
   if (pathname.startsWith("/champions/iris/")) {
     await expect(
       navigation.getByRole("button", {
-        name: /Quality income compounders.*Drafting V2.*Checkpoint 0.*Untested/,
+        name: /Quality income compounders.*Paper V1.*Active portfolio/,
       }),
     ).toBeVisible();
   }

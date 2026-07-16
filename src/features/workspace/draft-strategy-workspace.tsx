@@ -13,7 +13,6 @@ import type {
   WorkspaceEvaluationFixture,
 } from "./workspace-fixtures"
 import { WorkspacePageHeader } from "./workspace-page-header"
-import { formatCheckpointLabel } from "@/lib/version-labels"
 
 export type DraftDecisionSelection = {
   checkpoint: string
@@ -25,7 +24,6 @@ export type DraftSurfaceTab = "summary" | "document"
 export type DraftStrategyWorkspaceProps = {
   draft: WorkspaceDraftFixture
   evaluation: WorkspaceEvaluationFixture | null
-  draftLabel: string
   checkpoint: string
   evaluationComplete: boolean
   authorityOperation: string | null
@@ -42,7 +40,6 @@ export type DraftStrategyWorkspaceProps = {
 export function DraftStrategyWorkspace({
   draft,
   evaluation,
-  draftLabel,
   checkpoint,
   evaluationComplete,
   authorityOperation,
@@ -75,9 +72,9 @@ export function DraftStrategyWorkspace({
       <WorkspacePageHeader
         title={draft.title}
         badges={[
-          { label: draftLabel },
-          { label: readOnly ? "Drafting · Read only" : "Drafting", variant: "outline" },
-          { label: formatCheckpointLabel(checkpoint), variant: "outline" },
+          ...(readOnly
+            ? [{ label: "Read only", variant: "outline" as const }]
+            : []),
           {
             label: currentEvaluation ? "Tested" : "Untested",
             variant: currentEvaluation ? "secondary" : "outline",

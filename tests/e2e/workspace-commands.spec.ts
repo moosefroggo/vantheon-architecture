@@ -283,8 +283,14 @@ test.describe("Mara command authority", () => {
     ).toBeVisible();
     await page.getByRole("button", { name: "Open Draft" }).click();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
-    await expect(page.getByText("Strategy V1", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Drafting · Read only", { exact: true })).toBeVisible();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Champion workspace navigation" })
+        .getByRole("button", {
+          name: /Lower-volatility momentum.*Strategy V1.*Active portfolio/,
+        }),
+    ).toBeVisible();
+    await expect(page.getByText("Read only", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Dry Run", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /^Edit .* rule$/ })).toHaveCount(0);
 

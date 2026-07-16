@@ -548,8 +548,8 @@ export function ChampionWorkspace() {
   const defaultViewedContext =
     activeContext === "draft"
       ? selectedDryRun
-        ? `${draftLabel} · ${selectedDryRun.label} · ${titleCase(dryRunTab)}`
-        : `${draftLabel} · ${titleCase(draftSelection.surface)}`
+        ? `Evaluation · ${selectedDryRun.label} · ${titleCase(dryRunTab)}`
+        : `Drafting · ${titleCase(draftSelection.surface)}`
       : activeContext === "paper"
         ? paperLaunched
           ? selectedPaperRun
@@ -1502,7 +1502,6 @@ export function ChampionWorkspace() {
                     key={championId}
                     draft={draftView}
                     evaluation={currentEvaluation}
-                    draftLabel={strategyLabel}
                   checkpoint={checkpoint}
                   evaluationComplete={evaluationComplete}
                   authorityOperation={authorityOperation}
@@ -1821,7 +1820,7 @@ export function ChampionWorkspace() {
                 championId,
                 request,
                 attachedContext ?? viewedContext,
-                `${draftLabel} · ${checkpointLabel}`,
+                `${draftView.title} · ${checkpointLabel}`,
                 Boolean(attachedContext)
               )
             }
@@ -1871,7 +1870,7 @@ export function ChampionWorkspace() {
           }))
         }
         onConfirm={confirmPaperLaunch}
-        source={`${draftLabel} · ${checkpointLabel}`}
+        source={`${strategyLabel} · ${checkpointLabel}`}
         evaluationId={currentEvaluation?.id ?? "Unavailable"}
         benchmark={
           currentEvaluation?.setup.find((item) => item.label === "Benchmark")?.value ??
@@ -2235,13 +2234,12 @@ function projectPaperPortfolio(
 ): PaperLaunchSnapshot {
   const checkpoint = scenario.checkpoints[portfolio.sourceCheckpointId]
   const strategy = scenario.strategies[portfolio.strategyId]
-  const generation = checkpoint?.generation ?? 1
 
   return {
     id: portfolio.id,
     label: portfolio.displayName,
     source: checkpoint
-      ? `Strategy V${strategy?.version ?? generation} · Checkpoint ${checkpoint.ordinal}`
+      ? `Checkpoint ${checkpoint.ordinal}`
       : "Source checkpoint unavailable",
     rules: strategy ? projectStrategyRules(strategy.strategy) : [],
     operationalState: portfolio.state,
@@ -2379,7 +2377,7 @@ function projectPaperWorkspace(
     operationalState: snapshot.operationalState,
     strategy: strategy ? `Running ${strategy.label}` : "Unavailable",
     source: checkpoint
-      ? `Strategy V${strategy?.version ?? checkpoint.generation} · Checkpoint ${checkpoint.ordinal}`
+      ? `Checkpoint ${checkpoint.ordinal}`
       : "Unavailable",
     portfolioValue: account?.accountValue ?? portfolio.simulatedCapital,
     totalReturn: account?.cumulativeTimeWeightedReturn ?? 0,

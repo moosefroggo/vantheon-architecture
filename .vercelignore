@@ -1,0 +1,19 @@
+# Private source-site captures are audit evidence, never deployment inputs.
+site-mirror/
+
+# Local agent and design-review artifacts are not part of the demo runtime.
+.claude/
+visualizations/
+archive/
+docs/
+tests/
+test-results/
+playwright-report/
+
+# Local build, dependency, compiler, and repository state.
+.git/
+.next/
+node_modules/
+coverage/
+*.tsbuildinfo
+.DS_Store

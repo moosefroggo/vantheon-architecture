@@ -14,7 +14,7 @@ interface WorkspaceInteractionValues {
   readonly activityPanelOpen: boolean;
   readonly focusedReference: AnyDomainReference | null;
   readonly paperComparison: readonly EntityReference<"paper-portfolio">[];
-  readonly composerDraft: string;
+  readonly composerDrafts: Readonly<Record<string, string>>;
 }
 
 interface WorkspaceInteractionActions {
@@ -24,7 +24,8 @@ interface WorkspaceInteractionActions {
   togglePaperComparison: (
     portfolio: EntityReference<"paper-portfolio">,
   ) => void;
-  setComposerDraft: (value: string) => void;
+  setComposerDraft: (championId: string, value: string) => void;
+  clearComposerDraft: (championId: string) => void;
   resetInteractions: () => void;
 }
 
@@ -36,7 +37,7 @@ const initialValues: WorkspaceInteractionValues = {
   activityPanelOpen: false,
   focusedReference: null,
   paperComparison: [],
-  composerDraft: "",
+  composerDrafts: {},
 };
 
 /** Disposable UI state only. Server-backed entities belong in TanStack Query. */
@@ -58,7 +59,16 @@ export const useWorkspaceInteractionStore = create<WorkspaceInteractionStore>()(
             : [...state.paperComparison, portfolio],
         };
       }),
-    setComposerDraft: (composerDraft) => set({ composerDraft }),
+    setComposerDraft: (championId, value) =>
+      set((state) => ({
+        composerDrafts: { ...state.composerDrafts, [championId]: value },
+      })),
+    clearComposerDraft: (championId) =>
+      set((state) => {
+        const composerDrafts = { ...state.composerDrafts };
+        delete composerDrafts[championId];
+        return { composerDrafts };
+      }),
     resetInteractions: () => set(initialValues),
   }),
 );

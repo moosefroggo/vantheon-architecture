@@ -54,7 +54,7 @@ global/account product.
 
 | Priority | Finding | Consequence |
 | --- | --- | --- |
-| **P0 before artifact sharing** | An excluded auth capture serializes two non-empty password fields. | Do not distribute the mirror until both source/generated copies and catalog entries are scrubbed and sanitation is automated. The value is never repeated in these reports. |
+| **P0 remediated locally** | The excluded auth capture had serialized two non-empty password fields. | Source/generated copies and catalog entries are scrubbed; `npm run artifacts:check` enforces sanitation. The raw mirror remains ignored and non-distributable. |
 | **P1** | Iris shows Draft `V2.0` while its authority expects `V1.1`. | Dry Run and restore fail with a stale-checkpoint error in the built UI. |
 | **P1** | Iris claims monthly cadence but supplies weekly runs/equity points; Evaluation uses Russell 1000 Value while Paper silently uses SPY. | The otherwise strong chart is not a coherent evidence fixture. |
 | **P1** | Evidence-panel tab, open checkpoint, and restore-candidate state can cross a Champion switch. | A checkpoint selected for one Champion can remain actionable under another identity. |
@@ -69,7 +69,8 @@ global/account product.
 | **P1** | CI-required Playwright tests target older labels and unreachable flows. | `npm run test:e2e` currently passes 3 of 10 tests and fails 7; browser acceptance is not green. |
 | **P1/P2** | Champions management, settings behavior, feedback/help, legal, branded 404, multiple portfolio actions, and many positive/failure states are absent. | The source covers the core workbench, not the complete downloaded site. |
 
-The credential artifact is the only unconditional P0. The other items are P1
+The credential artifact was the only unconditional P0 and is now locally
+remediated with an automated gate. The other items are P1
 for this simulated, no-real-capital vertical slice; several would become
 release blockers before production use.
 

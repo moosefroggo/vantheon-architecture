@@ -97,7 +97,15 @@ Severity scale:
 
 ### P0 — credential-like value is serialized and served
 
-`ui-states/authentication/password-ready-to-save/index.html` contains non-empty plaintext `value` attributes on both password inputs. The generated copy at `local-preview/preview/states/authentication/password-ready-to-save/index.html` is linked from `local-preview/preview/index.html` and is therefore served to anyone who can reach the preview. The value is not repeated in this report.
+**Remediated locally on 2026-07-15:** both ignored source/generated captures were
+scrubbed, authentication states were removed from the preview catalog, and
+`npm run artifacts:check` now rejects non-empty password fields and common secret
+patterns. The raw mirror remains excluded from Git and must not be distributed.
+
+The original `ui-states/authentication/password-ready-to-save/index.html` capture
+contained non-empty plaintext `value` attributes on both password inputs, and the
+generated preview had copied that state. Those ignored local artifacts are now
+scrubbed and no longer cataloged. The value is not repeated in this report.
 
 Although the password change was canceled and this is a disposable staging account, a credential-like string in a distributable HTML artifact is a release blocker. Remove the authentication state from the preview, scrub every password value from source and generated HTML, rotate the string if it was used anywhere, and add a build-time check that rejects non-empty password inputs and common secret patterns.
 

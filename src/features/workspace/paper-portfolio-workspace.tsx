@@ -232,15 +232,29 @@ export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
     )
   }
 
-  return <PortfolioOverview paper={paper} onDeployLive={props.onDeployLive} />
+  return (
+    <PortfolioOverview
+      paper={paper}
+      onDeployLive={props.onDeployLive}
+      lifecycleOperation={props.lifecycleOperation}
+      onArchive={props.onArchive}
+      onUnarchive={props.onUnarchive}
+    />
+  )
 }
 
 function PortfolioOverview({
   paper,
   onDeployLive,
+  lifecycleOperation,
+  onArchive,
+  onUnarchive,
 }: {
   paper: PaperWorkspaceFixture
   onDeployLive?: () => void
+  lifecycleOperation?: PaperLifecycleAction | null
+  onArchive?: () => void
+  onUnarchive?: () => void
 }) {
   const currency = paper.currency ?? "USD"
   const [range, setRange] = useState<PortfolioRange>("ALL")
@@ -286,14 +300,38 @@ function PortfolioOverview({
         titleId="paper-workspace-title"
         titleLevel={2}
         action={
-          <Button
-            type="button"
-            disabled={!canDeployLive}
-            title={canDeployLive ? undefined : "Only an active Paper portfolio can deploy Live"}
-            onClick={onDeployLive}
-          >
-            Deploy Live
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {paper.operationalState === "archived" ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={lifecycleOperation !== null && lifecycleOperation !== undefined}
+                onClick={onUnarchive}
+              >
+                Unarchive
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={
+                  !onArchive ||
+                  (lifecycleOperation !== null && lifecycleOperation !== undefined)
+                }
+                onClick={onArchive}
+              >
+                {lifecycleOperation === "archive" ? "Archiving…" : "Archive"}
+              </Button>
+            )}
+            <Button
+              type="button"
+              disabled={!canDeployLive}
+              title={canDeployLive ? undefined : "Only an active Paper portfolio can deploy Live"}
+              onClick={onDeployLive}
+            >
+              Deploy Live
+            </Button>
+          </div>
         }
       />
 

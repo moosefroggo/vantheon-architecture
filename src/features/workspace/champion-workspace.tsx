@@ -6,9 +6,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import {
   Archive,
+  ArrowRight,
   CircleUserRound,
   Database,
-  LockKeyhole,
 } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -414,7 +414,6 @@ export function ChampionWorkspace() {
   const checkpoint = draftState.checkpoint
   const paperLaunched = paperPortfolios.length > 0
   const draftLabel = formatDraftLabel(draftLabelFromCheckpoint(checkpoint))
-  const strategyLabel = draftLabel.replace(/^Drafting\s+/, "Strategy ")
   const checkpointLabel = formatCheckpointLabel(checkpoint)
   const draftReadOnly = scenarioChampion && demo.scenario
     ? demo.scenario.drafts[scenarioChampion.currentDraftId]?.status !== "active"
@@ -912,7 +911,7 @@ export function ChampionWorkspace() {
     if (changeSetId) navigate(changeSetHref(sourceChampionId, changeSetId))
   }
 
-  async function confirmPaperLaunch() {
+  async function confirmPaperLaunch(simulatedCapital: number) {
     const sourceChampionId = championId
 
     if (!beginAuthorityOperation(sourceChampionId, "launching-paper")) return
@@ -943,7 +942,7 @@ export function ChampionWorkspace() {
           checkpointId: context.checkpoint.id,
           evaluationId: evaluation.id,
           portfolioName: `${context.checkpoint.strategy.title} · Paper ${sequence}`,
-          simulatedCapital: evaluation.setup.startingCapital,
+          simulatedCapital,
         },
       })
       const result = requireAppliedResult(receipt, "paper-launched")
@@ -1244,7 +1243,8 @@ export function ChampionWorkspace() {
 
     const allowed =
       (action === "stop" && sourcePortfolio.state === "active") ||
-      (action === "archive" && sourcePortfolio.state === "stopped") ||
+      (action === "archive" &&
+        (sourcePortfolio.state === "active" || sourcePortfolio.state === "stopped")) ||
       (action === "unarchive" && sourcePortfolio.state === "archived")
     if (!allowed) {
       setAuthorityError(
@@ -1508,7 +1508,7 @@ export function ChampionWorkspace() {
                   ? {
                       kind: "paper" as const,
                       freshness: paperView?.freshness ?? "Paper collection · local evidence",
-                      marketRelevant: false,
+                      marketRelevant: paperSnapshot?.operationalState === "active",
                       marketSession: marketSessionFixture,
                     }
                   : selectedDryRun
@@ -1986,22 +1986,7 @@ export function ChampionWorkspace() {
             launchReviewOpen: open,
           }))
         }
-        onConfirm={confirmPaperLaunch}
-        source={`${strategyLabel} · ${checkpointLabel}`}
-        evaluationId={currentEvaluation?.id ?? "Unavailable"}
-        benchmark={
-          currentEvaluation?.setup.find((item) => item.label === "Benchmark")?.value ??
-          "Unavailable"
-        }
-        capital={
-          currentEvaluation?.setup.find((item) => item.label === "Capital")?.value ??
-          "Unavailable"
-        }
-        schedule={
-          scenarioCurrentCheckpoint
-            ? describeSchedule(scenarioCurrentCheckpoint.strategy)
-            : "Unavailable"
-        }
+        onConfirm={(simulatedCapital) => void confirmPaperLaunch(simulatedCapital)}
         pending={authorityOperation === "launching-paper"}
         error={authorityError}
       />
@@ -3266,25 +3251,23 @@ function PaperLaunchDialog({
   open,
   onOpenChange,
   onConfirm,
-  source,
-  evaluationId,
-  benchmark,
-  capital,
-  schedule,
   pending,
   error,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onConfirm: () => void
-  source: string
-  evaluationId: string
-  benchmark: string
-  capital: string
-  schedule: string
+  onConfirm: (simulatedCapital: number) => void
   pending: boolean
   error: string | null
 }) {
+  const [description, setDescription] = useState("Initial version")
+  const [buyingPower, setBuyingPower] = useState("10,000")
+  const [cadence, setCadence] = useState("daily")
+  const [timing, setTiming] = useState("market-open")
+  const [runOnMarketHolidays, setRunOnMarketHolidays] = useState(false)
+  const simulatedCapital = Number(buyingPower.replaceAll(",", ""))
+  const buyingPowerValid = Number.isFinite(simulatedCapital) && simulatedCapital > 0
+
   return (
     <Dialog
       open={open}
@@ -3292,42 +3275,95 @@ function PaperLaunchDialog({
         if (!pending) onOpenChange(nextOpen)
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Launch Paper</DialogTitle>
-          <DialogDescription>Simulated capital only. Live remains unchanged.</DialogDescription>
+          <DialogTitle>Paper Trading</DialogTitle>
+          <DialogDescription>
+            Evaluate how your strategy performs with simulated trading.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="overflow-hidden rounded-lg border text-sm">
-          <div className="grid grid-cols-[7rem_1fr] border-b">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Source</span>
-            <span className="flex items-center gap-1.5 px-3 py-2 font-medium">
-              <LockKeyhole aria-hidden="true" className="size-3.5" />
-              {source}
+        <div className="space-y-6 py-1">
+          <div className="space-y-2">
+            <div>
+              <label htmlFor="paper-description" className="text-sm font-semibold">
+                Description
+              </label>
+              <p className="text-sm text-muted-foreground">
+                What changed since the last version?
+              </p>
+            </div>
+            <Input
+              id="paper-description"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <label htmlFor="paper-buying-power" className="text-sm font-semibold">
+                Buying Power
+              </label>
+              <p className="text-sm text-muted-foreground">
+                Starting capital your strategy has to trade with.
+              </p>
+            </div>
+            <div className="flex rounded-md border bg-background focus-within:ring-2 focus-within:ring-ring/50">
+              <span className="grid w-11 shrink-0 place-items-center border-r text-muted-foreground">
+                $
+              </span>
+              <Input
+                id="paper-buying-power"
+                inputMode="numeric"
+                value={buyingPower}
+                onChange={(event) => setBuyingPower(event.target.value)}
+                className="border-0 focus-visible:ring-0"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <span className="text-sm font-semibold">Schedule</span>
+              <p className="text-sm text-muted-foreground">
+                Trades daily at 9:30am ET.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Select value={cadence} onValueChange={(value) => value && setCadence(value)}>
+                <SelectTrigger aria-label="Schedule frequency">
+                  <SelectValue>Daily</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={timing} onValueChange={(value) => value && setTiming(value)}>
+                <SelectTrigger aria-label="Schedule timing">
+                  <SelectValue>Market Open</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="market-open">Market Open</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={runOnMarketHolidays}
+              onChange={(event) => setRunOnMarketHolidays(event.target.checked)}
+              className="mt-0.5 size-4 rounded border"
+            />
+            <span>
+              <span className="block text-sm font-medium">Run on market holidays</span>
+              <span className="block text-sm text-muted-foreground">
+                When off, runs that land on a US market holiday are skipped.
+              </span>
             </span>
-          </div>
-          <div className="grid grid-cols-[7rem_1fr] border-b">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Evaluation</span>
-            <span className="break-all px-3 py-2 font-mono text-xs">{evaluationId}</span>
-          </div>
-          <div className="grid grid-cols-[7rem_1fr] border-b">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Portfolio</span>
-            <span className="px-3 py-2 font-medium">{capital}</span>
-          </div>
-          <div className="grid grid-cols-[7rem_1fr] border-b">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Schedule</span>
-            <span className="px-3 py-2 font-medium">{schedule}</span>
-          </div>
-          <div className="grid grid-cols-[7rem_1fr] border-b">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Benchmark</span>
-            <span className="px-3 py-2 font-medium">{benchmark}</span>
-          </div>
-          <div className="grid grid-cols-[7rem_1fr]">
-            <span className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground">Result</span>
-            <span className="px-3 py-2 font-medium">
-              Paper runs this Strategy · Draft becomes read-only
-            </span>
-          </div>
+          </label>
         </div>
 
         {error ? (
@@ -3339,14 +3375,11 @@ function PaperLaunchDialog({
         <DialogFooter>
           <Button
             type="button"
-            variant="outline"
-            disabled={pending}
-            onClick={() => onOpenChange(false)}
+            disabled={pending || !buyingPowerValid}
+            onClick={() => onConfirm(simulatedCapital)}
           >
-            Cancel
-          </Button>
-          <Button type="button" disabled={pending} onClick={onConfirm}>
-            {pending ? "Launching Paper…" : "Confirm Paper launch"}
+            {pending ? "Promoting…" : "Promote"}
+            {!pending ? <ArrowRight aria-hidden="true" /> : null}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -3368,7 +3401,7 @@ function PaperLifecycleDialog({
     review?.action === "stop"
       ? "Future scheduled runs will stop. Existing strategy, runs, decisions, and evidence remain available."
       : review?.action === "archive"
-        ? "This stopped portfolio moves to Archived Paper and remains inspectable and available for descriptive comparison."
+        ? "Future runs stop and this portfolio moves to Archived Paper. Existing strategy, runs, decisions, and evidence remain available."
         : "This portfolio returns to Stopped. It will not resume scheduled runs automatically."
 
   return (

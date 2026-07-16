@@ -297,7 +297,7 @@ test.describe("Mara command authority", () => {
     const before = await readAuthority(page);
     const maraId = championIdFor(before, "Mara");
 
-    await reviewAndConfirmPaperLaunch(page, "evaluation_mara_v10_2");
+    await reviewAndConfirmPaperLaunch(page);
     await expect(page).toHaveURL(
       /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
     );
@@ -338,10 +338,10 @@ test.describe("Mara command authority", () => {
   });
 });
 
-test.describe("Iris Paper mirror boundary", () => {
+test.describe("Iris Paper lifecycle", () => {
   test.use({ scenario: "iris-paper" });
 
-  test("does not expose lifecycle controls absent from the captured Paper surface", async ({
+  test("archives an active Paper from the main portfolio UI", async ({
     page,
     openScenario,
   }) => {
@@ -351,10 +351,12 @@ test.describe("Iris Paper mirror boundary", () => {
     const portfolio = recordsForChampion(before.portfolios, irisId)[0];
     expect(portfolio?.id).toBe("portfolio_iris_income");
     expect(portfolio?.state).toBe("active");
-    await expect(page.getByRole("button", { name: "Stop", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Archive", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Unarchive", exact: true })).toHaveCount(0);
-    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("active");
+    await expect(page.getByRole("button", { name: "Archive", exact: true })).toBeEnabled();
+    await page.getByRole("button", { name: "Archive", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Archive Paper portfolio?" });
+    await dialog.getByRole("button", { name: "Confirm archive" }).click();
+    await expect(page).toHaveURL(/\/champions\/iris\/paper\/archived$/);
+    expect((await readAuthority(page)).portfolios[portfolio.id]?.state).toBe("archived");
   });
 });
 
@@ -373,13 +375,24 @@ async function proposeRuleChange(page: Page, section: string, request: string) {
   return decodeURIComponent(new URL(page.url()).pathname.split("/").at(-1)!);
 }
 
-async function reviewAndConfirmPaperLaunch(page: Page, evaluationId: string) {
+async function reviewAndConfirmPaperLaunch(page: Page) {
   const atlas = page.getByRole("complementary", { name: "Atlas conversation" });
   await atlas.getByRole("button", { name: "Review launch" }).click();
-  const dialog = page.getByRole("dialog", { name: "Launch Paper" });
-  await expect(dialog).toContainText(evaluationId);
-  await expect(dialog).toContainText("Simulated capital only");
-  await dialog.getByRole("button", { name: "Confirm Paper launch" }).click();
+  const dialog = page.getByRole("dialog", { name: "Paper Trading" });
+  await expect(dialog.getByLabel("Description")).toHaveValue("Initial version");
+  await expect(dialog.getByLabel("Buying Power")).toHaveValue("10,000");
+  await expect(
+    dialog.getByRole("combobox", { name: "Schedule frequency" }),
+  ).toContainText("Daily");
+  await expect(
+    dialog.getByRole("combobox", { name: "Schedule timing" }),
+  ).toContainText("Market Open");
+  await expect(
+    dialog.getByRole("checkbox", { name: "Run on market holidays" }),
+  ).not.toBeChecked();
+  await expect(dialog).not.toContainText("evaluation_mara_v10_2");
+  await expect(dialog).not.toContainText("Benchmark");
+  await dialog.getByRole("button", { name: "Promote" }).click();
 }
 
 function recordsForChampion<T extends { championId: string }>(

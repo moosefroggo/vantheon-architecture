@@ -190,7 +190,7 @@ test.describe("Mara evaluated scenario", () => {
     ).toContainText("V10");
     await expect(
       navigation.getByRole("button", {
-        name: /Balanced factor rotation.*Paper.*vs SPY/,
+        name: /Balanced factor rotation.*Paper.*SPY/,
       }),
     ).toContainText("V9");
     const evaluationBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
@@ -244,7 +244,7 @@ test.describe("Iris Paper scenario", () => {
     );
     await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();
-    await expect(page.getByRole("status", { name: /Portfolio as of/i })).toBeVisible();
+    await expect(page.getByRole("status", { name: /Market open/i })).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();

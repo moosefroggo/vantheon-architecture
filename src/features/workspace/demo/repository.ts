@@ -800,7 +800,7 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
   }
 
   archive(command: ArchivePaperCommand) {
-    return this.changePortfolioState(command, "stopped", "archived");
+    return this.changePortfolioState(command, ["active", "stopped"], "archived");
   }
 
   unarchive(command: UnarchivePaperCommand) {
@@ -850,7 +850,11 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
 
   private changePortfolioState(
     command: StopPaperCommand | ArchivePaperCommand | UnarchivePaperCommand,
-    expectedState: "active" | "stopped" | "archived",
+    expectedState:
+      | "active"
+      | "stopped"
+      | "archived"
+      | readonly ("active" | "stopped" | "archived")[],
     nextState: "stopped" | "archived"
   ) {
     return this.apply<ResultOf<"portfolio-state-changed">>(
@@ -865,19 +869,26 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
           command.expectedPortfolioRevision,
           "Paper portfolio"
         );
-        if (portfolio.state !== expectedState) {
+        const expectedStates = Array.isArray(expectedState)
+          ? expectedState
+          : [expectedState];
+        if (!expectedStates.includes(portfolio.state)) {
           reject(
             "invalid-state",
-            `${command.type} requires a ${expectedState} Paper portfolio.`
+            `${command.type} requires a ${expectedStates.join(" or ")} Paper portfolio.`
           );
         }
         const deployment = scenario.deployments[portfolio.deploymentId];
         if (!deployment) {
           reject("unknown-entity", "Paper deployment does not exist.");
         }
+        const previousState = portfolio.state;
         portfolio.state = nextState;
         portfolio.revision = incrementRevision(portfolio.revision);
-        if (command.type === "stop") {
+        if (
+          command.type === "stop" ||
+          (command.type === "archive" && previousState === "active")
+        ) {
           portfolio.stoppedAt = now;
           deployment.state = "stopped";
           deployment.stoppedAt = now;
@@ -888,7 +899,8 @@ export class WorkspaceAuthorityRepository implements WorkspaceDemoRepository {
           }
           schedule.nextRunAt = undefined;
           schedule.revision = incrementRevision(schedule.revision);
-        } else if (command.type === "archive") {
+        }
+        if (command.type === "archive") {
           portfolio.archivedAt = now;
         }
         // Unarchive deliberately returns to stopped and never restarts a deployment.

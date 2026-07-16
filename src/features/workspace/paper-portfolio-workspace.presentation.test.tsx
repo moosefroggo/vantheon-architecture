@@ -70,9 +70,10 @@ function workspaceProps(
 describe("mirror-aligned Paper portfolio", () => {
   it("renders only the portfolio facts evidenced in the mirror", () => {
     const onDeployLive = vi.fn()
+    const onArchive = vi.fn()
     render(
       <PaperPortfolioWorkspace
-        {...workspaceProps(createPaper(), { onDeployLive })}
+        {...workspaceProps(createPaper(), { onDeployLive, onArchive })}
       />
     )
 
@@ -112,6 +113,8 @@ describe("mirror-aligned Paper portfolio", () => {
     expect(deployLive).toBeEnabled()
     fireEvent.click(deployLive)
     expect(onDeployLive).toHaveBeenCalledOnce()
+    fireEvent.click(screen.getByRole("button", { name: "Archive" }))
+    expect(onArchive).toHaveBeenCalledOnce()
   })
 
   it("reproduces the captured Add funds and Edit schedule dialogs", () => {

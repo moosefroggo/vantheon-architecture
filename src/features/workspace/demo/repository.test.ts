@@ -23,7 +23,6 @@ import type {
   ProposeChangeCommand,
   RejectChangeCommand,
   RestoreCheckpointCommand,
-  StopPaperCommand,
   UnarchivePaperCommand,
   WorkspaceCommandType,
   WorkspaceDemoRepository,
@@ -492,23 +491,15 @@ describe("in-memory workspace authority", () => {
     } satisfies Partial<WorkspaceAuthorityError>);
   });
 
-  it("enforces stop → archive → unarchive as stopped and keeps deployment stopped", async () => {
+  it("archives an active Paper atomically and unarchives it as stopped", async () => {
     const { repository, commandBase } = await createHarness();
     const initial = (await repository.getPortfolio(
       WORKSPACE_DEMO_IDS.iris.portfolio
     ))!;
-    const stopped = await repository.stopPaper({
-      ...commandBase("stop", 1),
+    const archived = await repository.archivePaper({
+      ...commandBase("archive", 1),
       portfolioId: initial.id,
       expectedPortfolioRevision: initial.revision,
-    } satisfies StopPaperCommand);
-    expect(stopped.result).toMatchObject({ state: "stopped" });
-
-    const stoppedPortfolio = (await repository.getPortfolio(initial.id))!;
-    const archived = await repository.archivePaper({
-      ...commandBase("archive", 2),
-      portfolioId: initial.id,
-      expectedPortfolioRevision: stoppedPortfolio.revision,
     } satisfies ArchivePaperCommand);
     expect(archived.result).toMatchObject({ state: "archived" });
     await expect(
@@ -522,7 +513,7 @@ describe("in-memory workspace authority", () => {
 
     const archivedPortfolio = (await repository.getPortfolio(initial.id))!;
     const unarchived = await repository.unarchivePaper({
-      ...commandBase("unarchive", 3),
+      ...commandBase("unarchive", 2),
       portfolioId: initial.id,
       expectedPortfolioRevision: archivedPortfolio.revision,
     } satisfies UnarchivePaperCommand);

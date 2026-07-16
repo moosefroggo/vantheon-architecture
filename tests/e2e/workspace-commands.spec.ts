@@ -240,7 +240,7 @@ test.describe("Mara command authority", () => {
       evaluationIds.push(evaluationId);
       await expect(
         page.getByRole("region", {
-          name: `Evaluation ${evaluationId} details`,
+          name: `Dry Run ${evaluationCount + run + 1} details`,
         }),
       ).toBeVisible();
 
@@ -277,7 +277,7 @@ test.describe("Mara command authority", () => {
       /\/champions\/mara\/paper\/paper_portfolio_[^/?]+$/,
     );
     await expect(page.getByRole("heading", { name: "Portfolio" })).toBeVisible();
-    await page.getByRole("tab", { name: "Drafting" }).click();
+    await page.getByRole("tab", { name: "Strategy" }).click();
     await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
     await expect(
       page

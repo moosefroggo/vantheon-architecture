@@ -223,6 +223,24 @@ type WorkspaceRuntimeState = {
   sessions: Record<string, ChampionSessionState>
 }
 
+type DemoStrategyNavigationEntry = {
+  id: string
+  title: string
+  status: string
+}
+
+const maraStrategyExamples: readonly DemoStrategyNavigationEntry[] = [
+  { id: "mara-defensive-quality", title: "Defensive quality", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-earnings-revisions", title: "Earnings revision leaders", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-dividend-growth", title: "Dividend growth", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-cash-flow", title: "Cash-flow compounders", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-low-beta", title: "Low-beta trend", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-healthcare", title: "Healthcare quality", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-industrials", title: "Industrial momentum", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-small-cap", title: "Small-cap profitability", status: "Strategy V1 · Checkpoint 1" },
+  { id: "mara-balanced-factor", title: "Balanced factor rotation", status: "Strategy V1 · Checkpoint 1" },
+]
+
 export function ChampionWorkspace() {
   const pathname = usePathname()
   const router = useRouter()
@@ -248,10 +266,16 @@ export function ChampionWorkspace() {
   const [resetReviewOpen, setResetReviewOpen] = useState(false)
   const [evaluationReviewOpen, setEvaluationReviewOpen] = useState(false)
   const [schemaResetNotice, setSchemaResetNotice] = useState(false)
+  const [selectedStrategyByChampion, setSelectedStrategyByChampion] = useState<
+    Record<string, string>
+  >({})
+  const [forkedStrategiesByChampion, setForkedStrategiesByChampion] = useState<
+    Record<string, DemoStrategyNavigationEntry[]>
+  >({})
   const [bottomPanel, setBottomPanel] = useState<{
     tab: WorkspaceEvidenceTab
     expanded: boolean
-  }>({ tab: "problems", expanded: false })
+  }>({ tab: "activity", expanded: false })
   const runtimeRef = useRef(runtime)
   const conversationSequenceRef = useRef(0)
   const demo = useWorkspaceDemoScenario()
@@ -317,9 +341,9 @@ export function ChampionWorkspace() {
   const session = requestedSession ?? runtime.sessions[workspaceFixture.champion.id]
 
   const {
-    evaluations,
+    evaluations: sessionEvaluations,
     draftState,
-    paperPortfolios,
+    paperPortfolios: sessionPaperPortfolios,
     paperLifecycleOperation,
     paperLifecycleReview,
     draftSelection,
@@ -329,6 +353,29 @@ export function ChampionWorkspace() {
     authorityOperation,
     authorityError,
   } = session
+  const primaryStrategyId = `${championId}-primary`
+  const strategyEntries: DemoStrategyNavigationEntry[] = [
+    {
+      id: primaryStrategyId,
+      title: workspaceFixture.draft.title,
+      status: "",
+    },
+    ...(championId === "mara" ? maraStrategyExamples : []),
+    ...(forkedStrategiesByChampion[championId] ?? []),
+  ]
+  const requestedStrategyId = selectedStrategyByChampion[championId]
+  const selectedStrategy =
+    strategyEntries.find((entry) => entry.id === requestedStrategyId) ??
+    strategyEntries[0]
+  const primaryStrategySelected = selectedStrategy.id === primaryStrategyId
+  const evaluations = useMemo(
+    () => (primaryStrategySelected ? sessionEvaluations : []),
+    [primaryStrategySelected, sessionEvaluations]
+  )
+  const paperPortfolios = useMemo(
+    () => (primaryStrategySelected ? sessionPaperPortfolios : []),
+    [primaryStrategySelected, sessionPaperPortfolios]
+  )
   const activeContext = contextFromRoute(route)
   const checkpoint = draftState.checkpoint
   const paperLaunched = paperPortfolios.length > 0
@@ -347,7 +394,7 @@ export function ChampionWorkspace() {
   const strategySidebarStatus = activePaperPortfolio
     ? `${activePaperStrategy ? `Strategy V${activePaperStrategy.version}` : strategyLabel} · Active portfolio`
     : `${strategyLabel} · ${checkpointLabel}`
-  const draftReadOnly = paperLaunched
+  const draftReadOnly = paperLaunched || !primaryStrategySelected
   const currentEvaluation =
     evaluations.findLast((evaluation) => evaluation.checkpoint === checkpoint) ?? null
   const latestEvaluation = evaluations.at(-1) ?? null
@@ -408,6 +455,7 @@ export function ChampionWorkspace() {
 
   const draftView = {
     ...workspaceFixture.draft,
+    title: selectedStrategy.title,
     label: draftLabel,
     checkpoint,
     rules: draftState.rules,
@@ -561,6 +609,18 @@ export function ChampionWorkspace() {
         : "Live · Readiness"
   const viewedContext = defaultViewedContext
   const attachedContext = conversation.context
+  const workspaceActivity = [
+    ...[...conversation.exchanges].reverse().map((exchange) => ({
+      id: `atlas-${exchange.id}`,
+      title: "Atlas request sent",
+      detail: `${exchange.request} · ${exchange.viewedContext}`,
+    })),
+    ...[...evaluations].reverse().map((evaluation) => ({
+      id: `evaluation-${evaluation.id}`,
+      title: `${evaluation.label} completed`,
+      detail: `${formatCheckpointLabel(evaluation.checkpoint)} · ${evaluation.completedAt}`,
+    })),
+  ].slice(0, 12)
 
   function commitRuntime(
     update: (current: WorkspaceRuntimeState) => WorkspaceRuntimeState
@@ -632,19 +692,52 @@ export function ChampionWorkspace() {
         },
       }
     })
-    setBottomPanel({ tab: "problems", expanded: false })
+    setBottomPanel({ tab: "activity", expanded: false })
     setEvaluationReviewOpen(false)
     setResetReviewOpen(false)
     setProfileOpen(false)
     navigate(nextHref)
   }
 
+  function selectStrategy(strategyId: string) {
+    setSelectedStrategyByChampion((current) => ({
+      ...current,
+      [championId]: strategyId,
+    }))
+    setBottomPanel({ tab: "activity", expanded: false })
+    navigate(draftHref(championId))
+  }
+
+  function forkCurrentStrategy() {
+    const sequence = (forkedStrategiesByChampion[championId]?.length ?? 0) + 1
+    const fork: DemoStrategyNavigationEntry = {
+      id: `${championId}-fork-${Date.now()}`,
+      title: `${draftView.title} fork ${sequence}`,
+      status: "Strategy V1 · Checkpoint 1",
+    }
+    setForkedStrategiesByChampion((current) => ({
+      ...current,
+      [championId]: [...(current[championId] ?? []), fork],
+    }))
+    setSelectedStrategyByChampion((current) => ({
+      ...current,
+      [championId]: fork.id,
+    }))
+    setBottomPanel({ tab: "activity", expanded: false })
+    navigate(draftHref(championId))
+  }
+
   function selectWorkspaceContext(
     sourceChampionId: string,
     context: WorkspaceContext
   ) {
-    const paperPortfolio = runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios
-      .find((portfolio) => portfolio.operationalState !== "archived")
+    const selectedId = selectedStrategyByChampion[sourceChampionId]
+    const primarySelected = !selectedId || selectedId === `${sourceChampionId}-primary`
+    const paperPortfolio = primarySelected
+      ? runtimeRef.current.sessions[sourceChampionId]?.paperPortfolios.find(
+          (portfolio) => portfolio.operationalState !== "archived"
+        )
+      : undefined
     updateChampionSession(sourceChampionId, (current) => ({
       ...current,
       conversation: {
@@ -993,7 +1086,9 @@ export function ChampionWorkspace() {
       const next = createInitialRuntime()
       runtimeRef.current = next
       setRuntime(next)
-      setBottomPanel({ tab: "problems", expanded: false })
+      setBottomPanel({ tab: "activity", expanded: false })
+      setSelectedStrategyByChampion({})
+      setForkedStrategiesByChampion({})
       resetInteractions()
       setResetReviewOpen(false)
       setProfileOpen(false)
@@ -1274,23 +1369,29 @@ export function ChampionWorkspace() {
             <SidebarGroupLabel>Strategies</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    size="lg"
-                    isActive={
-                      activeContext !== "live" && route.kind !== "paper-archived"
-                    }
-                    onClick={() => selectWorkspaceContext(championId, "draft")}
-                  >
-                    <NotebookTabs />
-                    <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                      <span className="truncate">{draftView.title}</span>
-                      <span className="truncate text-xs text-foreground">
-                        {strategySidebarStatus}
+                {strategyEntries.map((strategy) => (
+                  <SidebarMenuItem key={strategy.id}>
+                    <SidebarMenuButton
+                      size="lg"
+                      isActive={
+                        strategy.id === selectedStrategy.id &&
+                        activeContext !== "live" &&
+                        route.kind !== "paper-archived"
+                      }
+                      onClick={() => selectStrategy(strategy.id)}
+                    >
+                      <NotebookTabs />
+                      <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                        <span className="truncate">{strategy.title}</span>
+                        <span className="truncate text-xs text-foreground">
+                          {strategy.id === primaryStrategyId
+                            ? strategySidebarStatus
+                            : strategy.status}
+                        </span>
                       </span>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -1355,53 +1456,58 @@ export function ChampionWorkspace() {
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <div className="flex h-12 shrink-0 items-center gap-3 border-b px-3">
-          <SidebarTrigger />
-          {activeContext === "live" ? (
-            <span className="text-sm font-medium md:hidden">Live</span>
-          ) : (
-            <Tabs
-              value={activeContext}
-              onValueChange={(value) =>
-                selectWorkspaceContext(championId, value as WorkspaceContext)
-              }
-            >
-              <TabsList variant="line">
-                <TabsTrigger
-                  value="draft"
-                  onClick={() => selectWorkspaceContext(championId, "draft")}
-                >
-                  Drafting
-                </TabsTrigger>
-                <TabsTrigger
-                  value="paper"
-                  onClick={() => selectWorkspaceContext(championId, "paper")}
-                >
-                  Paper
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
-          <WorkspaceContextStatus
-            {...(activeContext === "live"
-              ? { kind: "live" as const }
-              : activeContext === "paper"
-                ? {
-                    kind: "paper" as const,
-                    freshness: paperView?.freshness ?? "Paper collection · local evidence",
-                    marketRelevant: true,
-                    marketSession: marketSessionFixture,
-                  }
-                : selectedDryRun
+        <div className="shrink-0 border-b">
+          <div className="flex min-h-11 items-center gap-3 px-3 py-2">
+            <SidebarTrigger />
+            <h1 className="min-w-0 truncate text-sm font-semibold">
+              {activeContext === "live" ? "Live" : draftView.title}
+            </h1>
+            <WorkspaceContextStatus
+              {...(activeContext === "live"
+                ? { kind: "live" as const }
+                : activeContext === "paper"
                   ? {
-                      kind: "evaluation" as const,
-                      dataCutoff:
-                        selectedDryRun.setup.find(
-                          (item) => item.label === "Data cutoff"
-                        )?.value ?? "Unavailable",
+                      kind: "paper" as const,
+                      freshness: paperView?.freshness ?? "Paper collection · local evidence",
+                      marketRelevant: true,
+                      marketSession: marketSessionFixture,
                     }
-                  : { kind: "draft" as const, label: localSaveStatus })}
-          />
+                  : selectedDryRun
+                    ? {
+                        kind: "evaluation" as const,
+                        dataCutoff:
+                          selectedDryRun.setup.find(
+                            (item) => item.label === "Data cutoff"
+                          )?.value ?? "Unavailable",
+                      }
+                    : { kind: "draft" as const, label: localSaveStatus })}
+            />
+          </div>
+          {activeContext !== "live" ? (
+            <div className="px-12">
+              <Tabs
+                value={activeContext}
+                onValueChange={(value) =>
+                  selectWorkspaceContext(championId, value as WorkspaceContext)
+                }
+              >
+                <TabsList variant="line">
+                  <TabsTrigger
+                    value="draft"
+                    onClick={() => selectWorkspaceContext(championId, "draft")}
+                  >
+                    {paperLaunched ? "Strategy" : "Drafting"}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="paper"
+                    onClick={() => selectWorkspaceContext(championId, "paper")}
+                  >
+                    Paper
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
@@ -1510,7 +1616,7 @@ export function ChampionWorkspace() {
                   />
                 ) : (
                   <DraftStrategyWorkspace
-                    key={championId}
+                    key={`${championId}-${selectedStrategy.id}`}
                     draft={draftView}
                     evaluation={currentEvaluation}
                   checkpoint={checkpoint}
@@ -1520,6 +1626,7 @@ export function ChampionWorkspace() {
                   saveStatus={localSaveStatus}
                   activeTab={draftSurface}
                   onRunEvaluation={() => setEvaluationReviewOpen(true)}
+                    onForkStrategy={forkCurrentStrategy}
                     onActiveTabChange={(surface) =>
                       {
                         updateChampionSession(championId, (current) => ({
@@ -1717,6 +1824,7 @@ export function ChampionWorkspace() {
                 baseline={evidenceBaseline}
                 template={workspaceFixture.evaluation}
                 authorityError={authorityError}
+                activity={workspaceActivity}
                 activeTab={evidenceTab}
                 expanded={evidenceExpanded}
                 onActiveTabChange={(tab) => {
@@ -2053,7 +2161,7 @@ function projectScenarioOntoRuntime(
           )
           .sort((left, right) => left.startedAt.localeCompare(right.startedAt))
           .map((evaluation, index, all) =>
-            projectEvaluation(scenario, evaluation, fixture, all[index - 1])
+            projectEvaluation(scenario, evaluation, fixture, index + 1, all[index - 1])
           )
 
         const paperPortfolios = Object.values(scenario.portfolios)
@@ -2106,6 +2214,7 @@ function projectEvaluation(
   scenario: WorkspaceScenario,
   evaluation: EvaluationRecord,
   fixture: WorkspaceFixture,
+  sequence: number,
   previous?: EvaluationRecord
 ): WorkspaceEvaluationFixture {
   const checkpoint = scenario.checkpoints[evaluation.checkpointId]
@@ -2120,7 +2229,7 @@ function projectEvaluation(
 
   return {
     id: evaluation.id,
-    label: `Evaluation ${evaluation.id}`,
+    label: `Dry Run ${sequence}`,
     status: "completed",
     authority: "demo-authority",
     championId: fixture.champion.id,

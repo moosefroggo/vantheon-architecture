@@ -1,7 +1,7 @@
 export type DraftView = "summary" | "document"
 export type EvaluationView = "summary" | "activity"
-export type PaperView = "overview" | "runs" | "positions" | "orders" | "strategy"
-export type EvidencePanelView = "problems" | "dry-runs" | "checkpoints" | "data"
+export type PaperView = "overview" | "runs" | "positions" | "orders"
+export type EvidencePanelView = "activity" | "dry-runs" | "checkpoints" | "data"
 
 type RouteBase = {
   championId: string
@@ -268,5 +268,5 @@ function decodeSegment(value: string) {
 
 const draftViews = ["summary", "document"] as const
 const evaluationViews = ["summary", "activity"] as const
-const paperViews = ["overview", "runs", "positions", "orders", "strategy"] as const
-const evidencePanels = ["problems", "dry-runs", "checkpoints", "data"] as const
+const paperViews = ["overview", "runs", "positions", "orders"] as const
+const evidencePanels = ["activity", "dry-runs", "checkpoints", "data"] as const

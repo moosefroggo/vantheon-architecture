@@ -126,11 +126,8 @@ test.describe("Mara evaluated scenario", () => {
     await expect(page).toHaveURL(
       /\/champions\/mara\/draft\/evaluations\/evaluation_mara_v1_2$/,
     );
-    await expect(
-      page.getByRole("region", {
-        name: "Evaluation evaluation_mara_v1_2 details",
-      }),
-    ).toBeVisible();
+    const dryRun = page.getByRole("region", { name: "Dry Run 1 details" });
+    await expect(dryRun).toBeVisible();
     await expect(page.getByRole("tab", { name: "Drafting", selected: true })).toBeVisible();
     const evaluationBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
     await expect(
@@ -139,14 +136,14 @@ test.describe("Mara evaluated scenario", () => {
     await expect(
       evaluationBreadcrumb.getByRole("button", { name: "Dry Runs" }),
     ).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
+    await expect(dryRun.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
     await expect(page.getByRole("status", { name: /Data cutoff/ })).toBeVisible();
 
-    await page.getByRole("tab", { name: "Activity" }).click();
+    await dryRun.getByRole("tab", { name: "Activity" }).click();
     await expect(page).toHaveURL(/\?tab=activity$/);
-    await expect(page.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
+    await expect(dryRun.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
     await page.goBack();
-    await expect(page.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
+    await expect(dryRun.getByRole("tab", { name: "Summary", selected: true })).toBeVisible();
   });
 });
 
@@ -172,7 +169,7 @@ test.describe("Iris Paper scenario", () => {
     await expect(page.getByRole("tab", { name: "Positions", selected: true })).toBeVisible();
   });
 
-  test("restores a run without inventing an uncaptured detail body", async ({
+  test("restores recorded run evidence and activity", async ({
     page,
     openScenario,
   }) => {
@@ -181,17 +178,18 @@ test.describe("Iris Paper scenario", () => {
     );
 
     await expect(page.getByRole("heading", { name: "Run 1", exact: true })).toBeVisible();
-    await expect(page.getByText(/Feb 2, 2026/)).toBeVisible();
+    await expect(page.getByText(/Completed Feb 2, 2026/)).toBeVisible();
     await expect(page).toHaveURL(/decision=decision_iris_run1_pg$/);
     await expect(page.getByRole("tab", { name: "Paper", selected: true })).toBeVisible();
     const runBreadcrumb = page.getByRole("navigation", { name: "breadcrumb" });
     await expect(runBreadcrumb.getByRole("button", { name: "Paper" })).toBeVisible();
     await expect(runBreadcrumb.getByRole("button", { name: "Runs" })).toBeVisible();
-    await expect(page.getByText("Decision trace", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: "Activity" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: "Activity", selected: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Run activity" })).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole("heading", { name: "Run 1", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Run activity" })).toBeVisible();
   });
 });
 

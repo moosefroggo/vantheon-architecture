@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { fireEvent, render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import {
@@ -103,6 +103,7 @@ describe("mirror-aligned Paper portfolio", () => {
     expect(
       screen.queryByRole("button", { name: "Open Draft" }),
     ).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Deploy Live" })).toBeDisabled()
   })
 
   it("reproduces the captured Add funds and Edit schedule dialogs", () => {
@@ -234,10 +235,10 @@ describe("mirror-aligned Paper sections", () => {
     expect(screen.queryByText("not shown")).not.toBeInTheDocument()
   })
 
-  it("keeps Runs to the captured list and Strategy to its read-only marker", () => {
+  it("keeps Runs to the captured list without duplicating Strategy navigation", () => {
     const paper = createPaper({ runs: [completedRun] })
     const onOpenRun = vi.fn()
-    const { rerender } = render(
+    render(
       <PaperWorkspaceBottomPanel
         paper={paper}
         activeTab="runs"
@@ -254,23 +255,10 @@ describe("mirror-aligned Paper sections", () => {
     fireEvent.click(screen.getByRole("button", { name: /Run 1/ }))
     expect(onOpenRun).toHaveBeenCalledWith(completedRun)
     expect(screen.queryByText("No trade")).not.toBeInTheDocument()
-
-    rerender(
-      <PaperWorkspaceBottomPanel
-        paper={paper}
-        activeTab="strategy"
-        expanded
-        onActiveTabChange={vi.fn()}
-        onExpandedChange={vi.fn()}
-        onOpenRun={onOpenRun}
-      />,
-    )
-    const strategy = screen.getByText("Read-only").parentElement!
-    expect(within(strategy).getByText("Strategy")).toBeVisible()
-    expect(screen.queryByText("Checkpoint 2")).not.toBeInTheDocument()
+    expect(screen.queryByRole("tab", { name: "Strategy" })).not.toBeInTheDocument()
   })
 
-  it("does not invent a run-detail body when the mirror did not capture one", () => {
+  it("shows recorded run evidence and marks absent facts unavailable", () => {
     render(
       <PaperPortfolioWorkspace
         {...workspaceProps(createPaper({ runs: [completedRun] }), {
@@ -280,9 +268,11 @@ describe("mirror-aligned Paper sections", () => {
     )
 
     expect(screen.getByRole("heading", { name: "Run 1" })).toBeVisible()
-    expect(screen.getByText(completedRun.completedAt)).toBeVisible()
-    expect(screen.queryByText("Decision trace")).not.toBeInTheDocument()
-    expect(screen.queryByText("Before account value")).not.toBeInTheDocument()
-    expect(screen.queryByText("Activity")).not.toBeInTheDocument()
+    expect(screen.getByText(`Completed ${completedRun.completedAt}`)).toBeVisible()
+    expect(screen.getByRole("tab", { name: "Summary", selected: true })).toBeVisible()
+    expect(screen.getByRole("tab", { name: "Activity" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Account change" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Decisions" })).toBeVisible()
+    expect(screen.getAllByText("Unavailable").length).toBeGreaterThan(0)
   })
 })

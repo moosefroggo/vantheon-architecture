@@ -4,7 +4,6 @@ import { useMemo, useState, type ReactNode } from "react"
 import {
   ArrowRight,
   ChevronDown,
-  LockKeyhole,
   Pencil,
   Plus,
   Search,
@@ -207,7 +206,7 @@ export type PaperPortfolioWorkspaceProps = {
   onSelectedReferenceChange: (reference: DomainObjectReference | null) => void
 }
 
-export type PaperDetailsTab = "runs" | "positions" | "orders" | "strategy"
+export type PaperDetailsTab = "runs" | "positions" | "orders"
 export type PaperRunTab = "summary" | "activity"
 export type PaperChartView = "value" | "performance" | "drawdown"
 
@@ -224,6 +223,8 @@ export function PaperPortfolioWorkspace(props: PaperPortfolioWorkspaceProps) {
     return (
       <PaperRunWorkspace
         run={selectedRun}
+        activeTab={props.runTab}
+        onActiveTabChange={props.onRunTabChange}
         onOpenPortfolio={props.onOpenPortfolio}
         onOpenRuns={props.onOpenRuns}
       />
@@ -269,7 +270,15 @@ function PortfolioOverview({ paper }: { paper: PaperWorkspaceFixture }) {
 
   return (
     <section aria-labelledby="paper-workspace-title" className="space-y-4">
-      <WorkspacePageHeader title="Portfolio" titleId="paper-workspace-title" />
+      <WorkspacePageHeader
+        title="Portfolio"
+        titleId="paper-workspace-title"
+        action={
+          <Button type="button" disabled title="Live deployment is coming soon">
+            Deploy Live
+          </Button>
+        }
+      />
 
       {positions.length === 0 ? (
         <section className="rounded-lg border px-4 py-3">
@@ -736,9 +745,6 @@ export function PaperWorkspaceBottomPanel(props: {
           <TabsTrigger value="orders" onClick={() => onExpandedChange(true)}>
             Orders
           </TabsTrigger>
-          <TabsTrigger value="strategy" onClick={() => onExpandedChange(true)}>
-            Strategy
-          </TabsTrigger>
         </TabsList>
         {expanded ? (
           <Button
@@ -762,9 +768,6 @@ export function PaperWorkspaceBottomPanel(props: {
           </TabsContent>
           <TabsContent value="orders">
             <OrdersPanel paper={paper} />
-          </TabsContent>
-          <TabsContent value="strategy">
-            <StrategyPanel />
           </TabsContent>
         </ScrollArea>
       ) : null}
@@ -810,10 +813,14 @@ function RunsPanel({
 
 function PaperRunWorkspace({
   run,
+  activeTab,
+  onActiveTabChange,
   onOpenPortfolio,
   onOpenRuns,
 }: {
   run: PaperRunFixture
+  activeTab: PaperRunTab
+  onActiveTabChange: (tab: PaperRunTab) => void
   onOpenPortfolio: () => void
   onOpenRuns: () => void
 }) {
@@ -829,9 +836,137 @@ function PaperRunWorkspace({
       <WorkspacePageHeader
         title={run.label}
         titleId="paper-run-title"
-        details={run.completedAt}
+        badges={[{ label: run.status, variant: "secondary" }]}
+        details={`Completed ${run.completedAt}`}
       />
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => onActiveTabChange(value as PaperRunTab)}
+      >
+        <TabsList aria-label={`${run.label} details`}>
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+        <TabsContent value="summary" className="space-y-4 pt-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <RunFact label="Started" value={run.startedAt ?? "Unavailable"} />
+            <RunFact label="Duration" value={run.duration ?? "Unavailable"} />
+            <RunFact label="Data cutoff" value={run.dataCutoff ?? "Unavailable"} />
+            <RunFact
+              label="Evaluated"
+              value={run.evaluated === undefined ? "Unavailable" : String(run.evaluated)}
+            />
+          </div>
+
+          <section className="overflow-hidden rounded-lg border" aria-labelledby="run-account-title">
+            <div className="border-b px-4 py-3">
+              <h2 id="run-account-title" className="text-sm font-semibold">Account change</h2>
+            </div>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50">
+                <tr>
+                  <TableHeading>Measure</TableHeading>
+                  <TableHeading>Before</TableHeading>
+                  <TableHeading>After</TableHeading>
+                </tr>
+              </thead>
+              <tbody>
+                <AccountChangeRow
+                  label="Account value"
+                  before={run.beforeAccountValue}
+                  after={run.afterAccountValue}
+                />
+                <AccountChangeRow
+                  label="Buying power"
+                  before={run.beforeBuyingPower}
+                  after={run.afterBuyingPower}
+                />
+              </tbody>
+            </table>
+          </section>
+
+          <section className="rounded-lg border" aria-labelledby="run-decisions-title">
+            <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+              <h2 id="run-decisions-title" className="text-sm font-semibold">Decisions</h2>
+              <span className="text-xs text-muted-foreground">
+                {run.orders ?? 0} {(run.orders ?? 0) === 1 ? "order" : "orders"}
+              </span>
+            </div>
+            {run.decisions?.length ? (
+              <ul className="divide-y">
+                {run.decisions.map((decision) => (
+                  <li key={decision.id} className="px-4 py-3">
+                    <p className="text-sm font-medium">{decision.label}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {decision.detail ?? "No additional detail was recorded."}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-4 py-5 text-sm text-muted-foreground">
+                No expanded decisions were recorded for this run.
+              </p>
+            )}
+          </section>
+        </TabsContent>
+        <TabsContent value="activity" className="pt-2">
+          <section className="rounded-lg border" aria-labelledby="run-activity-title">
+            <div className="border-b px-4 py-3">
+              <h2 id="run-activity-title" className="text-sm font-semibold">Run activity</h2>
+            </div>
+            {run.activity?.length ? (
+              <ol className="divide-y">
+                {run.activity.map((event) => (
+                  <li key={event.id} className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr]">
+                    <time className="text-xs text-muted-foreground">{event.time}</time>
+                    <div>
+                      <p className="text-sm font-medium">{event.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{event.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="px-4 py-5 text-sm text-muted-foreground">
+                No activity events were recorded for this run.
+              </p>
+            )}
+          </section>
+        </TabsContent>
+      </Tabs>
     </section>
+  )
+}
+
+function RunFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border px-3 py-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-medium">{value}</p>
+    </div>
+  )
+}
+
+function AccountChangeRow({
+  label,
+  before,
+  after,
+}: {
+  label: string
+  before?: number
+  after?: number
+}) {
+  return (
+    <tr className="border-t">
+      <th scope="row" className="px-3 py-3 text-left font-medium">{label}</th>
+      <td className="px-3 py-3">
+        {before === undefined ? "Unavailable" : <Money value={before} currency="USD" />}
+      </td>
+      <td className="px-3 py-3">
+        {after === undefined ? "Unavailable" : <Money value={after} currency="USD" />}
+      </td>
+    </tr>
   )
 }
 
@@ -1020,19 +1155,6 @@ function OrdersPanel({ paper }: { paper: PaperWorkspaceFixture }) {
         </table>
       </div>
     </section>
-  )
-}
-
-function StrategyPanel() {
-  return (
-    <div className="flex items-center justify-between rounded-lg border px-4 py-4">
-      <span className="inline-flex items-center gap-2 font-medium">
-        <LockKeyhole aria-hidden="true" className="size-4" /> Strategy
-      </span>
-      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Read-only
-      </span>
-    </div>
   )
 }
 

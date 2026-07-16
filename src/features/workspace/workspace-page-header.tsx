@@ -9,7 +9,7 @@ export type WorkspacePageHeaderBadge = {
 }
 
 export type WorkspacePageHeaderProps = {
-  title: string
+  title?: string
   titleId?: string
   badges?: readonly WorkspacePageHeaderBadge[]
   details?: ReactNode
@@ -34,9 +34,11 @@ export function WorkspacePageHeader({
     >
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 id={titleId} className="text-2xl font-semibold tracking-tight">
-            {title}
-          </h1>
+          {title ? (
+            <h1 id={titleId} className="text-2xl font-semibold tracking-tight">
+              {title}
+            </h1>
+          ) : null}
           {badges.map((badge) => (
             <Badge key={badge.label} variant={badge.variant ?? "outline"}>
               {badge.label}

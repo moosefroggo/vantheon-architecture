@@ -1,6 +1,6 @@
 "use client"
 
-import { Play } from "lucide-react"
+import { GitFork, Play } from "lucide-react"
 
 import { StrategyDocument } from "@/components/domain/strategy/strategy-document"
 import { StrategySummary } from "@/components/domain/strategy/strategy-summary"
@@ -29,6 +29,7 @@ export type DraftStrategyWorkspaceProps = {
   authorityOperation: string | null
   activeTab: DraftSurfaceTab
   onRunEvaluation: () => void
+  onForkStrategy: () => void
   onActiveTabChange: (tab: DraftSurfaceTab) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
@@ -45,6 +46,7 @@ export function DraftStrategyWorkspace({
   authorityOperation,
   activeTab,
   onRunEvaluation,
+  onForkStrategy,
   onActiveTabChange,
   onAskAbout,
   onSelectedRuleChange,
@@ -70,7 +72,6 @@ export function DraftStrategyWorkspace({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <WorkspacePageHeader
-        title={draft.title}
         badges={[
           ...(readOnly
             ? [{ label: "Read only", variant: "outline" as const }]
@@ -82,7 +83,12 @@ export function DraftStrategyWorkspace({
         ]}
         details={draft.objective}
         action={
-          readOnly ? null : (
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={onForkStrategy}>
+              <GitFork />
+              Fork strategy
+            </Button>
+            {!readOnly ? (
             <Button
               type="button"
               onClick={onRunEvaluation}
@@ -91,7 +97,8 @@ export function DraftStrategyWorkspace({
               <Play />
               {evaluationPending ? "Running…" : "Dry Run"}
             </Button>
-          )
+            ) : null}
+          </div>
         }
         className="px-6 py-4"
       />
@@ -101,7 +108,7 @@ export function DraftStrategyWorkspace({
         onValueChange={(value) => onActiveTabChange(value as DraftSurfaceTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <div className="px-6">
+        <div className="border-b px-6 py-3">
           <TabsList>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="document">Document</TabsTrigger>

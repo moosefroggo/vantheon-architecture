@@ -4,7 +4,6 @@ import { useState } from "react"
 import {
   ChevronDown,
   CircleAlert,
-  CircleCheck,
   GitFork,
   LoaderCircle,
 } from "lucide-react"
@@ -45,6 +44,7 @@ type WorkspaceEvidencePanelProps = {
   baseline: WorkspaceEvaluationBaselineFixture
   template: WorkspaceEvaluationTemplate
   authorityError: string | null
+  activity: readonly WorkspaceActivityItem[]
   activeTab: WorkspaceEvidenceTab
   expanded: boolean
   onActiveTabChange: (tab: WorkspaceEvidenceTab) => void
@@ -63,7 +63,13 @@ type WorkspaceEvidencePanelProps = {
   onOpenDryRun: (dryRunId: string) => void
 }
 
-export type WorkspaceEvidenceTab = "problems" | "dry-runs" | "checkpoints" | "data"
+export type WorkspaceEvidenceTab = "activity" | "dry-runs" | "checkpoints" | "data"
+
+export type WorkspaceActivityItem = {
+  id: string
+  title: string
+  detail: string
+}
 
 export function WorkspaceEvidencePanel({
   checkpoint,
@@ -72,6 +78,7 @@ export function WorkspaceEvidencePanel({
   baseline,
   template,
   authorityError,
+  activity,
   activeTab,
   expanded,
   onActiveTabChange,
@@ -98,8 +105,8 @@ export function WorkspaceEvidencePanel({
     >
       <div className="flex h-11 items-center justify-between gap-3 px-3">
         <TabsList aria-label="Workspace bottom panel">
-          <TabsTrigger value="problems" onClick={() => onExpandedChange(true)}>
-            Problems
+          <TabsTrigger value="activity" onClick={() => onExpandedChange(true)}>
+            Activity
           </TabsTrigger>
           <TabsTrigger value="dry-runs" onClick={() => onExpandedChange(true)}>
             Dry Runs{evaluations.length ? ` (${evaluations.length})` : ""}
@@ -127,30 +134,26 @@ export function WorkspaceEvidencePanel({
 
       {expanded ? (
         <ScrollArea className="h-44 border-t px-3 py-3">
-          <TabsContent value="problems">
+          <TabsContent value="activity">
             {authorityError ? (
               <Alert variant="destructive">
                 <CircleAlert />
                 <AlertTitle>Workspace action failed</AlertTitle>
                 <AlertDescription>{authorityError}</AlertDescription>
               </Alert>
-            ) : current ? (
-              <Alert>
-                <CircleCheck />
-                <AlertTitle>No blocking problems</AlertTitle>
-                <AlertDescription>
-                  {formatCheckpointLabel(checkpoint)} has a completed Dry Run. Review
-                  its evidence or start a Paper portfolio.
-                </AlertDescription>
-              </Alert>
+            ) : activity.length ? (
+              <ol className="divide-y rounded-md border">
+                {activity.map((item) => (
+                  <li key={item.id} className="px-3 py-2">
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">{item.detail}</p>
+                  </li>
+                ))}
+              </ol>
             ) : (
-              <Alert>
-                <CircleAlert />
-                <AlertTitle>{formatCheckpointLabel(checkpoint)} has no Dry Run</AlertTitle>
-                <AlertDescription>
-                  Run the active Draft to inspect its behavior before starting Paper.
-                </AlertDescription>
-              </Alert>
+              <p className="rounded-md border px-3 py-4 text-sm text-muted-foreground">
+                Atlas activity will appear here after you send a request or complete a Dry Run.
+              </p>
             )}
           </TabsContent>
 
@@ -247,18 +250,30 @@ export function WorkspaceEvidencePanel({
                           {item.testedAt ? `Tested · ${item.testedAt}` : "Not tested"}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              onOpenCheckpoint
-                                ? onOpenCheckpoint(item.label)
-                                : setOpenedCheckpoint(item.label)
-                            }
-                          >
-                            Open
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            {!item.current && !readOnly ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setForkCandidate(item.label)}
+                              >
+                                Restore
+                              </Button>
+                            ) : null}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                onOpenCheckpoint
+                                  ? onOpenCheckpoint(item.label)
+                                  : setOpenedCheckpoint(item.label)
+                              }
+                            >
+                              Open
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

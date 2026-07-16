@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import type { WorkspaceAuthorityOperation } from "./workspace-demo-authority"
 import type {
   WorkspaceDraftFixture,
   WorkspaceEvaluationFixture,
 } from "./workspace-fixtures"
 import { WorkspacePageHeader } from "./workspace-page-header"
+import { formatCheckpointLabel } from "@/lib/version-labels"
 
 export type DraftDecisionSelection = {
   checkpoint: string
@@ -28,13 +28,18 @@ export type DraftStrategyWorkspaceProps = {
   draftLabel: string
   checkpoint: string
   evaluationComplete: boolean
-  authorityOperation: WorkspaceAuthorityOperation
+  authorityOperation: string | null
   activeTab: DraftSurfaceTab
   onRunEvaluation: () => void
   onActiveTabChange: (tab: DraftSurfaceTab) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
   onSelectedDecisionChange: (selection: DraftDecisionSelection) => void
+  saveStatus?: string
+  checkpointHash?: string
+  checkpointRevision?: string
+  checkpointCreatedAt?: string
+  checkpointActor?: string
 }
 
 export function DraftStrategyWorkspace({
@@ -50,6 +55,11 @@ export function DraftStrategyWorkspace({
   onAskAbout,
   onSelectedRuleChange,
   onSelectedDecisionChange,
+  saveStatus,
+  checkpointHash,
+  checkpointRevision,
+  checkpointCreatedAt,
+  checkpointActor,
 }: DraftStrategyWorkspaceProps) {
   const currentEvaluation =
     evaluationComplete && evaluation?.checkpoint === checkpoint ? evaluation : null
@@ -61,7 +71,9 @@ export function DraftStrategyWorkspace({
 
     onSelectedRuleChange(ruleId)
     onSelectedDecisionChange(null)
-    onAskAbout(`${rule.group} · ${rule.name}`)
+    onAskAbout(
+      `${rule.group} · ${rule.name}: ${rule.value} · ${rule.constraint}`
+    )
   }
 
   return (
@@ -70,12 +82,22 @@ export function DraftStrategyWorkspace({
         title={draft.title}
         badges={[
           { label: draftLabel },
+          { label: formatCheckpointLabel(checkpoint), variant: "outline" },
           {
             label: currentEvaluation ? "Tested" : "Untested",
             variant: currentEvaluation ? "secondary" : "outline",
           },
         ]}
-        details={<span className="block max-w-3xl">{draft.objective}</span>}
+        details={
+          <div className="max-w-4xl space-y-1">
+            <span className="block">{draft.objective}</span>
+            <span className="block text-xs">
+              Hash {checkpointHash ?? "Unavailable"} · Revision{" "}
+              {checkpointRevision ?? "Unavailable"} · {checkpointActor ?? "Actor unavailable"} ·{" "}
+              {checkpointCreatedAt ?? "Time unavailable"} · Validation verified
+            </span>
+          </div>
+        }
         action={
           <Button
             type="button"
@@ -107,12 +129,20 @@ export function DraftStrategyWorkspace({
               <StrategySummary
                 rules={draft.rules}
                 onEditRule={editRule}
+                saveStatus={saveStatus}
               />
             </TabsContent>
             <TabsContent value="document">
               <StrategyDocument
                 objective={draft.objective}
                 rules={draft.rules}
+                thesis={draft.thesis}
+                sizingExample={draft.sizingExample}
+                rulePrecedence={draft.rulePrecedence}
+                assumptions={draft.assumptions}
+                exclusions={draft.exclusions}
+                dataFailurePolicy={draft.dataFailurePolicy}
+                cooldownPolicy={draft.cooldownPolicy}
               />
             </TabsContent>
           </div>

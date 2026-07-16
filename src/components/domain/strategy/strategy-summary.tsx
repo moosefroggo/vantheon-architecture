@@ -21,18 +21,20 @@ import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixture
 type StrategySummaryProps = {
   rules: readonly StrategyRuleFixture[]
   onEditRule: (ruleId: string) => void
+  saveStatus?: string
 }
 
 export function StrategySummary({
   rules,
   onEditRule,
+  saveStatus = "Demo session",
 }: StrategySummaryProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Strategy summary</CardTitle>
         <CardAction>
-          <span className="text-sm text-muted-foreground">Autosaved</span>
+          <span className="text-sm text-muted-foreground">{saveStatus}</span>
         </CardAction>
       </CardHeader>
       <CardContent>

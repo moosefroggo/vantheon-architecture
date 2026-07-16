@@ -51,6 +51,14 @@ type WorkspaceEvidencePanelProps = {
   onExpandedChange: (expanded: boolean) => void
   forkPending: boolean
   onForkCheckpoint: (checkpoint: string) => void
+  onOpenCheckpoint?: (checkpoint: string) => void
+  checkpoints?: readonly {
+    label: string
+    createdAt: string
+    origin: string
+    testedAt?: string
+    current: boolean
+  }[]
   onOpenDryRun: (dryRunId: string) => void
 }
 
@@ -69,6 +77,8 @@ export function WorkspaceEvidencePanel({
   onExpandedChange,
   forkPending,
   onForkCheckpoint,
+  onOpenCheckpoint,
+  checkpoints,
   onOpenDryRun,
 }: WorkspaceEvidencePanelProps) {
   const [openedCheckpoint, setOpenedCheckpoint] = useState<string | null>(null)
@@ -150,7 +160,7 @@ export function WorkspaceEvidencePanel({
                     <TableHeader>
                       <TableRow>
                         <TableHead>Run</TableHead>
-                        <TableHead>Source</TableHead>
+                        <TableHead>Checkpoint</TableHead>
                         <TableHead>Outcome</TableHead>
                         <TableHead>Completed</TableHead>
                         <TableHead className="text-right">Action</TableHead>
@@ -204,42 +214,52 @@ export function WorkspaceEvidencePanel({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">
-                        {formatCheckpointLabel(checkpoint)}
-                      </TableCell>
-                      <TableCell>Active Draft</TableCell>
-                      <TableCell>
-                        {current ? `Tested · ${current.completedAt}` : "Not tested"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setOpenedCheckpoint(checkpoint)}
-                        >
-                          Open
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">
-                        {formatCheckpointLabel(baseline.checkpoint)}
-                      </TableCell>
-                      <TableCell>History</TableCell>
-                      <TableCell>Tested · {baseline.completedAt}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setOpenedCheckpoint(baseline.checkpoint)}
-                        >
-                          Open
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                    {(checkpoints?.length
+                      ? [...checkpoints].reverse()
+                      : [
+                          {
+                            label: checkpoint,
+                            createdAt: "Current session",
+                            origin: "Active Draft",
+                            testedAt: current?.completedAt,
+                            current: true,
+                          },
+                          {
+                            label: baseline.checkpoint,
+                            createdAt: baseline.completedAt,
+                            origin: "History",
+                            testedAt: baseline.completedAt,
+                            current: false,
+                          },
+                        ]
+                    ).map((item) => (
+                      <TableRow key={item.label}>
+                        <TableCell className="font-medium">
+                          {formatCheckpointLabel(item.label)}
+                          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                            {item.createdAt}
+                          </span>
+                        </TableCell>
+                        <TableCell>{item.current ? "Active Draft" : item.origin}</TableCell>
+                        <TableCell>
+                          {item.testedAt ? `Tested · ${item.testedAt}` : "Not tested"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              onOpenCheckpoint
+                                ? onOpenCheckpoint(item.label)
+                                : setOpenedCheckpoint(item.label)
+                            }
+                          >
+                            Open
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
                 {openedCheckpoint ? (

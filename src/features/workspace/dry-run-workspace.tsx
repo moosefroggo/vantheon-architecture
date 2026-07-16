@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -25,12 +26,14 @@ type DryRunWorkspaceProps = {
   run: WorkspaceEvaluationFixture
   activeTab: DryRunTab
   onActiveTabChange: (tab: DryRunTab) => void
+  onOpenSource?: (sourceArtifactId: string) => void
 }
 
 export function DryRunWorkspace({
   run,
   activeTab,
   onActiveTabChange,
+  onOpenSource,
 }: DryRunWorkspaceProps) {
   const eligibleDecisions = run.decisions.filter(
     (decision) => decision.outcome.toLowerCase() === "eligible"
@@ -58,8 +61,9 @@ export function DryRunWorkspace({
             <Badge variant="secondary">Completed</Badge>
             <p className="text-sm text-muted-foreground tabular-nums">
               {formatCheckpointLabel(run.checkpoint)} · {run.duration} ·{" "}
-              {eligibleDecisions.length}{" "}
-              {eligibleDecisions.length === 1 ? "order" : "orders"} ·{" "}
+              {eligibleDecisions.length} eligible{" "}
+              {eligibleDecisions.length === 1 ? "decision" : "decisions"} ·{" "}
+              {run.orders?.length ?? 0} {(run.orders?.length ?? 0) === 1 ? "order" : "orders"} ·{" "}
               {simulatedCapital}
             </p>
           </div>
@@ -77,6 +81,7 @@ export function DryRunWorkspace({
                 eligibleDecisions={eligibleDecisions}
                 rejectedDecisions={rejectedDecisions}
                 dataCutoff={dataCutoff}
+                onOpenSource={onOpenSource}
               />
             </TabsContent>
 
@@ -95,11 +100,13 @@ function SummaryTab({
   eligibleDecisions,
   rejectedDecisions,
   dataCutoff,
+  onOpenSource,
 }: {
   run: WorkspaceEvaluationFixture
   eligibleDecisions: WorkspaceEvaluationFixture["decisions"]
   rejectedDecisions: WorkspaceEvaluationFixture["decisions"]
   dataCutoff: string
+  onOpenSource?: (sourceArtifactId: string) => void
 }) {
   return (
     <>
@@ -109,9 +116,7 @@ function SummaryTab({
         </CardHeader>
         <CardContent>
           <p className="text-sm">
-            {eligibleDecisions.length
-              ? `${eligibleDecisions.length} candidate${eligibleDecisions.length === 1 ? "" : "s"} qualified for simulated orders. ${rejectedDecisions.length} did not pass every constraint.`
-              : `No simulated orders qualified. ${rejectedDecisions.length} candidate${rejectedDecisions.length === 1 ? "" : "s"} were rejected by the strategy.`}
+            {`${eligibleDecisions.length} eligible decision${eligibleDecisions.length === 1 ? "" : "s"} and ${rejectedDecisions.length} rejected decision${rejectedDecisions.length === 1 ? "" : "s"} were recorded. ${run.orders?.length ?? 0} Evaluation order${(run.orders?.length ?? 0) === 1 ? " was" : "s were"} created.`}
           </p>
         </CardContent>
       </Card>
@@ -122,7 +127,7 @@ function SummaryTab({
             Per-order breakdown
           </h2>
         </div>
-        {eligibleDecisions.length ? (
+        {run.orders?.length ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -133,19 +138,24 @@ function SummaryTab({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {eligibleDecisions.map((decision) => (
-                <TableRow key={decision.id}>
-                  <TableCell className="font-medium">{decision.symbol}</TableCell>
-                  <TableCell>Buy · sized by portfolio rules</TableCell>
-                  <TableCell>{decision.evidence}</TableCell>
-                  <TableCell>Proposed</TableCell>
+              {run.orders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-medium">{order.symbol}</TableCell>
+                  <TableCell>
+                    {order.side} · {order.requestedQuantity} requested
+                  </TableCell>
+                  <TableCell>
+                    Decision {order.decisionId} · {order.filledQuantity} filled
+                  </TableCell>
+                  <TableCell>{order.status}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         ) : (
           <p className="px-4 py-5 text-sm text-muted-foreground">
-            No simulated orders were created.
+            No Evaluation orders were created. Eligible decisions remain decisions
+            and are not counted as orders.
           </p>
         )}
       </section>
@@ -224,6 +234,29 @@ function SummaryTab({
           </TableBody>
         </Table>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Immutable source artifacts</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          {run.sourceArtifactIds?.length ? (
+            run.sourceArtifactIds.map((sourceId) => (
+              <Button
+                key={sourceId}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onOpenSource?.(sourceId)}
+              >
+                {sourceId}
+              </Button>
+            ))
+          ) : (
+            <span className="text-sm text-muted-foreground">Unavailable</span>
+          )}
+        </CardContent>
+      </Card>
     </>
   )
 }
@@ -238,22 +271,20 @@ function ActivityTab({
   return (
     <>
       <ol className="divide-y rounded-lg border" aria-label="Dry Run activity">
-        <ActivityStep
-          title="Loaded the Draft checkpoint"
-          detail={`Bound the run to ${formatCheckpointLabel(run.checkpoint)} and preserved its rule snapshot.`}
-        />
-        <ActivityStep
-          title="Loaded evaluation inputs"
-          detail={`Market, fundamental, and portfolio inputs were read at ${dataCutoff}.`}
-        />
-        <ActivityStep
-          title="Applied strategy and risk conditions"
-          detail={`${run.decisions.length} recorded candidate decisions were checked against the exact rule snapshot.`}
-        />
-        <ActivityStep
-          title="Recorded the result"
-          detail="The Dry Run completed and its evidence is immutable."
-        />
+        {run.events?.length ? (
+          run.events.map((event) => (
+            <ActivityStep
+              key={event.id}
+              title={`${titleCase(event.phase)} · ${titleCase(event.status)}`}
+              detail={`${event.message} · ${event.occurredAt}`}
+            />
+          ))
+        ) : (
+          <ActivityStep
+            title="Activity unavailable"
+            detail={`No event stream was recorded. Data cutoff: ${dataCutoff}.`}
+          />
+        )}
       </ol>
 
       <section className="rounded-lg border" aria-labelledby={`${run.id}-conditions-title`}>
@@ -305,9 +336,8 @@ function ConditionRow({
   rule: StrategyRuleFixture
   run: WorkspaceEvaluationFixture
 }) {
-  const blockedDecision = run.decisions.find(
-    (decision) =>
-      decision.outcome.toLowerCase() !== "eligible" && decision.ruleIds.includes(rule.id)
+  const result = run.ruleEvaluations?.find(
+    (evaluation) => evaluation.ruleId === rule.id
   )
 
   return (
@@ -317,10 +347,10 @@ function ConditionRow({
         <p className="text-xs text-muted-foreground">{rule.name}</p>
       </TableCell>
       <TableCell>{rule.value}</TableCell>
-      <TableCell>{rule.constraint}</TableCell>
+      <TableCell>{result?.sourceArtifactId ?? "Unavailable"}</TableCell>
       <TableCell>
-        <Badge variant={blockedDecision ? "outline" : "secondary"}>
-          {blockedDecision ? "Blocked candidate" : "Passed"}
+        <Badge variant={result?.status === "passed" ? "secondary" : "outline"}>
+          {result ? titleCase(result.status) : "Unavailable"}
         </Badge>
       </TableCell>
     </TableRow>
@@ -334,4 +364,11 @@ function ActivityStep({ title, detail }: { title: string; detail: string }) {
       <p className="text-sm text-muted-foreground">{detail}</p>
     </li>
   )
+}
+
+function titleCase(value: string) {
+  return value
+    .split("-")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ")
 }

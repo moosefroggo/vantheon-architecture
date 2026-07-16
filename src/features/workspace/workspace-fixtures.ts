@@ -4,6 +4,8 @@ export type StrategyRuleFixture = {
   name: string
   value: string
   constraint: string
+  rationale?: string
+  dataRequirementIds?: readonly string[]
 }
 
 export type WorkspaceDraftFixture = {
@@ -12,6 +14,13 @@ export type WorkspaceDraftFixture = {
   title: string
   state: string
   objective: string
+  thesis: string
+  sizingExample: string
+  rulePrecedence: readonly string[]
+  assumptions: readonly string[]
+  exclusions: readonly string[]
+  dataFailurePolicy: string
+  cooldownPolicy: string
   rules: readonly StrategyRuleFixture[]
 }
 
@@ -78,6 +87,31 @@ export type WorkspaceEvaluationFixture = {
   metrics: readonly EvaluationMetricFixture[]
   baseline: WorkspaceEvaluationBaselineFixture
   decisions: readonly WorkspaceDecisionFixture[]
+  orderIds?: readonly string[]
+  ruleEvaluations?: readonly {
+    ruleId: string
+    status: "passed" | "failed" | "unavailable" | "not-reached"
+    observedValue?: string
+    sourceArtifactId?: string
+  }[]
+  sourceArtifactIds?: readonly string[]
+  orders?: readonly {
+    id: string
+    decisionId: string
+    symbol: string
+    side: string
+    requestedQuantity: number
+    filledQuantity: number
+    status: string
+    submittedAt?: string
+  }[]
+  events?: readonly {
+    id: string
+    phase: string
+    status: string
+    message: string
+    occurredAt: string
+  }[]
 }
 
 export type WorkspaceEvaluationTemplate = Omit<
@@ -186,6 +220,26 @@ const maraWorkspaceFixture = {
     title: "Lower-volatility momentum",
     state: "Saved",
     objective: "Participate in durable U.S. equity momentum with controlled concentration.",
+    thesis:
+      "Durable medium-term momentum can persist while liquidity, trend, and concentration controls reduce fragile exposure.",
+    sizingExample:
+      "With $100,000 simulated capital, allocate equally across no more than eight positions while retaining at least 10% cash.",
+    rulePrecedence: [
+      "Data freshness",
+      "Portfolio and risk limits",
+      "Exit conditions",
+      "Entry ranking",
+      "Position sizing",
+    ],
+    assumptions: [
+      "Adjusted price and liquidity data are complete through the disclosed cutoff.",
+      "Qualified orders receive next-session open fills with a 0.10% transaction-cost assumption.",
+    ],
+    exclusions: ["Leverage", "Short sales", "Assets below the liquidity floor"],
+    dataFailurePolicy:
+      "Create no order when price, liquidity, or trend inputs are stale or unavailable.",
+    cooldownPolicy:
+      "A recently exited asset can qualify again only at a later scheduled run after every entry condition passes.",
     rules: [
       {
         id: "universe",
@@ -333,12 +387,36 @@ const irisWorkspaceFixture = {
     workspace: "Quality income compounders",
   },
   draft: {
-    label: "Draft V1",
-    checkpoint: "V1.1",
+    label: "Draft V2",
+    checkpoint: "V2.0",
     title: "Quality income compounders",
     state: "Saved",
     objective:
       "Build durable income from profitable U.S. companies without reaching for leverage or distressed yield.",
+    thesis:
+      "Profitable companies with durable dividends and conservative payout coverage can compound income without relying on leverage or distressed yield.",
+    sizingExample:
+      "With $100,000 simulated capital, quality-weight no more than twelve positions while retaining at least 8% cash.",
+    rulePrecedence: [
+      "Data and accounting integrity",
+      "Dividend continuity",
+      "Portfolio and exposure limits",
+      "Quality rank",
+      "Position sizing",
+    ],
+    assumptions: [
+      "Fundamental statements and dividend histories are complete through the disclosed cutoff.",
+      "Qualified orders receive next-session open fills with a 0.08% transaction-cost assumption.",
+    ],
+    exclusions: [
+      "Leverage and options",
+      "Uncovered currency exposure",
+      "Companies with unresolved accounting flags",
+    ],
+    dataFailurePolicy:
+      "Create no order when required fundamentals, dividend history, or accounting checks are stale or unavailable.",
+    cooldownPolicy:
+      "A company removed after a dividend cut remains excluded until it again satisfies the uninterrupted-dividend rule.",
     rules: [
       {
         id: "universe",
@@ -385,7 +463,7 @@ const irisWorkspaceFixture = {
     ] satisfies StrategyRuleFixture[],
   },
   evaluation: {
-    checkpoint: "V1.1",
+    checkpoint: "V2.0",
     completedAt: "Jul 14, 2026 · 3:31 PM CT",
     duration: "21s",
     setup: [
@@ -400,7 +478,7 @@ const irisWorkspaceFixture = {
     ],
     metrics: [
       {
-        id: "weekly-decisions",
+        id: "monthly-decisions",
         label: "Monthly decisions",
         value: "150",
         delta: { direction: "flat", value: "0" },
@@ -425,11 +503,11 @@ const irisWorkspaceFixture = {
       },
     ] satisfies EvaluationMetricFixture[],
     baseline: {
-      checkpoint: "V1.0",
-      label: "Previous tested checkpoint",
+      checkpoint: "V1.1",
+      label: "Launched strategy baseline",
       completedAt: "Jul 14, 2026 · 2:44 PM CT",
       metrics: [
-        { id: "weekly-decisions", label: "Monthly decisions", value: "150" },
+        { id: "monthly-decisions", label: "Monthly decisions", value: "150" },
         { id: "rebalances", label: "Rebalances", value: "24" },
         { id: "max-drawdown", label: "Max drawdown", value: "11.0%" },
         { id: "risk-rejections", label: "Quality rejections", value: "8" },
@@ -469,42 +547,42 @@ const irisWorkspaceFixture = {
     runCadence: "First business day of each month",
     freshness: "Current · Jul 14, 3:31 PM CT",
     benchmark: {
-      symbol: "SPY",
-      label: "SPY",
-      methodology: "SPY total return sampled at each completed-run cutoff and normalized to the portfolio launch value.",
+      symbol: "Russell 1000 Value",
+      label: "Russell 1000 Value",
+      methodology: "Russell 1000 Value total return sampled at each completed-run cutoff and normalized to the portfolio launch value.",
       history: [
-        { timestamp: "2026-06-01T20:15:00.000Z", value: 100_000 },
-        { timestamp: "2026-06-08T20:15:00.000Z", value: 100_600 },
-        { timestamp: "2026-06-15T20:15:00.000Z", value: 101_100 },
-        { timestamp: "2026-06-22T20:15:00.000Z", value: 100_900 },
-        { timestamp: "2026-06-29T20:15:00.000Z", value: 102_100 },
-        { timestamp: "2026-07-06T20:15:00.000Z", value: 102_900 },
+        { timestamp: "2026-02-02T21:15:00.000Z", value: 100_000 },
+        { timestamp: "2026-03-02T21:15:00.000Z", value: 100_600 },
+        { timestamp: "2026-04-01T20:15:00.000Z", value: 101_100 },
+        { timestamp: "2026-05-01T20:15:00.000Z", value: 100_900 },
+        { timestamp: "2026-06-01T20:15:00.000Z", value: 102_100 },
+        { timestamp: "2026-07-01T20:15:00.000Z", value: 102_900 },
       ],
     },
     equityHistory: [
-      { timestamp: "2026-06-01T20:15:00.000Z", value: 100_000, runId: "iris-run-1" },
-      { timestamp: "2026-06-08T20:15:00.000Z", value: 101_200, runId: "iris-run-2" },
-      { timestamp: "2026-06-15T20:15:00.000Z", value: 102_100, runId: "iris-run-3" },
-      { timestamp: "2026-06-22T20:15:00.000Z", value: 101_500, runId: "iris-run-4" },
-      { timestamp: "2026-06-29T20:15:00.000Z", value: 102_900, runId: "iris-run-5" },
-      { timestamp: "2026-07-06T20:15:00.000Z", value: 103_800, runId: "iris-run-6" },
+      { timestamp: "2026-02-02T21:15:00.000Z", value: 100_000, runId: "iris-run-1" },
+      { timestamp: "2026-03-02T21:15:00.000Z", value: 101_200, runId: "iris-run-2" },
+      { timestamp: "2026-04-01T20:15:00.000Z", value: 102_100, runId: "iris-run-3" },
+      { timestamp: "2026-05-01T20:15:00.000Z", value: 101_500, runId: "iris-run-4" },
+      { timestamp: "2026-06-01T20:15:00.000Z", value: 102_900, runId: "iris-run-5" },
+      { timestamp: "2026-07-01T20:15:00.000Z", value: 103_800, runId: "iris-run-6" },
     ],
     runs: [
-      { id: "iris-run-1", label: "Run 1", status: "Completed", completedAt: "Jun 1 · 4:15 PM ET", decision: "Opened positions", evaluated: 60, orders: 4 },
-      { id: "iris-run-2", label: "Run 2", status: "Completed", completedAt: "Jun 8 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
-      { id: "iris-run-3", label: "Run 3", status: "Completed", completedAt: "Jun 15 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 2 },
-      { id: "iris-run-4", label: "Run 4", status: "Completed", completedAt: "Jun 22 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
-      { id: "iris-run-5", label: "Run 5", status: "Completed", completedAt: "Jun 29 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 1 },
+      { id: "iris-run-1", label: "Run 1", status: "Completed", completedAt: "Feb 2 · 4:15 PM ET", decision: "Opened positions", evaluated: 60, orders: 4 },
+      { id: "iris-run-2", label: "Run 2", status: "Completed", completedAt: "Mar 2 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+      { id: "iris-run-3", label: "Run 3", status: "Completed", completedAt: "Apr 1 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 2 },
+      { id: "iris-run-4", label: "Run 4", status: "Completed", completedAt: "May 1 · 4:15 PM ET", decision: "Held", evaluated: 60, orders: 0 },
+      { id: "iris-run-5", label: "Run 5", status: "Completed", completedAt: "Jun 1 · 4:15 PM ET", decision: "Rebalanced", evaluated: 60, orders: 1 },
       {
         id: "iris-run-6",
         label: "Run 6",
         status: "Completed",
-        completedAt: "Jul 6 · 4:15 PM ET",
+        completedAt: "Jul 1 · 4:15 PM ET",
         decision: "Held",
         evaluated: 60,
         orders: 0,
         duration: "8m 54s",
-        dataCutoff: "Jul 6 · 4:00 PM ET",
+        dataCutoff: "Jul 1 · 4:00 PM ET",
         decisions: [
           {
             id: "iris-run-6-pg",

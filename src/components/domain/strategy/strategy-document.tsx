@@ -10,11 +10,25 @@ import type { StrategyRuleFixture } from "@/features/workspace/workspace-fixture
 type StrategyDocumentProps = {
   objective: string
   rules: readonly StrategyRuleFixture[]
+  thesis?: string
+  sizingExample?: string
+  rulePrecedence?: readonly string[]
+  assumptions?: readonly string[]
+  exclusions?: readonly string[]
+  dataFailurePolicy?: string
+  cooldownPolicy?: string
 }
 
 export function StrategyDocument({
   objective,
   rules,
+  thesis,
+  sizingExample,
+  rulePrecedence = [],
+  assumptions = [],
+  exclusions = [],
+  dataFailurePolicy,
+  cooldownPolicy,
 }: StrategyDocumentProps) {
   const byGroup = new Map(rules.map((rule) => [rule.group, rule]))
   const universe = byGroup.get("Universe")
@@ -31,6 +45,12 @@ export function StrategyDocument({
       </CardHeader>
       <CardContent className="space-y-6">
         <DocumentSection title="Objective">{objective}</DocumentSection>
+        {thesis ? (
+          <>
+            <Separator />
+            <DocumentSection title="Thesis">{thesis}</DocumentSection>
+          </>
+        ) : null}
         <Separator />
         <DocumentSection title="Selection">
           The eligible universe is {sentence(universe?.value)} {universe?.constraint}. At
@@ -39,6 +59,7 @@ export function StrategyDocument({
         <Separator />
         <DocumentSection title="Portfolio construction">
           The portfolio uses {sentence(portfolio?.value)} {portfolio?.constraint}.
+          {sizingExample ? ` Example: ${sizingExample}` : ""}
         </DocumentSection>
         <Separator />
         <DocumentSection title="Risk and exits">
@@ -50,6 +71,42 @@ export function StrategyDocument({
           The Champion evaluates the strategy {sentence(schedule?.value)} {schedule?.constraint}.
           Every run preserves its inputs, decisions, rejected orders, and final outcome.
         </DocumentSection>
+        {rulePrecedence.length ? (
+          <>
+            <Separator />
+            <DocumentSection title="Rule precedence">
+              <TextList items={rulePrecedence} ordered />
+            </DocumentSection>
+          </>
+        ) : null}
+        {assumptions.length ? (
+          <>
+            <Separator />
+            <DocumentSection title="Assumptions">
+              <TextList items={assumptions} />
+            </DocumentSection>
+          </>
+        ) : null}
+        {exclusions.length ? (
+          <>
+            <Separator />
+            <DocumentSection title="Exclusions">
+              <TextList items={exclusions} />
+            </DocumentSection>
+          </>
+        ) : null}
+        {dataFailurePolicy || cooldownPolicy ? (
+          <>
+            <Separator />
+            <DocumentSection title="Failure and cooldown behavior">
+              <TextList
+                items={[dataFailurePolicy, cooldownPolicy].filter(
+                  (value): value is string => Boolean(value)
+                )}
+              />
+            </DocumentSection>
+          </>
+        ) : null}
       </CardContent>
     </Card>
   )
@@ -64,9 +121,26 @@ function DocumentSection({
 }) {
   return (
     <section className="grid gap-2 md:grid-cols-[12rem_1fr] md:gap-6">
-      <h3 className="font-medium">{title}</h3>
-      <p className="text-sm leading-6 text-muted-foreground">{children}</p>
+      <h2 className="font-medium">{title}</h2>
+      <div className="text-sm leading-6 text-muted-foreground">{children}</div>
     </section>
+  )
+}
+
+function TextList({
+  items,
+  ordered = false,
+}: {
+  items: readonly string[]
+  ordered?: boolean
+}) {
+  const List = ordered ? "ol" : "ul"
+  return (
+    <List className={ordered ? "list-decimal space-y-1 pl-5" : "list-disc space-y-1 pl-5"}>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </List>
   )
 }
 

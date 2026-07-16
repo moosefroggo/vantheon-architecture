@@ -17,7 +17,6 @@ export type EmptyEnvironmentWorkspaceProps = {
   draftLabel: string
   evaluationComplete: boolean
   paperLaunched: boolean
-  measurementComplete: boolean
   onAskAtlas: () => void
   onOpenDraft: () => void
   onRunDraft: () => void
@@ -41,7 +40,6 @@ export function EmptyEnvironmentWorkspace({
   draftLabel,
   evaluationComplete,
   paperLaunched,
-  measurementComplete,
   onAskAtlas,
   onOpenDraft,
   onRunDraft,
@@ -88,11 +86,12 @@ export function EmptyEnvironmentWorkspace({
     },
     {
       number: 5,
-      time: "1–14 days",
+      time: "Policy pending",
       title: "Measure performance",
-      description: "Review at least 14 days and five completed runs before considering real capital.",
-      complete: measurementComplete,
-      marker: "14d · 5 runs",
+      description:
+        "Continue collecting Paper evidence. Live evidence policy is not configured in this demo.",
+      complete: false,
+      marker: "Policy pending",
       actionLabel: "Open Paper evidence",
       action: onOpenPaper ?? onOpenDraft,
     },

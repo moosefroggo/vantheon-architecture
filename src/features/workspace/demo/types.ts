@@ -489,6 +489,8 @@ export type WorkspaceCommandType =
 
 export interface WorkspaceCommandBase<TType extends WorkspaceCommandType> {
   type: TType;
+  /** Explicit command scope; target references are carried by each command. */
+  championId?: EntityId<"champion">;
   commandId: EntityId<"command">;
   idempotencyKey: IdempotencyKey;
   actor: ActorReference;

@@ -13,7 +13,6 @@ describe("EmptyEnvironmentWorkspace", () => {
         draftLabel="Drafting V1"
         evaluationComplete={false}
         paperLaunched={false}
-        measurementComplete={false}
         onAskAtlas={action}
         onOpenDraft={action}
         onRunDraft={action}

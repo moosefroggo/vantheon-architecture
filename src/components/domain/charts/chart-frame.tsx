@@ -92,9 +92,9 @@ export function ChartFrame({
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {identity.metric} · {identity.entity}
           </p>
-          <h3 id={titleId} className="mt-1 text-base font-semibold leading-tight">
+          <h2 id={titleId} className="mt-1 text-base font-semibold leading-tight">
             {identity.title}
-          </h3>
+          </h2>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span

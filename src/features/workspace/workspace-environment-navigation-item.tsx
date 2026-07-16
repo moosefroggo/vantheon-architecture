@@ -18,6 +18,13 @@ export type WorkspaceEnvironmentStatus =
       portfolioCount: number
     }
   | {
+      kind: "stopped"
+    }
+  | {
+      kind: "archived"
+      portfolioCount: number
+    }
+  | {
       kind: "disconnected"
       lastConfirmed?: string
     }
@@ -108,6 +115,16 @@ function getStatusPresentation(
       return {
         copy: `${status.portfolioCount} ${status.portfolioCount === 1 ? "portfolio" : "portfolios"} · Running`,
         indicator: "active",
+      }
+    case "stopped":
+      return {
+        copy: "Stopped · evidence retained",
+        indicator: "empty",
+      }
+    case "archived":
+      return {
+        copy: `${status.portfolioCount} retained`,
+        indicator: "empty",
       }
     case "disconnected":
       return {

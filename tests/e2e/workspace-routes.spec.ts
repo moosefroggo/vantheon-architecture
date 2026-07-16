@@ -81,9 +81,7 @@ test.describe("Mara Draft scenario", () => {
     page,
     openScenario,
   }) => {
-    await openScenario("/champions/mara/draft");
-
-    await page.getByRole("button", { name: "Datasets", exact: true }).click();
+    await openScenario("/champions/mara/draft/data");
 
     await expect(page).toHaveURL(/\/champions\/mara\/draft\/data$/);
     await expect(page.getByRole("region", { name: "Datasets" })).toHaveCount(1);
@@ -105,6 +103,21 @@ test.describe("Mara Draft scenario", () => {
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Collapse bottom panel" })).toHaveCount(0);
     await expect(page.getByRole("status", { name: /Saved locally/ })).toBeVisible();
+  });
+
+  test("returns to Champion selection from the workspace navigation", async ({
+    page,
+    openScenario,
+  }) => {
+    await openScenario("/champions/mara/draft");
+
+    await page.getByRole("button", { name: "All Champions" }).click();
+    await expect(page).toHaveURL(/\/champions$/);
+    await expect(page.getByRole("heading", { name: "Champions" })).toBeVisible();
+    await expect(page.getByText("10 strategy versions · 9 active Paper portfolios")).toBeVisible();
+    await expect(page.getByText("2 strategy versions · 1 active Paper portfolio")).toBeVisible();
+    await page.getByRole("link", { name: /Mara.*Open workspace/ }).click();
+    await expect(page).toHaveURL(/\/champions\/mara\/draft$/);
   });
 
   test("keeps immutable Strategy and Paper on the same version", async ({

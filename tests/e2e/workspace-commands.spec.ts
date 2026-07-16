@@ -139,17 +139,14 @@ test.describe("Mara command authority", () => {
     expectAppliedReceipts(rejected, "reject", 1, "change-set-rejected");
   });
 
-  test("attaches Fork strategy to Atlas without creating a version", async ({
+  test("does not expose manual Fork on the active Draft", async ({
     page,
     openScenario,
   }) => {
     await openScenario();
     const before = await readAuthority(page);
 
-    await page.getByRole("button", { name: "Fork strategy" }).click();
-    const atlas = page.getByRole("complementary", { name: "Atlas conversation" });
-    await expect(atlas.getByText("Strategy V9 · Balanced factor rotation", { exact: true })).toBeVisible();
-    await expect(atlas.getByText(/What would you like to change/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Fork strategy" })).toHaveCount(0);
 
     const after = await readAuthority(page);
     expect(Object.keys(after.strategies)).toEqual(Object.keys(before.strategies));
@@ -329,6 +326,12 @@ test.describe("Mara command authority", () => {
       ]),
     );
     expectAppliedReceipts(launched, "launch", 1, "paper-launched");
+
+    const championsResponse = await page.goto("/champions");
+    expect(championsResponse?.ok()).toBe(true);
+    await expect(
+      page.getByText("11 strategy versions · 10 active Paper portfolios"),
+    ).toBeVisible();
 
     const response = await page.goto("/champions/mara/paper");
     expect(response?.ok()).toBe(true);

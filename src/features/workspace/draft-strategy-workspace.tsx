@@ -1,6 +1,6 @@
 "use client"
 
-import { GitFork, Play } from "lucide-react"
+import { Play } from "lucide-react"
 
 import { StrategyDocument } from "@/components/domain/strategy/strategy-document"
 import { StrategySummary } from "@/components/domain/strategy/strategy-summary"
@@ -23,7 +23,6 @@ export type DraftStrategyWorkspaceProps = {
   authorityOperation: string | null
   activeTab: DraftSurfaceTab
   onRunEvaluation: () => void
-  onForkStrategy: () => void
   onActiveTabChange: (tab: DraftSurfaceTab) => void
   onAskAbout: (context: string) => void
   onSelectedRuleChange: (ruleId: string) => void
@@ -37,7 +36,6 @@ export function DraftStrategyWorkspace({
   authorityOperation,
   activeTab,
   onRunEvaluation,
-  onForkStrategy,
   onActiveTabChange,
   onAskAbout,
   onSelectedRuleChange,
@@ -69,10 +67,6 @@ export function DraftStrategyWorkspace({
         details={draft.objective}
         action={
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={onForkStrategy}>
-              <GitFork />
-              Fork strategy
-            </Button>
             <Button
               type="button"
               onClick={onRunEvaluation}

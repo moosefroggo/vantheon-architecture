@@ -89,6 +89,22 @@ describe("normalized workspace demo seed", () => {
     expect(v102.strategy.sections[3].rules[0].value).toContain("8 positions");
   });
 
+  it("keeps every displayed checkpoint ordinal equal to its history count", async () => {
+    const scenario = await createWorkspaceDemoSeed();
+
+    for (const draft of Object.values(scenario.drafts)) {
+      const current = scenario.checkpoints[draft.currentCheckpointId];
+      const history = Object.values(scenario.checkpoints)
+        .filter((checkpoint) => checkpoint.draftId === draft.id)
+        .sort((left, right) => left.ordinal - right.ordinal);
+
+      expect(history).toHaveLength(current.ordinal);
+      expect(history.map((checkpoint) => checkpoint.ordinal)).toEqual(
+        Array.from({ length: current.ordinal }, (_, index) => index + 1)
+      );
+    }
+  });
+
   it("allows every Mara strategy version to keep an independently active Paper", async () => {
     const scenario = await createWorkspaceDemoSeed();
     const portfolios = Object.values(scenario.portfolios).filter(

@@ -175,7 +175,7 @@ describe("in-memory workspace authority", () => {
       checkpoint.id
     );
     expect(await repository.listCheckpoints(WORKSPACE_DEMO_IDS.mara.champion)).toHaveLength(
-      11
+      28
     );
   });
 
@@ -221,7 +221,7 @@ describe("in-memory workspace authority", () => {
     expect(restored.strategyHash).toBe(source.strategyHash);
     expect(restored.strategy).toEqual(source.strategy);
     expect(await repository.listCheckpoints(WORKSPACE_DEMO_IDS.mara.champion)).toHaveLength(
-      12
+      29
     );
   });
 

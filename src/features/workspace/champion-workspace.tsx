@@ -8,7 +8,7 @@ import {
   Archive,
   ArrowRight,
   CircleUserRound,
-  Database,
+  LayoutGrid,
 } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -731,18 +731,6 @@ export function ChampionWorkspace() {
     navigate(strategy.href)
   }
 
-  function forkCurrentStrategy() {
-    const latestStrategy = demo.scenario && scenarioChampion
-      ? Object.values(demo.scenario.strategies)
-          .filter((strategy) => strategy.championId === scenarioChampion.id)
-          .sort((left, right) => right.version - left.version)[0]
-      : undefined
-    const source = latestStrategy
-      ? `Strategy V${latestStrategy.version} · ${latestStrategy.strategy.title}`
-      : `${draftView.title} · ${checkpointLabel}`
-    focusChampionConversation(championId, source)
-  }
-
   function selectWorkspaceContext(
     sourceChampionId: string,
     context: WorkspaceContext
@@ -1362,6 +1350,19 @@ export function ChampionWorkspace() {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={() => navigate("/champions")}>
+                    <LayoutGrid />
+                    <span>All Champions</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupContent>
               <WorkspaceEnvironmentNavigationItem
                 label="Live"
                 status={{ kind: "empty", environment: "live" }}
@@ -1437,20 +1438,6 @@ export function ChampionWorkspace() {
 
         <SidebarFooter className="border-t">
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                isActive={
-                  route.kind === "data"
-                }
-                onClick={() => {
-                  setBottomPanel({ tab: null, expanded: false })
-                  navigate(dataHref(championId))
-                }}
-              >
-                <Database />
-                <span>Datasets</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={() => setProfileOpen(true)}>
                 <CircleUserRound />
@@ -1632,7 +1619,6 @@ export function ChampionWorkspace() {
                     saveStatus={localSaveStatus}
                     activeTab={draftSurface}
                     onRunEvaluation={() => setEvaluationReviewOpen(true)}
-                    onForkStrategy={forkCurrentStrategy}
                     onActiveTabChange={(surface) =>
                       {
                         updateChampionSession(championId, (current) => ({

@@ -24,9 +24,9 @@ import type {
   WorkspaceScenario,
 } from "./types";
 
-export const WORKSPACE_DEMO_SEED_VERSION = 6;
+export const WORKSPACE_DEMO_SEED_VERSION = 7;
 export const WORKSPACE_DEMO_SCHEMA_VERSION = schemaVersion(
-  "workspace-demo-scenario/v6"
+  "workspace-demo-scenario/v7"
 );
 const STRATEGY_SCHEMA_VERSION = schemaVersion("structured-strategy/v1");
 const SEEDED_AT = isoTimestamp("2026-07-15T17:37:00.000Z");
@@ -362,10 +362,21 @@ async function createMaraHistory(
     "2026-01-09T21:15:00.000Z",
     "2026-03-06T21:15:00.000Z",
   ] as const;
-  const strategies = titles.map((title, index) =>
-    createMaraStrategy(6 + ((index + 2) % 5), title)
+  const checkpointStrategies = titles.map((title, index) => {
+    const finalMaximumPositions = 6 + ((index + 2) % 5);
+    const checkpointCount = checkpointOrdinals[index];
+    return Array.from({ length: checkpointCount }, (_, checkpointIndex) =>
+      createMaraStrategy(
+        finalMaximumPositions + checkpointCount - checkpointIndex - 1,
+        title
+      )
+    );
+  });
+  const checkpointHashes = await Promise.all(
+    checkpointStrategies.map((history) => Promise.all(history.map(hashStrategy)))
   );
-  const hashes = await Promise.all(strategies.map(hashStrategy));
+  const strategies = checkpointStrategies.map((history) => history.at(-1)!);
+  const hashes = checkpointHashes.map((history) => history.at(-1)!);
   const drafts: WorkspaceScenario["drafts"][string][] = [];
   const checkpoints: WorkspaceScenario["checkpoints"][string][] = [];
   const immutableStrategies: WorkspaceScenario["strategies"][string][] = [];
@@ -381,9 +392,16 @@ async function createMaraHistory(
     const draftId = version === 1
       ? WORKSPACE_DEMO_IDS.mara.draftV1
       : entityId("draft", `draft_mara_v${version}`);
-    const checkpointId = version === 1
-      ? WORKSPACE_DEMO_IDS.mara.checkpointV11
-      : entityId("draft-checkpoint", `checkpoint_mara_v${version}_${ordinal}`);
+    const checkpointIds = Array.from({ length: ordinal }, (_, checkpointIndex) => {
+      const checkpointOrdinal = checkpointIndex + 1;
+      return version === 1 && checkpointOrdinal === 1
+        ? WORKSPACE_DEMO_IDS.mara.checkpointV11
+        : entityId(
+            "draft-checkpoint",
+            `checkpoint_mara_v${version}_${checkpointOrdinal}`
+          );
+    });
+    const checkpointId = checkpointIds.at(-1)!;
     const strategyId = entityId("immutable-strategy", `strategy_mara_v${version}`);
     const portfolioId = entityId("paper-portfolio", `portfolio_mara_v${version}`);
     const deploymentId = entityId("deployment", `deployment_mara_v${version}`);
@@ -405,20 +423,33 @@ async function createMaraHistory(
       revision: revision(2),
       createdAt: launchedAt,
     });
-    checkpoints.push({
-      id: checkpointId,
-      championId: WORKSPACE_DEMO_IDS.mara.champion,
-      draftId,
-      generation: version,
-      ordinal,
-      label: `V${version}.${ordinal}`,
-      origin: { kind: "initial" },
-      strategy: strategies[index],
-      strategyHash: hashes[index],
-      createdBy: actor,
-      createdAt: launchedAt,
-      revision: revision(1),
-    });
+    checkpoints.push(
+      ...checkpointIds.map((id, checkpointIndex) => {
+        const checkpointOrdinal = checkpointIndex + 1;
+        return {
+          id,
+          championId: WORKSPACE_DEMO_IDS.mara.champion,
+          draftId,
+          generation: version,
+          ordinal: checkpointOrdinal,
+          label: `V${version}.${checkpointOrdinal}`,
+          ...(checkpointIndex > 0
+            ? { previousCheckpointId: checkpointIds[checkpointIndex - 1] }
+            : {}),
+          origin: { kind: "initial" } as const,
+          strategy: checkpointStrategies[index][checkpointIndex],
+          strategyHash: checkpointHashes[index][checkpointIndex],
+          createdBy: actor,
+          createdAt: isoTimestamp(
+            new Date(
+              new Date(launchedAt).getTime() -
+                (ordinal - checkpointOrdinal) * 60_000
+            ).toISOString()
+          ),
+          revision: revision(1),
+        };
+      })
+    );
     immutableStrategies.push({
       id: strategyId,
       championId: WORKSPACE_DEMO_IDS.mara.champion,

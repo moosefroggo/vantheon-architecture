@@ -1,111 +1,72 @@
-# Vantheon Product and Frontend Architecture
+# Vantheon
 
-This repository is the architecture handbook for Vantheon's Champion workspace: an artifact- and evidence-centered research instrument where users direct a Champion, develop structured strategies, test them in Paper, iterate from outcomes, and deliberately promote Paper-tested strategies to Live capital. It is part lab notebook, part version-control client, and part observability tool—not an exchange or chat application. Conversation stays continuously visible in a secondary dock beside the work, but it is not the application shell or source of truth.
+Vantheon is a prototype trading workspace. Users work with an AI agent, called a Champion, to draft a strategy, test it in a simulated Paper portfolio, review the results, and decide whether it is ready for a Live review.
 
-The handbook aligns product, design, and frontend engineering. It defines user journeys, information architecture, conceptual entities, client-state ownership, lifecycle behavior, accessibility, performance validation, and the reasoning behind accepted decisions. It intentionally stops short of prescribing production database schemas or exact backend payloads.
+This repository contains the frontend and the product and architecture docs behind it. It is not an exchange and does not place real trades.
 
-## Governing outcome
+## What I worked on
 
-> Minimize the distance from intent → strategy → evidence → iteration, while making every transition involving capital explicit, explainable, and controlled.
+I mapped the main user flows, designed the workspace structure, defined how strategy versions and test results relate, and set rules for changes that could affect real money. The docs also cover frontend state, accessibility, performance, and testing.
 
-Strategy and configuration changes may be reversible. Executed trades are not.
+The two main flows are:
 
-## Priority journeys
+1. **Getting started:** A new user creates a strategy, sees initial evidence, and starts a Paper portfolio.
+2. **Improving a strategy:** A user reviews what happened in Paper, changes the Draft, tests it again, and compares the results without changing anything already running.
 
-Planning and delivery optimize two journeys in order:
+[Read the full user journeys](docs/priority-user-journeys.md).
 
-1. **Onboarding to value** — a new user reaches an understandable strategy, credible initial evidence, and a safely running Paper portfolio with minimal setup.
-2. **Rigorous iteration** — a user traces observed behavior to its cause, improves the current Draft, evaluates the change, and compares new evidence without changing anything already running.
-
-See [Priority User Journeys](docs/priority-user-journeys.md) for the governing stages, trust gates, recovery paths, measures, and vertical delivery slices.
-
-## Core product model
+## Strategy lifecycle
 
 ```mermaid
 flowchart LR
-    A["User intent or observed evidence"] --> CW["Champion work and structured activity"]
-    CW --> B["Current Draft Vn · checkpoint Vn.x"]
-    B --> C["Evaluation evidence"]
-    C --> D["Immutable Strategy Vn"]
-    D --> PD["Paper deployment"]
-    PD --> E["Paper Vn"]
-    E --> F["Runs, decisions, and outcomes"]
-    F --> G["Improvement proposed to latest Draft"]
-    G --> B
-    E --> H["Explicit Live review"]
-    H --> LD["Live deployment"]
-    LD --> I["Live Vn"]
+    A["Idea or test result"] --> B["Current Draft"]
+    B --> C["Evaluation"]
+    C --> D["Saved strategy version"]
+    D --> E["Paper portfolio"]
+    E --> F["Runs and results"]
+    F --> B
+    E --> G["Live review"]
+    G --> H["Live deployment"]
 ```
 
-The essential invariants are:
+The Draft can change. A strategy already running in Paper or Live cannot change just because someone edits the Draft or talks to the Champion. Starting Paper saves a new strategy version. Moving toward Live requires a separate review and confirmation.
 
-- A **Champion** is the persistent AI agent identity; its workspace and strategy lineage are related but distinct concepts.
-- Champion selection is the shell-level parent of Draft, Paper, Live, conversation, and domain context; switching restores that Champion's workspace without carrying mutation targets or references across identities.
-- The active strategy, evidence, run, comparison, or risk surface is primary. Conversation directs and explains work but never becomes its only representation.
-- After a structured Draft exists, the desktop shell uses an environment navigator, fluid workbench, contextual inspector, and test/run output tray; onboarding is an empty state rather than the permanent layout.
-- One current `Drafting Vn` is mutable. Its latest saved state is displayed as `Checkpoint m`; canonical records may retain compound identity `Vn.m` for provenance.
-- Launching Paper freezes an immutable major strategy, pins Paper to it, and begins the next Draft at checkpoint `Vn+1.0` as an exact content clone of the launched checkpoint.
-- Restoring an earlier checkpoint never rewinds history; after review and validation it creates the next checkpoint with the restored content.
-- Multiple Paper portfolios coexist so evidence can accumulate and be compared over time.
-- A portfolio is persistent; a run is one execution inside it.
-- Paper and Live strategies never change because of Draft editing or conversation.
-- Conversation may carry Paper or Live context, but strategy changes always target the current Draft and the UI states that target explicitly.
-- Paper launch uses server validation and explicit user confirmation, not an eligibility verdict. Live eligibility remains a versioned, server-authoritative assessment with visible criteria that the Champion may explain but cannot grant or override.
-- Live follows Paper evidence and requires an explicit capital-impact review and confirmation.
-- Champion inputs and model outputs are untrusted. Only capability-scoped commands that pass independent server validation may change business state.
+Other rules matter too:
 
-## Reading order
+- Each Champion has its own workspace. Switching Champions must not carry a change or action into the wrong workspace.
+- A Paper portfolio can have many runs. Each result must link back to the exact strategy version that produced it.
+- Restoring an old Draft checkpoint creates a new checkpoint. It does not erase history.
+- The AI agent can suggest actions, but server checks decide whether an action may change business state.
+- A Live review must show the evidence and the effect of the change before a user confirms it.
 
-Read in this order when joining the project or making a cross-cutting change:
+## Read the docs
 
-1. [Product Foundations](docs/product-foundations.md) — outcomes, terminology, trust ladder, principles, and measures.
-2. [Priority User Journeys](docs/priority-user-journeys.md) — the two flows the product must optimize.
-3. [Information Architecture](docs/information-architecture.md) — workspace hierarchy, navigation, context, and progressive disclosure.
-4. [Domain Model](docs/domain-model.md) — entities, relationships, invariants, and provenance.
-5. [State Diagrams](docs/state-diagrams.md) — lifecycle, command, promotion, reconnect, and performance flows.
-6. [Frontend Architecture](docs/frontend-architecture.md) — stack, state ownership, streaming, caching, recovery, security, and testing boundaries.
-7. [Champion Runtime Safety](docs/champion-runtime-safety.md) — untrusted-input boundaries, scoped tools, independent validation, model evaluation, and incident controls.
-8. [Charting Architecture](docs/charting-architecture.md) — engine boundaries, semantic adapters, loading, accessibility, and performance contracts.
-9. [UI Component Architecture](docs/ui-component-architecture.md) — stock shadcn boundaries and the customization-safe component model.
-10. [Accessibility and Motion](docs/accessibility-and-motion.md) — WCAG target, keyboard/focus behavior, live data, chart alternatives, and safe motion.
-11. [Performance Simulation](docs/performance-simulation.md) — deterministic load, browser instrumentation, correctness oracles, and CI tiers.
-12. [Development Testing Checkpoints](docs/development-testing.md) — founder test gates for onboarding, iteration, Live safety, performance, and release readiness.
-13. [Decision Ledger](docs/decisions.md) — accepted, proposed, and deferred choices with their reasoning and revisit triggers.
+Start with these if you want to understand the product:
 
-[PLAN.md](PLAN.md) is retained as planning history and a traceability checklist. It is not a normative source.
+1. [Product foundations](docs/product-foundations.md): goals, terms, and measures
+2. [User journeys](docs/priority-user-journeys.md): the two main flows
+3. [Information architecture](docs/information-architecture.md): workspace layout and navigation
+4. [Domain model](docs/domain-model.md): strategies, portfolios, runs, and their history
+5. [State diagrams](docs/state-diagrams.md): lifecycle and recovery flows
 
-## Decision status
+For implementation details:
 
-- **Accepted** — governs current design and implementation.
-- **Proposed** — needs an explicit decision before dependent work begins.
-- **Deferred** — intentionally excluded until a recorded trigger occurs.
-- **Superseded** — retained for history but replaced by another decision.
+6. [Frontend architecture](docs/frontend-architecture.md): state, streams, caching, and tests
+7. [Champion runtime safety](docs/champion-runtime-safety.md): AI tool limits and server validation
+8. [Charting architecture](docs/charting-architecture.md): chart engines and accessible data views
+9. [UI component architecture](docs/ui-component-architecture.md): component boundaries
+10. [Accessibility and motion](docs/accessibility-and-motion.md): keyboard, screen reader, and motion rules
+11. [Performance simulation](docs/performance-simulation.md): repeatable load tests
+12. [Development testing checkpoints](docs/development-testing.md): hands-on test gates
+13. [Decision ledger](docs/decisions.md): accepted, proposed, and deferred decisions
 
-If documents disagree, use this precedence:
+[PLAN.md](PLAN.md) records earlier planning. For current choices, use the accepted entries in the decision ledger and the relevant product docs.
 
-1. Accepted entry in the [Decision Ledger](docs/decisions.md).
-2. Explicit invariant in the relevant domain or journey document.
-3. More specific document over a general summary.
-4. [PLAN.md](PLAN.md) only as historical planning context.
+## Frontend
 
-Resolve contradictions by updating all affected documents in the same change.
+The frontend uses Next.js, React, and TypeScript. TanStack Query handles server data. Zustand handles local UI state. Dexie stores pending commands for recovery, but the server remains the source of truth. WebSocket streams bring in market and portfolio updates. Charts use Lightweight Charts and Visx.
 
-## Frontend architecture at a glance
-
-- One React/TypeScript application using Next.js App Router and persistent layouts.
-- TanStack Query for server-backed read models and indexes.
-- Zustand for local interaction state and non-authoritative projections.
-- IndexedDB/Dexie for pending-command recovery, never canonical business state.
-- An external subscription store and narrow subscriptions for high-frequency telemetry.
-- AI data streams for conversational presentation; validated server commands and patches for authority.
-- WebSocket streams for market, portfolio, and Champion events.
-- Stock shadcn primitives behind stable system and domain component boundaries.
-- Lightweight Charts for streaming financial series and Visx for bespoke analytical evidence, loaded separately behind semantic domain boundaries.
-- Deterministic backend simulation and real-browser event-to-paint measurement before speculative optimization.
-
-## Frontend development
-
-The production frontend lives at the repository root and follows the accepted `src/` boundaries in this handbook.
+Run it locally:
 
 ```bash
 nvm use
@@ -113,52 +74,17 @@ npm install
 npm run dev
 ```
 
-Before committing implementation work, run:
+Check the project before committing:
 
 ```bash
 npm run check
 npm run build
 ```
 
-`npm run charts:check` enforces D-033 by keeping Lightweight Charts and Visx imports inside separate renderer leaf modules. Stock shadcn source lives in `src/components/ui`; feature code composes it through system and domain components rather than placing product behavior in generated primitives.
+`npm run charts:check` keeps the two chart libraries in separate rendering modules.
 
-At the five product checkpoints in `docs/development-testing.md`, development pauses for hands-on founder testing before the next major slice. Each handoff provides a runnable build, a short goal-based test script, deterministic fixture details, and the questions being validated.
+## Scope and limits
 
-## Scope
+The docs describe the product model and frontend rules. They do not define a production database, exact API payloads, brokerage integration, trading algorithms, or legal requirements. Those need separate work before this could become a real trading product.
 
-This handbook covers:
-
-- User outcomes, trust, and product terminology.
-- Champion workspace information architecture.
-- Frontend-facing entities, provenance, and lifecycle behavior.
-- State ownership and authoritative data flow.
-- Component, streaming, caching, recovery, accessibility, motion, and security boundaries.
-- Champion runtime safety, independent validation, model evaluation, and incident boundaries.
-- Performance and correctness simulation.
-- Decision rationale and revisit conditions.
-
-It does not define:
-
-- Production database tables or migration strategy.
-- Exact REST, WebSocket, or AI-stream payloads.
-- Brokerage integration details or execution algorithms.
-- Legal, regulatory, suitability, or jurisdiction-specific requirements.
-- A final branded visual system.
-- Numeric performance or time-to-value targets before representative baselines exist.
-
-Those artifacts must conform to the invariants and frontend-facing contracts in this handbook when they are created.
-
-## How to review a change
-
-Before accepting a product, design, or architecture change, verify:
-
-- Which priority journey and stage does it improve?
-- Does it shorten time to useful evidence or improve the rigor of iteration?
-- Are viewed context, mutation target, and authoritative state unmistakable?
-- Can every outcome still trace to the exact run and immutable strategy responsible?
-- Does failure leave Draft, Paper, Live, and capital in a safe, understandable state?
-- Does it preserve keyboard, screen-reader, reduced-motion, and non-color access?
-- Has its performance effect been measured under a reproducible scenario?
-- Does it change an accepted decision or trigger a deferred one?
-
-For pull requests, `GEMINI.md` supplies repository-specific AI-review guidance. AI review and automated checks are evidence; human owners remain accountable for financial semantics and Live-capital safety.
+When reviewing a change, check which user flow it helps, whether results remain tied to the right strategy version, what happens on failure, and whether the change works with a keyboard and screen reader. Measure performance with a repeatable test rather than a guess.

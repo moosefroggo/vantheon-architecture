@@ -103,7 +103,13 @@ export function WorkspaceChampionDock({
             : "min-h-0 flex-1 shadow-xl xl:shadow-xs"
         }
       >
-        <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
+        <CardHeader
+          className={
+            effectiveCollapsed
+              ? "flex items-center justify-between pb-4 xl:grid xl:pb-0"
+              : undefined
+          }
+        >
           <div>
             <CardTitle>{assistantName}</CardTitle>
             <CardDescription className={effectiveCollapsed ? "hidden xl:block" : undefined}>

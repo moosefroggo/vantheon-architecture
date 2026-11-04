@@ -99,10 +99,20 @@ export function WorkspaceChampionDock({
       <Card
         className={
           effectiveCollapsed
-            ? "min-h-0 flex-1 rounded-full shadow-lg xl:rounded-xl xl:shadow-xs"
+            ? "relative min-h-0 flex-1 rounded-full shadow-lg xl:rounded-xl xl:shadow-xs"
             : "min-h-0 flex-1 shadow-xl xl:shadow-xs"
         }
       >
+        {effectiveCollapsed ? (
+          <Button
+            type="button"
+            variant="ghost"
+            aria-label={`Expand ${assistantName} panel`}
+            aria-expanded={false}
+            onClick={() => setCollapsed(false)}
+            className="absolute inset-0 z-10 h-auto w-full rounded-full hover:bg-transparent xl:hidden"
+          />
+        ) : null}
         <CardHeader
           className={
             effectiveCollapsed
@@ -128,7 +138,9 @@ export function WorkspaceChampionDock({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="xl:hidden"
+                tabIndex={effectiveCollapsed ? -1 : undefined}
+                aria-hidden={effectiveCollapsed || undefined}
+                className={effectiveCollapsed ? "pointer-events-none xl:hidden" : "xl:hidden"}
                 aria-label={effectiveCollapsed ? `Expand ${assistantName} panel` : `Collapse ${assistantName} panel`}
                 aria-expanded={!effectiveCollapsed}
                 onClick={() => setCollapsed((current) => !current)}

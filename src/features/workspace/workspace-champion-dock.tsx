@@ -1,7 +1,7 @@
 "use client"
 
-import { FormEvent, useEffect, useRef } from "react"
-import { ArrowUp, CircleCheck, Pencil, X } from "lucide-react"
+import { FormEvent, useEffect, useRef, useState } from "react"
+import { ArrowUp, ChevronDown, ChevronUp, CircleCheck, Pencil, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -64,6 +64,7 @@ export function WorkspaceChampionDock({
   onReviewPaperLaunch,
 }: WorkspaceChampionDockProps) {
   const assistantName = "Atlas"
+  const [collapsed, setCollapsed] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
   const composerContext = attachedContext ?? viewedContext
@@ -86,7 +87,11 @@ export function WorkspaceChampionDock({
   return (
     <aside
       aria-label={`${assistantName} conversation`}
-      className="flex h-[min(24rem,46vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
+      className={
+        collapsed
+          ? "flex h-16 shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
+          : "flex h-[min(22rem,38vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
+      }
     >
       <Card className="min-h-0 flex-1">
         <CardHeader>
@@ -95,11 +100,24 @@ export function WorkspaceChampionDock({
             <CardDescription>{viewedContext}</CardDescription>
           </div>
           <CardAction>
-            <Badge variant="secondary">Active</Badge>
+            <div className="flex items-center gap-1">
+              <Badge variant="secondary">Active</Badge>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="xl:hidden"
+                aria-label={collapsed ? `Expand ${assistantName} panel` : `Collapse ${assistantName} panel`}
+                aria-expanded={!collapsed}
+                onClick={() => setCollapsed((current) => !current)}
+              >
+                {collapsed ? <ChevronDown /> : <ChevronUp />}
+              </Button>
+            </div>
           </CardAction>
         </CardHeader>
 
-        <CardContent className="min-h-0 flex-1">
+        <CardContent className={collapsed ? "hidden min-h-0 flex-1 xl:block" : "min-h-0 flex-1"}>
           <ScrollArea className="h-full">
             <div role="log" aria-live="polite" className="space-y-4 pr-3">
               {exchanges.length ? (
@@ -175,7 +193,7 @@ export function WorkspaceChampionDock({
           </ScrollArea>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className={collapsed ? "hidden xl:block" : undefined}>
           <form onSubmit={submit} className="w-full space-y-3">
             {attachedContext ? (
               <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">

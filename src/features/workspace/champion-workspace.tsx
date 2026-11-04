@@ -1307,8 +1307,8 @@ export function ChampionWorkspace() {
 
   return (
     <SidebarProvider
-      className="h-svh min-h-[36rem] overflow-hidden"
-      style={{ "--sidebar-width": "14rem" } as CSSProperties}
+      className="h-svh overflow-hidden"
+      style={{ "--sidebar-width": "17rem" } as CSSProperties}
     >
       <a
         href="#primary-workspace"
@@ -1394,8 +1394,10 @@ export function ChampionWorkspace() {
                         V{strategy.version}
                       </span>
                       <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                        <span className="truncate">{strategy.title}</span>
-                        <span className="truncate text-xs text-foreground">
+                        <span className="truncate" title={strategy.title}>
+                          {strategy.title}
+                        </span>
+                        <span className="truncate text-xs text-muted-foreground">
                           {strategy.status}
                         </span>
                       </span>
@@ -1449,18 +1451,16 @@ export function ChampionWorkspace() {
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <div className="shrink-0 border-b px-3 pt-3">
+        <div className="shrink-0 border-b px-5 pt-3">
           <div className="flex min-h-11 items-start gap-3">
             <SidebarTrigger className="mt-0.5" />
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-2">
-                {activeContext !== "live" ? (
-                  <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
-                    V{selectedStrategy.version}
-                  </span>
-                ) : null}
+                <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
+                  V{selectedStrategy.version}
+                </span>
                 <h1 className="min-w-0 truncate text-base font-semibold">
-                  {activeContext === "live" ? "Live" : selectedStrategy.title}
+                  {selectedStrategy.title}
                 </h1>
               </div>
               {activeContext !== "live" ? (
@@ -1696,7 +1696,7 @@ export function ChampionWorkspace() {
                 (!selectedPaperRun || !selectedPaperDecisionAvailable) ? (
                 <UnavailablePaperResource onBack={() => navigate(paperIndexHref(championId))} />
               ) : activeContext === "paper" && paperView ? (
-                <div className="h-full overflow-auto p-4 sm:p-5">
+                <div className="h-full overflow-auto p-5">
                   <PaperPortfolioWorkspace
                     paper={paperView}
                     selectedReference={selectedPaperReference}
@@ -1843,7 +1843,10 @@ export function ChampionWorkspace() {
               <PaperWorkspaceBottomPanel
                 paper={paperView}
                 activeTab={paperDetailsTab}
-                expanded={paperSelection.panelExpanded}
+                expanded={
+                  paperSelection.panelExpanded ||
+                  (route.kind === "paper-portfolio" && route.tab !== "overview")
+                }
                 onActiveTabChange={(detailsTab) =>
                   {
                     updateChampionSession(championId, (current) => ({
@@ -1868,7 +1871,7 @@ export function ChampionWorkspace() {
                     }
                   }
                 }
-                onExpandedChange={(panelExpanded) =>
+                onExpandedChange={(panelExpanded) => {
                   updateChampionSession(championId, (current) => ({
                     ...current,
                     paperSelection: {
@@ -1876,7 +1879,17 @@ export function ChampionWorkspace() {
                       panelExpanded,
                     },
                   }))
-                }
+                  if (
+                    !panelExpanded &&
+                    route.kind === "paper-portfolio" &&
+                    route.tab !== "overview" &&
+                    currentPaperPortfolioId
+                  ) {
+                    navigate(
+                      paperPortfolioHref(championId, currentPaperPortfolioId, "overview")
+                    )
+                  }
+                }}
                 onOpenRun={(run) =>
                   {
                     updateChampionSession(championId, (current) => ({
@@ -2897,8 +2910,8 @@ function paperOperationalLabel(state: PaperLaunchSnapshot["operationalState"]) {
 function UnavailableChampionWorkspace({ championId }: { championId: string }) {
   return (
     <SidebarProvider
-      className="h-svh min-h-[36rem] overflow-hidden"
-      style={{ "--sidebar-width": "14rem" } as CSSProperties}
+      className="h-svh overflow-hidden"
+      style={{ "--sidebar-width": "17rem" } as CSSProperties}
     >
       <Sidebar collapsible="offcanvas" role="navigation" aria-label="Champion workspace navigation">
         <SidebarHeader>

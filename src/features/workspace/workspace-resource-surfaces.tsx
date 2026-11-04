@@ -18,6 +18,7 @@ import type {
   DraftCheckpointRecord,
   SourceArtifactRecord,
 } from "./demo"
+import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 import { WorkspacePageHeader } from "./workspace-page-header"
 
 export function ChangeSetReviewWorkspace({
@@ -44,7 +45,12 @@ export function ChangeSetReviewWorkspace({
   const baseLabel = checkpointDisplayLabel(baseCheckpoint)
 
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Change set review">
+    <section className="h-full overflow-auto p-5" aria-label="Change set review">
+      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[{ label: "Drafting", onSelect: onBack }, { label: "Change set" }]}
+        />
+      </div>
       <WorkspacePageHeader
         title={changeSet.kind === "restore" ? "Restore proposal" : "Strategy change proposal"}
         badges={[
@@ -148,7 +154,16 @@ export function CheckpointDetailWorkspace({
   onRestore?: () => void
 }) {
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Checkpoint detail">
+    <section className="h-full overflow-auto p-5" aria-label="Checkpoint detail">
+      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[
+            { label: "Drafting", onSelect: onBack },
+            { label: "Checkpoints" },
+            { label: checkpointDisplayLabel(checkpoint) },
+          ]}
+        />
+      </div>
       <WorkspacePageHeader
         title={checkpointDisplayLabel(checkpoint)}
         badges={[{ label: "Saved locally", variant: "outline" }]}
@@ -200,9 +215,9 @@ export function DataWorkspace() {
       <WorkspacePageHeader
         title="Datasets"
         details="Everything your champion has access to."
-        className="px-6 py-4"
+        className="px-5 py-4"
       />
-      <div className="min-h-0 flex-1 overflow-auto px-6 pb-6">
+      <div className="min-h-0 flex-1 overflow-auto px-5 pb-5">
         <div className="space-y-7">
           {datasetGroups.map((group) => (
             <section key={group.label} aria-labelledby={`dataset-${group.slug}`}>
@@ -240,7 +255,12 @@ export function SourceArtifactWorkspace({
   onBack: () => void
 }) {
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Source artifact">
+    <section className="h-full overflow-auto p-5" aria-label="Source artifact">
+      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[{ label: "Datasets", onSelect: onBack }, { label: source.dataset }]}
+        />
+      </div>
       <WorkspacePageHeader
         title={source.dataset}
         badges={[{ label: "Immutable source artifact" }]}

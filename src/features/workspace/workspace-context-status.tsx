@@ -29,7 +29,7 @@ export function WorkspaceContextStatus(props: WorkspaceContextStatusProps) {
 
   return (
     <div className="ml-auto" role="status" aria-label={label}>
-      <Badge variant="outline" className="max-w-[18rem] truncate">
+      <Badge variant="outline" className="max-w-28 justify-start truncate sm:max-w-[18rem]">
         {label}
       </Badge>
     </div>

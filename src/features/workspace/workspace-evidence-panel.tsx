@@ -100,7 +100,7 @@ export function WorkspaceEvidencePanel({
       }}
       className="shrink-0 gap-0 border-t"
     >
-      <div className="flex h-11 items-center justify-between gap-3 px-3">
+      <div className="flex h-11 items-center justify-between gap-3 px-5">
         <TabsList aria-label="Workspace bottom panel">
           <TabsTrigger value="activity" onClick={() => onExpandedChange(true)}>
             Activity
@@ -127,7 +127,7 @@ export function WorkspaceEvidencePanel({
       </div>
 
       {expanded ? (
-        <ScrollArea className="h-44 border-t px-3 py-3">
+        <ScrollArea className="h-[min(18rem,42vh)] border-t px-5 py-3">
           <TabsContent value="activity">
             {authorityError ? (
               <Alert variant="destructive">
@@ -203,7 +203,7 @@ export function WorkspaceEvidencePanel({
           <TabsContent value="checkpoints">
             <Card size="sm">
               <CardContent>
-                <Table>
+                <Table className="min-w-[36rem]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Checkpoint</TableHead>

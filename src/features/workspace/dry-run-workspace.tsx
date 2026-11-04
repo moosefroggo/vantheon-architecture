@@ -70,7 +70,7 @@ export function DryRunWorkspace({
         onValueChange={(value) => onActiveTabChange(value as DryRunTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-5 py-3">
+        <header className="flex shrink-0 flex-wrap items-center gap-3 border-b px-5 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">Completed</Badge>
             <p className="text-sm text-muted-foreground tabular-nums">
@@ -81,11 +81,13 @@ export function DryRunWorkspace({
               {simulatedCapital}
             </p>
           </div>
+        </header>
+        <div className="shrink-0 border-b px-5 py-3">
           <TabsList aria-label={`${run.label} details`}>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
-        </header>
+        </div>
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="p-5">

@@ -872,7 +872,7 @@ export function PaperWorkspaceBottomPanel(props: {
       }}
       className="shrink-0 gap-0 border-t"
     >
-      <div className="flex h-11 items-center justify-between gap-3 px-3">
+      <div className="flex h-11 items-center justify-between gap-3 px-5">
         <TabsList aria-label={`${paper.label} workspace panel`}>
           <TabsTrigger value="runs" onClick={() => onExpandedChange(true)}>
             Runs
@@ -897,7 +897,7 @@ export function PaperWorkspaceBottomPanel(props: {
         ) : null}
       </div>
       {expanded ? (
-        <ScrollArea className="h-72 border-t px-3 py-3">
+        <ScrollArea className="h-[min(18rem,42vh)] border-t px-5 py-3">
           <TabsContent value="runs">
             <RunsPanel paper={paper} onOpenRun={onOpenRun} />
           </TabsContent>
@@ -972,13 +972,15 @@ function PaperRunWorkspace({
 }) {
   return (
     <section aria-labelledby="paper-run-title" className="space-y-3">
-      <WorkspaceHeaderBreadcrumbs
-        items={[
-          { label: "Paper", onSelect: onOpenPortfolio },
-          { label: "Runs", onSelect: onOpenRuns },
-          { label: run.label },
-        ]}
-      />
+      <div className="-mx-5 -mt-5 border-b px-5 py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[
+            { label: "Paper", onSelect: onOpenPortfolio },
+            { label: "Runs", onSelect: onOpenRuns },
+            { label: run.label },
+          ]}
+        />
+      </div>
       <WorkspacePageHeader
         title={run.label}
         titleId="paper-run-title"
@@ -989,10 +991,12 @@ function PaperRunWorkspace({
         value={activeTab}
         onValueChange={(value) => onActiveTabChange(value as PaperRunTab)}
       >
-        <TabsList aria-label={`${run.label} details`}>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-        </TabsList>
+        <div className="border-b pb-3">
+          <TabsList aria-label={`${run.label} details`}>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="summary" className="space-y-4 pt-2">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <RunFact label="Started" value={run.startedAt ?? "Unavailable"} />
@@ -1089,7 +1093,7 @@ function RunFact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border px-3 py-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-medium">{value}</p>
+      <p className="mt-1 text-sm leading-snug font-medium [text-wrap:balance]">{value}</p>
     </div>
   )
 }

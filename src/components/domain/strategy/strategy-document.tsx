@@ -34,7 +34,7 @@ export function StrategyDocument({
   const schedule = byGroup.get("Schedule")
 
   return (
-    <article className="mx-auto max-w-[52rem] px-2 py-4 sm:px-6 sm:py-6">
+    <article className="max-w-[52rem] py-4 sm:py-6">
       <div className="space-y-10">
         <DocumentSection title="Thesis">
           <p>{thesis ?? objective}</p>

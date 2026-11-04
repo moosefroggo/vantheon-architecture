@@ -31,14 +31,14 @@ export function WorkspacePageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-3 border-b lg:flex-row lg:items-start lg:justify-between",
+        "flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b lg:flex-nowrap",
         className
       )}
     >
-      <div className="min-w-0 space-y-1">
+      <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           {title ? (
-            <Title id={titleId} className="text-2xl font-semibold tracking-tight">
+            <Title id={titleId} className="text-xl font-semibold tracking-tight sm:text-2xl">
               {title}
             </Title>
           ) : null}

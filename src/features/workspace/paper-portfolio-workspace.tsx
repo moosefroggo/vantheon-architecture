@@ -872,7 +872,7 @@ export function PaperWorkspaceBottomPanel(props: {
       }}
       className="shrink-0 gap-0 border-t"
     >
-      <div className="flex h-11 items-center justify-between gap-3 px-5">
+      <div className="flex h-10 items-center justify-between gap-3 px-5 sm:h-11">
         <TabsList aria-label={`${paper.label} workspace panel`}>
           <TabsTrigger value="runs" onClick={() => onExpandedChange(true)}>
             Runs
@@ -972,7 +972,7 @@ function PaperRunWorkspace({
 }) {
   return (
     <section aria-labelledby="paper-run-title" className="space-y-3">
-      <div className="-mx-5 -mt-5 border-b px-5 py-2">
+      <div className="-mx-5 -mt-5 border-b px-5 py-1.5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[
             { label: "Paper", onSelect: onOpenPortfolio },
@@ -991,7 +991,7 @@ function PaperRunWorkspace({
         value={activeTab}
         onValueChange={(value) => onActiveTabChange(value as PaperRunTab)}
       >
-        <div className="border-b pb-3">
+        <div className="border-b pb-2 sm:pb-3">
           <TabsList aria-label={`${run.label} details`}>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>

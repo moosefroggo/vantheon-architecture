@@ -1451,8 +1451,8 @@ export function ChampionWorkspace() {
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <div className="shrink-0 border-b px-5 pt-3">
-          <div className="flex min-h-11 items-start gap-3">
+        <div className="shrink-0 border-b px-5 pt-2 sm:pt-3">
+          <div className="flex min-h-9 items-start gap-3 sm:min-h-11">
             <SidebarTrigger className="mt-0.5" />
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-2">
@@ -1469,7 +1469,7 @@ export function ChampionWorkspace() {
                   onValueChange={(value) =>
                     selectWorkspaceContext(championId, value as WorkspaceContext)
                   }
-                  className="mt-2"
+                  className="mt-1 sm:mt-2"
                 >
                   <TabsList variant="line">
                     <TabsTrigger

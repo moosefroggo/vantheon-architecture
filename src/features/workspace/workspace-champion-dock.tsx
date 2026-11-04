@@ -66,7 +66,7 @@ export function WorkspaceChampionDock({
   onReviewPaperLaunch,
 }: WorkspaceChampionDockProps) {
   const assistantName = "Atlas"
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const effectiveCollapsed = collapsed || forceCollapsed
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
@@ -92,19 +92,32 @@ export function WorkspaceChampionDock({
       aria-label={`${assistantName} conversation`}
       className={
         effectiveCollapsed
-          ? "flex h-16 shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
-          : "flex h-[min(22rem,38vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
+          ? "fixed right-4 bottom-4 z-40 flex w-32 xl:static xl:h-auto xl:w-[26rem] xl:p-3 2xl:w-[28rem]"
+          : "fixed inset-x-2 bottom-2 z-40 flex h-[min(36rem,78svh)] xl:static xl:h-auto xl:w-[26rem] xl:p-3 2xl:w-[28rem]"
       }
     >
-      <Card className="min-h-0 flex-1">
-        <CardHeader>
+      <Card
+        className={
+          effectiveCollapsed
+            ? "min-h-0 flex-1 rounded-full shadow-lg xl:rounded-xl xl:shadow-xs"
+            : "min-h-0 flex-1 shadow-xl xl:shadow-xs"
+        }
+      >
+        <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
           <div>
             <CardTitle>{assistantName}</CardTitle>
-            <CardDescription>{viewedContext}</CardDescription>
+            <CardDescription className={effectiveCollapsed ? "hidden xl:block" : undefined}>
+              {viewedContext}
+            </CardDescription>
           </div>
-          <CardAction>
+          <CardAction className={effectiveCollapsed ? "self-center xl:self-start" : undefined}>
             <div className="flex items-center gap-1">
-              <Badge variant="secondary">Active</Badge>
+              <Badge
+                variant="secondary"
+                className={effectiveCollapsed ? "hidden xl:inline-flex" : undefined}
+              >
+                Active
+              </Badge>
               <Button
                 type="button"
                 variant="ghost"
@@ -114,7 +127,7 @@ export function WorkspaceChampionDock({
                 aria-expanded={!effectiveCollapsed}
                 onClick={() => setCollapsed((current) => !current)}
               >
-                {effectiveCollapsed ? <ChevronDown /> : <ChevronUp />}
+                {effectiveCollapsed ? <ChevronUp /> : <ChevronDown />}
               </Button>
             </div>
           </CardAction>
@@ -141,7 +154,7 @@ export function WorkspaceChampionDock({
                             </p>
                           ) : (
                             <Card key={index} size="sm">
-                              <CardHeader>
+                              <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
                                 <CardTitle>{part.prompt}</CardTitle>
                               </CardHeader>
                               <CardContent className="flex flex-wrap gap-2">
@@ -178,7 +191,7 @@ export function WorkspaceChampionDock({
 
               {paperLaunchReviewAvailable && onReviewPaperLaunch ? (
                 <Card size="sm">
-                  <CardHeader>
+                  <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
                     <CardTitle>Paper portfolio</CardTitle>
                     <CardDescription>
                       Dry Run complete. Review the simulated portfolio setup.

@@ -46,7 +46,7 @@ export function ChangeSetReviewWorkspace({
 
   return (
     <section className="h-full overflow-auto p-5" aria-label="Change set review">
-      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[{ label: "Drafting", onSelect: onBack }, { label: "Change set" }]}
         />
@@ -157,7 +157,7 @@ export function CheckpointDetailWorkspace({
 }) {
   return (
     <section className="h-full overflow-auto p-5" aria-label="Checkpoint detail">
-      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[
             { label: "Drafting", onSelect: onBack },
@@ -220,7 +220,7 @@ export function DataWorkspace() {
       <WorkspacePageHeader
         title="Datasets"
         details="Everything your champion has access to."
-        className="px-5 py-4"
+        className="px-5 py-3 sm:py-4"
       />
       <div className="min-h-0 flex-1 overflow-auto px-5 pb-5">
         <div className="space-y-7">
@@ -261,7 +261,7 @@ export function SourceArtifactWorkspace({
 }) {
   return (
     <section className="h-full overflow-auto p-5" aria-label="Source artifact">
-      <div className="-mx-5 -mt-5 mb-5 border-b px-5 py-2">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[{ label: "Datasets", onSelect: onBack }, { label: source.dataset }]}
         />

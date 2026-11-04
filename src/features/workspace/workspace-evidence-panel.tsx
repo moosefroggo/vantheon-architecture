@@ -100,7 +100,7 @@ export function WorkspaceEvidencePanel({
       }}
       className="shrink-0 gap-0 border-t"
     >
-      <div className="flex h-11 items-center justify-between gap-3 px-5">
+      <div className="flex h-10 items-center justify-between gap-3 px-5 sm:h-11">
         <TabsList aria-label="Workspace bottom panel">
           <TabsTrigger value="activity" onClick={() => onExpandedChange(true)}>
             Activity

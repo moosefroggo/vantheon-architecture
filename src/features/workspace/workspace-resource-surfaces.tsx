@@ -146,11 +146,13 @@ export function CheckpointDetailWorkspace({
   checkpoint,
   isCurrent = false,
   onBack,
+  onOpenCheckpoints,
   onRestore,
 }: {
   checkpoint: DraftCheckpointRecord
   isCurrent?: boolean
   onBack: () => void
+  onOpenCheckpoints?: () => void
   onRestore?: () => void
 }) {
   return (
@@ -159,7 +161,10 @@ export function CheckpointDetailWorkspace({
         <WorkspaceHeaderBreadcrumbs
           items={[
             { label: "Drafting", onSelect: onBack },
-            { label: "Checkpoints" },
+            {
+              label: "Checkpoints",
+              ...(onOpenCheckpoints ? { onSelect: onOpenCheckpoints } : {}),
+            },
             { label: checkpointDisplayLabel(checkpoint) },
           ]}
         />

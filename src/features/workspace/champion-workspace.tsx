@@ -1547,6 +1547,9 @@ export function ChampionWorkspace() {
                     checkpoint={validRoutedCheckpoint}
                     isCurrent={validRoutedCheckpoint.id === scenarioCurrentCheckpoint?.id}
                     onBack={() => navigate(draftHref(championId))}
+                    onOpenCheckpoints={() =>
+                      navigate(`${draftHref(championId)}?panel=checkpoints`)
+                    }
                     onRestore={
                       draftReadOnly
                         ? undefined
@@ -1918,6 +1921,12 @@ export function ChampionWorkspace() {
 
           <WorkspaceChampionDock
             championId={championId}
+            forceCollapsed={
+              evidenceExpanded ||
+              (activeContext === "paper" &&
+                (paperSelection.panelExpanded ||
+                  (route.kind === "paper-portfolio" && route.tab !== "overview")))
+            }
             viewedContext={viewedContext}
             attachedContext={attachedContext}
             focusRequest={conversation.focusRequest}

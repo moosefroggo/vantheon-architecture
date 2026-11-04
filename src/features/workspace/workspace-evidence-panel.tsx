@@ -203,12 +203,12 @@ export function WorkspaceEvidencePanel({
           <TabsContent value="checkpoints">
             <Card size="sm">
               <CardContent>
-                <Table className="min-w-[36rem]">
+                <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Checkpoint</TableHead>
                       <TableHead>Position</TableHead>
-                      <TableHead>Evidence</TableHead>
+                      <TableHead className="hidden sm:table-cell">Evidence</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -240,7 +240,7 @@ export function WorkspaceEvidencePanel({
                           </span>
                         </TableCell>
                         <TableCell>{item.current ? "Active Draft" : item.origin}</TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           {item.testedAt ? `Tested · ${item.testedAt}` : "Not tested"}
                         </TableCell>
                         <TableCell className="text-right">

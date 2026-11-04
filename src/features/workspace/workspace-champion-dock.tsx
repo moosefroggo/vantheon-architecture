@@ -44,6 +44,7 @@ export type WorkspaceChampionDockProps = {
   message: string
   exchanges: readonly ConversationExchange[]
   paperLaunchReviewAvailable?: boolean
+  forceCollapsed?: boolean
   onMessageChange: (message: string) => void
   onSubmit: (request: string) => void
   onClearAttachedContext?: () => void
@@ -58,6 +59,7 @@ export function WorkspaceChampionDock({
   message,
   exchanges,
   paperLaunchReviewAvailable = false,
+  forceCollapsed = false,
   onMessageChange,
   onSubmit,
   onClearAttachedContext,
@@ -65,6 +67,7 @@ export function WorkspaceChampionDock({
 }: WorkspaceChampionDockProps) {
   const assistantName = "Atlas"
   const [collapsed, setCollapsed] = useState(false)
+  const effectiveCollapsed = collapsed || forceCollapsed
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
   const composerContext = attachedContext ?? viewedContext
@@ -88,7 +91,7 @@ export function WorkspaceChampionDock({
     <aside
       aria-label={`${assistantName} conversation`}
       className={
-        collapsed
+        effectiveCollapsed
           ? "flex h-16 shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
           : "flex h-[min(22rem,38vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
       }
@@ -107,17 +110,17 @@ export function WorkspaceChampionDock({
                 variant="ghost"
                 size="icon-sm"
                 className="xl:hidden"
-                aria-label={collapsed ? `Expand ${assistantName} panel` : `Collapse ${assistantName} panel`}
-                aria-expanded={!collapsed}
+                aria-label={effectiveCollapsed ? `Expand ${assistantName} panel` : `Collapse ${assistantName} panel`}
+                aria-expanded={!effectiveCollapsed}
                 onClick={() => setCollapsed((current) => !current)}
               >
-                {collapsed ? <ChevronDown /> : <ChevronUp />}
+                {effectiveCollapsed ? <ChevronDown /> : <ChevronUp />}
               </Button>
             </div>
           </CardAction>
         </CardHeader>
 
-        <CardContent className={collapsed ? "hidden min-h-0 flex-1 xl:block" : "min-h-0 flex-1"}>
+        <CardContent className={effectiveCollapsed ? "hidden min-h-0 flex-1 xl:block" : "min-h-0 flex-1"}>
           <ScrollArea className="h-full">
             <div role="log" aria-live="polite" className="space-y-4 pr-3">
               {exchanges.length ? (
@@ -193,7 +196,7 @@ export function WorkspaceChampionDock({
           </ScrollArea>
         </CardContent>
 
-        <CardFooter className={collapsed ? "hidden xl:block" : undefined}>
+        <CardFooter className={effectiveCollapsed ? "hidden xl:block" : undefined}>
           <form onSubmit={submit} className="w-full space-y-3">
             {attachedContext ? (
               <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">

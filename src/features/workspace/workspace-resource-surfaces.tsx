@@ -45,7 +45,7 @@ export function ChangeSetReviewWorkspace({
   const baseLabel = checkpointDisplayLabel(baseCheckpoint)
 
   return (
-    <section className="h-full overflow-auto p-5" aria-label="Change set review">
+    <section className="@container/change-review h-full overflow-auto p-5" aria-label="Change set review">
       <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[{ label: "Drafting", onSelect: onBack }, { label: "Change set" }]}
@@ -65,8 +65,8 @@ export function ChangeSetReviewWorkspace({
         }
       />
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
+      <div className="mt-4 grid gap-4 @3xl/change-review:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0 space-y-4">
           {stale ? (
             <div role="alert" className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm">
               This proposal is stale: the current checkpoint no longer matches its exact base.
@@ -232,7 +232,7 @@ export function DataWorkspace() {
               >
                 {group.label}
               </h2>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3">
                 {group.items.map((item) => (
                   <Card key={item.label} className="shadow-none">
                     <CardHeader className="pb-2">

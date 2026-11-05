@@ -332,14 +332,16 @@ function ActivityTab({
             Inputs and assumptions
           </h2>
         </div>
-        <dl className="divide-y">
-          {run.setup.map((item) => (
-            <div key={item.label} className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr]">
-              <dt className="text-xs font-medium text-muted-foreground">{item.label}</dt>
-              <dd className="text-sm">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <Table aria-label="Inputs and assumptions">
+          <TableBody>
+            {run.setup.map((item) => (
+              <TableRow key={item.label}>
+                <TableHead scope="row" className="px-4 py-3 text-xs text-muted-foreground">{item.label}</TableHead>
+                <TableCell className="px-4 py-3">{item.value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </section>
     </>
   )

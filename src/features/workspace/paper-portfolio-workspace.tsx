@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Table } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type {
   DomainObjectReference,
@@ -294,7 +295,7 @@ function PortfolioOverview({
   }
 
   return (
-    <section aria-labelledby="paper-workspace-title" className="space-y-4">
+    <section aria-labelledby="paper-workspace-title" className="@container/paper space-y-4">
       <WorkspacePageHeader
         title="Portfolio"
         titleId="paper-workspace-title"
@@ -431,7 +432,7 @@ function PortfolioOverview({
         <MirrorPortfolioChart paper={paper} range={range} view={chartView} />
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 @2xl/paper:grid-cols-2">
         <MirrorPanel
           title="Buying power"
           action={
@@ -971,7 +972,7 @@ function PaperRunWorkspace({
   onOpenRuns: () => void
 }) {
   return (
-    <section aria-labelledby="paper-run-title" className="space-y-3">
+    <section aria-labelledby="paper-run-title" className="@container/paper-run space-y-3">
       <div className="-mx-5 -mt-5 border-b px-5 py-1.5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[
@@ -998,7 +999,7 @@ function PaperRunWorkspace({
           </TabsList>
         </div>
         <TabsContent value="summary" className="space-y-4 pt-2">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 @lg/paper-run:grid-cols-2 @5xl/paper-run:grid-cols-4">
             <RunFact label="Started" value={run.startedAt ?? "Unavailable"} />
             <RunFact label="Duration" value={run.duration ?? "Unavailable"} />
             <RunFact label="Data cutoff" value={run.dataCutoff ?? "Unavailable"} />
@@ -1012,7 +1013,7 @@ function PaperRunWorkspace({
             <div className="border-b px-4 py-3">
               <h2 id="run-account-title" className="text-sm font-semibold">Account change</h2>
             </div>
-            <table className="w-full text-sm">
+            <Table>
               <thead className="bg-muted/50">
                 <tr>
                   <TableHeading>Measure</TableHeading>
@@ -1032,7 +1033,7 @@ function PaperRunWorkspace({
                   after={run.afterBuyingPower}
                 />
               </tbody>
-            </table>
+            </Table>
           </section>
 
           <section className="rounded-lg border" aria-labelledby="run-decisions-title">
@@ -1091,9 +1092,9 @@ function PaperRunWorkspace({
 
 function RunFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border px-3 py-3">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm leading-snug font-medium [text-wrap:balance]">{value}</p>
+    <div className="min-w-0 overflow-x-auto rounded-lg border px-3 py-3">
+      <p className="text-xs font-medium whitespace-nowrap uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm leading-snug font-medium whitespace-nowrap">{value}</p>
     </div>
   )
 }
@@ -1165,7 +1166,7 @@ function PositionsPanel({ paper }: { paper: PaperWorkspaceFixture }) {
             onChange={setQuery}
           />
         </div>
-        <table className="w-full text-sm">
+        <Table>
           <thead className="bg-muted/50">
             <tr>
               <TableHeading>Asset</TableHeading>
@@ -1220,7 +1221,7 @@ function PositionsPanel({ paper }: { paper: PaperWorkspaceFixture }) {
               </tr>
             ) : null}
           </tbody>
-        </table>
+        </Table>
       </div>
     </section>
   )
@@ -1255,7 +1256,7 @@ function OrdersPanel({ paper }: { paper: PaperWorkspaceFixture }) {
             onChange={setQuery}
           />
         </div>
-        <table className="w-full text-sm">
+        <Table>
           <thead className="bg-muted/50">
             <tr>
               <TableHeading>Asset</TableHeading>
@@ -1302,7 +1303,7 @@ function OrdersPanel({ paper }: { paper: PaperWorkspaceFixture }) {
               </tr>
             ) : null}
           </tbody>
-        </table>
+        </Table>
       </div>
     </section>
   )

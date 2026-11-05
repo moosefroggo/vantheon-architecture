@@ -1415,7 +1415,7 @@ export function ChampionWorkspace() {
                         <span className="truncate" title={strategy.title}>
                           {strategy.title}
                         </span>
-                        <span className="truncate text-xs text-muted-foreground">
+                        <span className="truncate text-xs text-sidebar-foreground/70">
                           {strategy.status}
                         </span>
                       </span>
@@ -1439,7 +1439,7 @@ export function ChampionWorkspace() {
                       <Archive />
                       <span className="grid min-w-0 flex-1 text-left leading-tight">
                         <span>Archived Paper</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-sidebar-foreground/70">
                           {
                             paperPortfolios.filter(
                               (portfolio) => portfolio.operationalState === "archived"

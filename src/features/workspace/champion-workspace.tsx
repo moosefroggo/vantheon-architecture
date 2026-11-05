@@ -42,6 +42,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { DomainObjectReference } from "@/lib/charts/contracts"
@@ -231,6 +232,20 @@ type DemoStrategyNavigationEntry = {
   draftHref: string
   paperHref?: string
   kind: "draft" | "paper"
+}
+
+function DesktopSidebarReopenTrigger() {
+  const { open } = useSidebar()
+
+  if (open) return null
+
+  return (
+    <SidebarTrigger
+      className="hidden shrink-0 md:inline-flex"
+      aria-label="Open sidebar"
+      title="Open sidebar"
+    />
+  )
 }
 
 export function ChampionWorkspace() {
@@ -1307,8 +1322,8 @@ export function ChampionWorkspace() {
 
   return (
     <SidebarProvider
-      className="h-svh min-h-[36rem] overflow-hidden"
-      style={{ "--sidebar-width": "14rem" } as CSSProperties}
+      className="h-svh overflow-hidden"
+      style={{ "--sidebar-width": "17rem" } as CSSProperties}
     >
       <a
         href="#primary-workspace"
@@ -1323,9 +1338,12 @@ export function ChampionWorkspace() {
         aria-label="Champion workspace navigation"
       >
         <SidebarHeader>
-          <span className="px-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em]">
-            Vantheon
-          </span>
+          <div className="flex items-start justify-between">
+            <span className="px-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em]">
+              Vantheon
+            </span>
+            <SidebarTrigger className="max-md:hidden" />
+          </div>
           <Select
             value={championId}
             onValueChange={(value) => value && selectChampion(value)}
@@ -1394,8 +1412,10 @@ export function ChampionWorkspace() {
                         V{strategy.version}
                       </span>
                       <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                        <span className="truncate">{strategy.title}</span>
-                        <span className="truncate text-xs text-foreground">
+                        <span className="truncate" title={strategy.title}>
+                          {strategy.title}
+                        </span>
+                        <span className="truncate text-xs text-sidebar-foreground/70">
                           {strategy.status}
                         </span>
                       </span>
@@ -1419,7 +1439,7 @@ export function ChampionWorkspace() {
                       <Archive />
                       <span className="grid min-w-0 flex-1 text-left leading-tight">
                         <span>Archived Paper</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-sidebar-foreground/70">
                           {
                             paperPortfolios.filter(
                               (portfolio) => portfolio.operationalState === "archived"
@@ -1449,65 +1469,69 @@ export function ChampionWorkspace() {
       </Sidebar>
 
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
-        <div className="shrink-0 border-b px-3 pt-3">
-          <div className="flex min-h-11 items-start gap-3">
-            <SidebarTrigger className="mt-0.5" />
-            <div className="min-w-0 flex-1">
-              <div className="flex min-w-0 items-center gap-2">
-                {activeContext !== "live" ? (
-                  <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
-                    V{selectedStrategy.version}
-                  </span>
-                ) : null}
-                <h1 className="min-w-0 truncate text-base font-semibold">
-                  {activeContext === "live" ? "Live" : selectedStrategy.title}
-                </h1>
-              </div>
-              {activeContext !== "live" ? (
-                <Tabs
-                  value={activeContext}
-                  onValueChange={(value) =>
-                    selectWorkspaceContext(championId, value as WorkspaceContext)
-                  }
-                  className="mt-2"
-                >
-                  <TabsList variant="line">
-                    <TabsTrigger
-                      value="draft"
-                      onClick={() => selectWorkspaceContext(championId, "draft")}
-                    >
-                      {selectedStrategy.kind === "paper" ? "Strategy" : "Drafting"}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="paper"
-                      onClick={() => selectWorkspaceContext(championId, "paper")}
-                    >
-                      Paper
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              ) : null}
+        <div className="shrink-0 border-b px-5 pt-2 sm:pt-3">
+          <div className="flex items-center gap-3">
+            <DesktopSidebarReopenTrigger />
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
+                V{selectedStrategy.version}
+              </span>
+              <h1 className="min-w-0 truncate text-base font-semibold">
+                {selectedStrategy.title}
+              </h1>
             </div>
             <WorkspaceContextStatus
-              {...(activeContext === "live"
-                ? { kind: "live" as const }
-                : activeContext === "paper"
-                  ? {
-                      kind: "paper" as const,
-                      freshness: paperView?.freshness ?? "Paper collection · local evidence",
-                      marketRelevant: paperSnapshot?.operationalState === "active",
-                      marketSession: marketSessionFixture,
-                    }
-                  : selectedDryRun
+                {...(activeContext === "live"
+                  ? { kind: "live" as const }
+                  : activeContext === "paper"
                     ? {
-                        kind: "evaluation" as const,
-                        dataCutoff:
-                          selectedDryRun.setup.find(
-                            (item) => item.label === "Data cutoff"
-                          )?.value ?? "Unavailable",
+                        kind: "paper" as const,
+                        freshness: paperView?.freshness ?? "Paper collection · local evidence",
+                        marketRelevant: paperSnapshot?.operationalState === "active",
+                        marketSession: marketSessionFixture,
                       }
-                    : { kind: "draft" as const, label: localSaveStatus })}
+                    : selectedDryRun
+                      ? {
+                          kind: "evaluation" as const,
+                          dataCutoff:
+                            selectedDryRun.setup.find(
+                              (item) => item.label === "Data cutoff"
+                            )?.value ?? "Unavailable",
+                        }
+                      : { kind: "draft" as const, label: localSaveStatus })}
             />
+          </div>
+          <div
+            className={
+              activeContext === "live"
+                ? "mt-1 flex items-center sm:mt-1.5 md:hidden"
+                : "mt-1 flex items-center gap-1 sm:mt-1.5"
+            }
+          >
+            <SidebarTrigger className="md:hidden" />
+            {activeContext !== "live" ? (
+              <Tabs
+                value={activeContext}
+                onValueChange={(value) =>
+                  selectWorkspaceContext(championId, value as WorkspaceContext)
+                }
+              >
+                <TabsList variant="line">
+                  <TabsTrigger
+                    value="draft"
+                    onClick={() => selectWorkspaceContext(championId, "draft")}
+                  >
+                    {selectedStrategy.kind === "paper" ? "Strategy" : "Drafting"}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="paper"
+                    onClick={() => selectWorkspaceContext(championId, "paper")}
+                  >
+                    Paper
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            ) : null}
           </div>
         </div>
 
@@ -1547,6 +1571,9 @@ export function ChampionWorkspace() {
                     checkpoint={validRoutedCheckpoint}
                     isCurrent={validRoutedCheckpoint.id === scenarioCurrentCheckpoint?.id}
                     onBack={() => navigate(draftHref(championId))}
+                    onOpenCheckpoints={() =>
+                      navigate(`${draftHref(championId)}?panel=checkpoints`)
+                    }
                     onRestore={
                       draftReadOnly
                         ? undefined
@@ -1696,7 +1723,7 @@ export function ChampionWorkspace() {
                 (!selectedPaperRun || !selectedPaperDecisionAvailable) ? (
                 <UnavailablePaperResource onBack={() => navigate(paperIndexHref(championId))} />
               ) : activeContext === "paper" && paperView ? (
-                <div className="h-full overflow-auto p-4 sm:p-5">
+                <div className="h-full overflow-auto p-5">
                   <PaperPortfolioWorkspace
                     paper={paperView}
                     selectedReference={selectedPaperReference}
@@ -1843,7 +1870,10 @@ export function ChampionWorkspace() {
               <PaperWorkspaceBottomPanel
                 paper={paperView}
                 activeTab={paperDetailsTab}
-                expanded={paperSelection.panelExpanded}
+                expanded={
+                  paperSelection.panelExpanded ||
+                  (route.kind === "paper-portfolio" && route.tab !== "overview")
+                }
                 onActiveTabChange={(detailsTab) =>
                   {
                     updateChampionSession(championId, (current) => ({
@@ -1868,7 +1898,7 @@ export function ChampionWorkspace() {
                     }
                   }
                 }
-                onExpandedChange={(panelExpanded) =>
+                onExpandedChange={(panelExpanded) => {
                   updateChampionSession(championId, (current) => ({
                     ...current,
                     paperSelection: {
@@ -1876,7 +1906,17 @@ export function ChampionWorkspace() {
                       panelExpanded,
                     },
                   }))
-                }
+                  if (
+                    !panelExpanded &&
+                    route.kind === "paper-portfolio" &&
+                    route.tab !== "overview" &&
+                    currentPaperPortfolioId
+                  ) {
+                    navigate(
+                      paperPortfolioHref(championId, currentPaperPortfolioId, "overview")
+                    )
+                  }
+                }}
                 onOpenRun={(run) =>
                   {
                     updateChampionSession(championId, (current) => ({
@@ -1905,6 +1945,12 @@ export function ChampionWorkspace() {
 
           <WorkspaceChampionDock
             championId={championId}
+            forceCollapsed={
+              evidenceExpanded ||
+              (activeContext === "paper" &&
+                (paperSelection.panelExpanded ||
+                  (route.kind === "paper-portfolio" && route.tab !== "overview")))
+            }
             viewedContext={viewedContext}
             attachedContext={attachedContext}
             focusRequest={conversation.focusRequest}
@@ -2897,14 +2943,17 @@ function paperOperationalLabel(state: PaperLaunchSnapshot["operationalState"]) {
 function UnavailableChampionWorkspace({ championId }: { championId: string }) {
   return (
     <SidebarProvider
-      className="h-svh min-h-[36rem] overflow-hidden"
-      style={{ "--sidebar-width": "14rem" } as CSSProperties}
+      className="h-svh overflow-hidden"
+      style={{ "--sidebar-width": "17rem" } as CSSProperties}
     >
       <Sidebar collapsible="offcanvas" role="navigation" aria-label="Champion workspace navigation">
         <SidebarHeader>
-          <span className="px-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em]">
-            Vantheon
-          </span>
+          <div className="flex items-start justify-between">
+            <span className="px-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em]">
+              Vantheon
+            </span>
+            <SidebarTrigger />
+          </div>
         </SidebarHeader>
         <SidebarContent />
       </Sidebar>

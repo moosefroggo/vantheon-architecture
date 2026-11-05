@@ -158,7 +158,7 @@ export function ChartFrame({
           tabIndex={0}
           className="mt-3 max-h-80 overflow-auto rounded-lg border border-border outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <table className="w-full min-w-xl border-collapse text-left text-sm">
+          <table className="w-full min-w-xl border-collapse text-left text-sm whitespace-nowrap">
             <caption className="sr-only">{table.caption}</caption>
             <thead className="sticky top-0 bg-muted">
               <tr>

@@ -18,6 +18,7 @@ import type {
   DraftCheckpointRecord,
   SourceArtifactRecord,
 } from "./demo"
+import { WorkspaceHeaderBreadcrumbs } from "./workspace-header-breadcrumbs"
 import { WorkspacePageHeader } from "./workspace-page-header"
 
 export function ChangeSetReviewWorkspace({
@@ -44,7 +45,12 @@ export function ChangeSetReviewWorkspace({
   const baseLabel = checkpointDisplayLabel(baseCheckpoint)
 
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Change set review">
+    <section className="@container/change-review h-full overflow-auto p-5" aria-label="Change set review">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[{ label: "Drafting", onSelect: onBack }, { label: "Change set" }]}
+        />
+      </div>
       <WorkspacePageHeader
         title={changeSet.kind === "restore" ? "Restore proposal" : "Strategy change proposal"}
         badges={[
@@ -59,8 +65,8 @@ export function ChangeSetReviewWorkspace({
         }
       />
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
+      <div className="mt-4 grid gap-4 @3xl/change-review:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0 space-y-4">
           {stale ? (
             <div role="alert" className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm">
               This proposal is stale: the current checkpoint no longer matches its exact base.
@@ -140,15 +146,29 @@ export function CheckpointDetailWorkspace({
   checkpoint,
   isCurrent = false,
   onBack,
+  onOpenCheckpoints,
   onRestore,
 }: {
   checkpoint: DraftCheckpointRecord
   isCurrent?: boolean
   onBack: () => void
+  onOpenCheckpoints?: () => void
   onRestore?: () => void
 }) {
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Checkpoint detail">
+    <section className="h-full overflow-auto p-5" aria-label="Checkpoint detail">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[
+            { label: "Drafting", onSelect: onBack },
+            {
+              label: "Checkpoints",
+              ...(onOpenCheckpoints ? { onSelect: onOpenCheckpoints } : {}),
+            },
+            { label: checkpointDisplayLabel(checkpoint) },
+          ]}
+        />
+      </div>
       <WorkspacePageHeader
         title={checkpointDisplayLabel(checkpoint)}
         badges={[{ label: "Saved locally", variant: "outline" }]}
@@ -200,9 +220,9 @@ export function DataWorkspace() {
       <WorkspacePageHeader
         title="Datasets"
         details="Everything your champion has access to."
-        className="px-6 py-4"
+        className="px-5 py-3 sm:py-4"
       />
-      <div className="min-h-0 flex-1 overflow-auto px-6 pb-6">
+      <div className="min-h-0 flex-1 overflow-auto px-5 pb-5">
         <div className="space-y-7">
           {datasetGroups.map((group) => (
             <section key={group.label} aria-labelledby={`dataset-${group.slug}`}>
@@ -212,7 +232,7 @@ export function DataWorkspace() {
               >
                 {group.label}
               </h2>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3">
                 {group.items.map((item) => (
                   <Card key={item.label} className="shadow-none">
                     <CardHeader className="pb-2">
@@ -240,7 +260,12 @@ export function SourceArtifactWorkspace({
   onBack: () => void
 }) {
   return (
-    <section className="h-full overflow-auto p-4 sm:p-5" aria-label="Source artifact">
+    <section className="h-full overflow-auto p-5" aria-label="Source artifact">
+      <div className="-mx-5 -mt-5 mb-4 border-b px-5 py-1.5 sm:mb-5 sm:py-2">
+        <WorkspaceHeaderBreadcrumbs
+          items={[{ label: "Datasets", onSelect: onBack }, { label: source.dataset }]}
+        />
+      </div>
       <WorkspacePageHeader
         title={source.dataset}
         badges={[{ label: "Immutable source artifact" }]}

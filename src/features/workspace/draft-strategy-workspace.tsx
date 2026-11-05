@@ -77,7 +77,7 @@ export function DraftStrategyWorkspace({
             </Button>
           </div>
         }
-        className="px-6 py-4"
+        className="px-5 py-3 sm:py-4"
       />
 
       <Tabs
@@ -85,7 +85,7 @@ export function DraftStrategyWorkspace({
         onValueChange={(value) => onActiveTabChange(value as DraftSurfaceTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <div className="border-b px-6 py-3">
+        <div className="border-b px-5 py-2 sm:py-3">
           <TabsList>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="document">Document</TabsTrigger>
@@ -93,7 +93,7 @@ export function DraftStrategyWorkspace({
         </div>
 
         <ScrollArea className="min-h-0 flex-1">
-          <div className="p-6">
+          <div className="p-5">
             <TabsContent value="summary">
               <StrategySummary
                 rules={draft.rules}

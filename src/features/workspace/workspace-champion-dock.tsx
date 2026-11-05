@@ -1,7 +1,7 @@
 "use client"
 
-import { FormEvent, useEffect, useRef } from "react"
-import { ArrowUp, CircleCheck, Pencil, X } from "lucide-react"
+import { FormEvent, useEffect, useRef, useState } from "react"
+import { ArrowUp, ChevronDown, ChevronUp, CircleCheck, Pencil, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,7 @@ export type WorkspaceChampionDockProps = {
   message: string
   exchanges: readonly ConversationExchange[]
   paperLaunchReviewAvailable?: boolean
+  forceCollapsed?: boolean
   onMessageChange: (message: string) => void
   onSubmit: (request: string) => void
   onClearAttachedContext?: () => void
@@ -58,12 +59,15 @@ export function WorkspaceChampionDock({
   message,
   exchanges,
   paperLaunchReviewAvailable = false,
+  forceCollapsed = false,
   onMessageChange,
   onSubmit,
   onClearAttachedContext,
   onReviewPaperLaunch,
 }: WorkspaceChampionDockProps) {
   const assistantName = "Atlas"
+  const [collapsed, setCollapsed] = useState(true)
+  const effectiveCollapsed = collapsed || forceCollapsed
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const handledFocusRequests = useRef<Record<string, number>>({})
   const composerContext = attachedContext ?? viewedContext
@@ -86,20 +90,68 @@ export function WorkspaceChampionDock({
   return (
     <aside
       aria-label={`${assistantName} conversation`}
-      className="flex h-[min(24rem,46vh)] shrink-0 p-3 xl:h-auto xl:w-[26rem] 2xl:w-[28rem]"
+      className={
+        effectiveCollapsed
+          ? "fixed right-4 bottom-4 z-40 flex w-32 xl:static xl:h-auto xl:w-[26rem] xl:p-3 2xl:w-[28rem]"
+          : "fixed inset-x-2 bottom-2 z-40 flex h-[min(36rem,78svh)] xl:static xl:h-auto xl:w-[26rem] xl:p-3 2xl:w-[28rem]"
+      }
     >
-      <Card className="min-h-0 flex-1">
-        <CardHeader>
+      <Card
+        className={
+          effectiveCollapsed
+            ? "relative min-h-0 flex-1 rounded-full shadow-lg xl:rounded-xl xl:shadow-xs"
+            : "min-h-0 flex-1 shadow-xl xl:shadow-xs"
+        }
+      >
+        {effectiveCollapsed ? (
+          <Button
+            type="button"
+            variant="ghost"
+            aria-label={`Expand ${assistantName} panel`}
+            aria-expanded={false}
+            onClick={() => setCollapsed(false)}
+            className="absolute inset-0 z-10 h-auto w-full rounded-full hover:bg-transparent xl:hidden"
+          />
+        ) : null}
+        <CardHeader
+          className={
+            effectiveCollapsed
+              ? "flex items-center justify-between pb-4 xl:grid xl:pb-0"
+              : undefined
+          }
+        >
           <div>
             <CardTitle>{assistantName}</CardTitle>
-            <CardDescription>{viewedContext}</CardDescription>
+            <CardDescription className={effectiveCollapsed ? "hidden xl:block" : undefined}>
+              {viewedContext}
+            </CardDescription>
           </div>
-          <CardAction>
-            <Badge variant="secondary">Active</Badge>
+          <CardAction className={effectiveCollapsed ? "self-center xl:self-start" : undefined}>
+            <div className="flex items-center gap-1">
+              <Badge
+                variant="secondary"
+                className={effectiveCollapsed ? "hidden xl:inline-flex" : undefined}
+              >
+                Active
+              </Badge>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                tabIndex={effectiveCollapsed ? -1 : undefined}
+                aria-hidden={effectiveCollapsed || undefined}
+                className={effectiveCollapsed ? "pointer-events-none xl:hidden" : "xl:hidden"}
+                aria-label={effectiveCollapsed ? `Expand ${assistantName} panel` : `Collapse ${assistantName} panel`}
+                aria-expanded={!effectiveCollapsed}
+                onClick={() => setCollapsed((current) => !current)}
+              >
+                {effectiveCollapsed ? <ChevronUp /> : <ChevronDown />}
+              </Button>
+            </div>
           </CardAction>
         </CardHeader>
 
-        <CardContent className="min-h-0 flex-1">
+        <CardContent className={effectiveCollapsed ? "hidden min-h-0 flex-1 xl:block" : "min-h-0 flex-1"}>
           <ScrollArea className="h-full">
             <div role="log" aria-live="polite" className="space-y-4 pr-3">
               {exchanges.length ? (
@@ -120,7 +172,7 @@ export function WorkspaceChampionDock({
                             </p>
                           ) : (
                             <Card key={index} size="sm">
-                              <CardHeader>
+                              <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
                                 <CardTitle>{part.prompt}</CardTitle>
                               </CardHeader>
                               <CardContent className="flex flex-wrap gap-2">
@@ -157,7 +209,7 @@ export function WorkspaceChampionDock({
 
               {paperLaunchReviewAvailable && onReviewPaperLaunch ? (
                 <Card size="sm">
-                  <CardHeader>
+                  <CardHeader className={effectiveCollapsed ? "flex items-center justify-between xl:grid" : undefined}>
                     <CardTitle>Paper portfolio</CardTitle>
                     <CardDescription>
                       Dry Run complete. Review the simulated portfolio setup.
@@ -175,7 +227,7 @@ export function WorkspaceChampionDock({
           </ScrollArea>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className={effectiveCollapsed ? "hidden xl:block" : undefined}>
           <form onSubmit={submit} className="w-full space-y-3">
             {attachedContext ? (
               <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">

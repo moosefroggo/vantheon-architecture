@@ -56,7 +56,7 @@ export function DryRunWorkspace({
       className="flex h-full min-h-0 flex-col"
       aria-label={`${run.label} details`}
     >
-      <div className="shrink-0 border-b px-5 py-2">
+      <div className="shrink-0 border-b px-5 py-1.5 sm:py-2">
         <WorkspaceHeaderBreadcrumbs
           items={[
             { label: "Drafting", onSelect: onBack },
@@ -70,7 +70,7 @@ export function DryRunWorkspace({
         onValueChange={(value) => onActiveTabChange(value as DryRunTab)}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-5 py-3">
+        <header className="flex shrink-0 flex-wrap items-center gap-3 border-b px-5 py-2 sm:py-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">Completed</Badge>
             <p className="text-sm text-muted-foreground tabular-nums">
@@ -81,11 +81,13 @@ export function DryRunWorkspace({
               {simulatedCapital}
             </p>
           </div>
+        </header>
+        <div className="shrink-0 border-b px-5 py-2 sm:py-3">
           <TabsList aria-label={`${run.label} details`}>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
-        </header>
+        </div>
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="p-5">
@@ -330,14 +332,16 @@ function ActivityTab({
             Inputs and assumptions
           </h2>
         </div>
-        <dl className="divide-y">
-          {run.setup.map((item) => (
-            <div key={item.label} className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr]">
-              <dt className="text-xs font-medium text-muted-foreground">{item.label}</dt>
-              <dd className="text-sm">{item.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <Table aria-label="Inputs and assumptions">
+          <TableBody>
+            {run.setup.map((item) => (
+              <TableRow key={item.label}>
+                <TableHead scope="row" className="px-4 py-3 text-xs text-muted-foreground">{item.label}</TableHead>
+                <TableCell className="px-4 py-3">{item.value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </section>
     </>
   )

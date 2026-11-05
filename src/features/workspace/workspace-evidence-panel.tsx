@@ -100,7 +100,7 @@ export function WorkspaceEvidencePanel({
       }}
       className="shrink-0 gap-0 border-t"
     >
-      <div className="flex h-11 items-center justify-between gap-3 px-3">
+      <div className="flex h-10 items-center justify-between gap-3 px-5 sm:h-11">
         <TabsList aria-label="Workspace bottom panel">
           <TabsTrigger value="activity" onClick={() => onExpandedChange(true)}>
             Activity
@@ -127,7 +127,7 @@ export function WorkspaceEvidencePanel({
       </div>
 
       {expanded ? (
-        <ScrollArea className="h-44 border-t px-3 py-3">
+        <ScrollArea className="h-[min(18rem,42vh)] border-t px-5 py-3">
           <TabsContent value="activity">
             {authorityError ? (
               <Alert variant="destructive">
@@ -208,7 +208,7 @@ export function WorkspaceEvidencePanel({
                     <TableRow>
                       <TableHead>Checkpoint</TableHead>
                       <TableHead>Position</TableHead>
-                      <TableHead>Evidence</TableHead>
+                      <TableHead className="hidden sm:table-cell">Evidence</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -240,7 +240,7 @@ export function WorkspaceEvidencePanel({
                           </span>
                         </TableCell>
                         <TableCell>{item.current ? "Active Draft" : item.origin}</TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           {item.testedAt ? `Tested · ${item.testedAt}` : "Not tested"}
                         </TableCell>
                         <TableCell className="text-right">

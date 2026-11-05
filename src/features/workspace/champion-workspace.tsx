@@ -42,6 +42,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { DomainObjectReference } from "@/lib/charts/contracts"
@@ -231,6 +232,20 @@ type DemoStrategyNavigationEntry = {
   draftHref: string
   paperHref?: string
   kind: "draft" | "paper"
+}
+
+function DesktopSidebarReopenTrigger() {
+  const { open } = useSidebar()
+
+  if (open) return null
+
+  return (
+    <SidebarTrigger
+      className="hidden shrink-0 md:inline-flex"
+      aria-label="Open sidebar"
+      title="Open sidebar"
+    />
+  )
 }
 
 export function ChampionWorkspace() {
@@ -1456,6 +1471,7 @@ export function ChampionWorkspace() {
       <SidebarInset className="h-svh min-h-0 overflow-hidden">
         <div className="shrink-0 border-b px-5 pt-2 sm:pt-3">
           <div className="flex items-center gap-3">
+            <DesktopSidebarReopenTrigger />
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <span className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-semibold tabular-nums">
                 V{selectedStrategy.version}

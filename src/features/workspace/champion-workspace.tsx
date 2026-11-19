@@ -145,6 +145,7 @@ import {
   marketSessionFixture,
   workspaceFixtures,
 } from "./workspace-fixtures"
+import type { WorkbenchReplayFrame } from "./workbench-script"
 
 type WorkspaceContext = "draft" | "paper" | "live"
 
@@ -248,18 +249,28 @@ function DesktopSidebarReopenTrigger() {
   )
 }
 
-export function ChampionWorkspace() {
+export function ChampionWorkspace({ workbenchReplay }: { workbenchReplay?: WorkbenchReplayFrame } = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const route = useMemo(
-    () => parseWorkspaceRoute(pathname, new URLSearchParams(searchParams.toString())),
-    [pathname, searchParams]
-  )
-  const [runtime, setRuntime] = useState<WorkspaceRuntimeState>(createInitialRuntime)
-  const composerMessage = useWorkspaceInteractionStore(
+  const replayHref = workbenchReplay?.href
+  const route = useMemo(() => {
+    if (replayHref) {
+      const [path, query] = replayHref.split("?")
+      return parseWorkspaceRoute(path, new URLSearchParams(query))
+    }
+    return parseWorkspaceRoute(pathname, new URLSearchParams(searchParams.toString()))
+  }, [pathname, replayHref, searchParams])
+  const [interactiveRuntime, setRuntime] = useState<WorkspaceRuntimeState>(createInitialRuntime)
+  const replayScenario = workbenchReplay?.scenario
+  const replayRuntime = useMemo(() => replayScenario
+    ? projectScenarioOntoRuntime(createInitialRuntime(), replayScenario)
+    : null, [replayScenario])
+  const runtime = replayRuntime ?? interactiveRuntime
+  const interactiveMessage = useWorkspaceInteractionStore(
     (state) => state.composerDrafts[route.championId] ?? ""
   )
+  const composerMessage = workbenchReplay?.message ?? interactiveMessage
   const setComposerDraft = useWorkspaceInteractionStore(
     (state) => state.setComposerDraft
   )
@@ -279,8 +290,12 @@ export function ChampionWorkspace() {
   }>({ tab: null, expanded: false })
   const runtimeRef = useRef(runtime)
   const conversationSequenceRef = useRef(0)
-  const demo = useWorkspaceDemoScenario()
-  const resetDemo = useResetWorkspaceDemo()
+  const interactive = !workbenchReplay
+  const interactiveDemo = useWorkspaceDemoScenario(interactive)
+  const demo = replayScenario
+    ? { scenario: replayScenario, error: null, isPending: false }
+    : interactiveDemo
+  const resetDemo = useResetWorkspaceDemo(interactive)
   const authority = useWorkspaceDemoCommand<
     WorkspaceCommandReceipt,
     DemoAuthorityRequest
@@ -308,11 +323,13 @@ export function ChampionWorkspace() {
         case "append-atlas-exchange":
           return await repository.appendAtlasExchange(request.command)
       }
-    }
+    },
+    {},
+    interactive
   )
 
   useEffect(() => {
-    if (!demo.scenario) return
+    if (!interactive || !demo.scenario) return
     setRuntime((current) => {
       const next = projectScenarioOntoRuntime(current, demo.scenario!)
       runtimeRef.current = next
@@ -326,7 +343,7 @@ export function ChampionWorkspace() {
     } catch {
       // The authority remains usable when sessionStorage is unavailable.
     }
-  }, [demo.scenario])
+  }, [demo.scenario, interactive])
 
   useEffect(() => {
     if (route.kind === "paper-compare") {
@@ -442,7 +459,7 @@ export function ChampionWorkspace() {
     : null
   const evaluationComplete = currentEvaluation !== null
   const paperLaunchReviewAvailable = evaluationComplete
-  const localSaveStatus = demo.error
+  const localSaveStatus = workbenchReplay ? "Demo session" : demo.error
     ? "Local save failed · retry by refreshing"
     : demo.isPending || authority.isPending || resetDemo.isPending
       ? "Saving locally"
@@ -650,7 +667,7 @@ export function ChampionWorkspace() {
           : "Paper · Readiness"
         : "Live · Readiness"
   const viewedContext = defaultViewedContext
-  const attachedContext = conversation.context
+  const attachedContext = workbenchReplay?.context ?? conversation.context
   const workspaceActivity = [
     ...[...conversation.exchanges].reverse().map((exchange) => ({
       id: `atlas-${exchange.id}`,
@@ -1993,7 +2010,8 @@ export function ChampionWorkspace() {
       </SidebarInset>
 
       <EvaluationPreflightDialog
-        open={evaluationReviewOpen}
+        open={workbenchReplay?.preflight ?? evaluationReviewOpen}
+        guided={!interactive}
         onOpenChange={setEvaluationReviewOpen}
         checkpoint={scenarioCurrentCheckpoint}
         evaluationTemplate={evaluationSetupTemplate}
@@ -3206,6 +3224,7 @@ function titleCase(value: string) {
 
 function EvaluationPreflightDialog({
   open,
+  guided,
   onOpenChange,
   checkpoint,
   evaluationTemplate,
@@ -3214,6 +3233,7 @@ function EvaluationPreflightDialog({
   onConfirm,
 }: {
   open: boolean
+  guided: boolean
   onOpenChange: (open: boolean) => void
   checkpoint?: DraftCheckpointRecord
   evaluationTemplate?: EvaluationRecord
@@ -3225,7 +3245,11 @@ function EvaluationPreflightDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !pending && onOpenChange(next)}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent
+        className="sm:max-w-2xl"
+        initialFocus={guided ? false : undefined}
+        finalFocus={guided ? false : undefined}
+      >
         <DialogHeader>
           <DialogTitle>Locked Evaluation preflight</DialogTitle>
           <DialogDescription>
@@ -3273,7 +3297,7 @@ function EvaluationPreflightDialog({
           <Button type="button" variant="outline" disabled={pending} onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="button" disabled={!checkpoint || !setup || pending} onClick={onConfirm}>
+          <Button type="button" data-workbench-action="confirm" disabled={!checkpoint || !setup || pending} onClick={onConfirm}>
             {pending ? "Running…" : "Run Evaluation"}
           </Button>
         </DialogFooter>

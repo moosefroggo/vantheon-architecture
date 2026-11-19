@@ -126,7 +126,7 @@ function SummaryTab({
 }) {
   return (
     <>
-      <Card>
+      <Card data-workbench-action="outcome">
         <CardHeader>
           <CardTitle>Outcome</CardTitle>
         </CardHeader>

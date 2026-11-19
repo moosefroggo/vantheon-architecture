@@ -127,7 +127,7 @@ export function ChangeSetReviewWorkspace({
               <Button type="button" variant="outline" disabled={pending} onClick={onReject}>
                 Reject
               </Button>
-              <Button type="button" disabled={pending || stale} onClick={onAccept}>
+              <Button type="button" data-workbench-action="accept" disabled={pending || stale} onClick={onAccept}>
                 {pending ? "Applying…" : "Accept and checkpoint"}
               </Button>
             </div>

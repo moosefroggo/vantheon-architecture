@@ -69,6 +69,7 @@ export function DraftStrategyWorkspace({
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
+              data-workbench-action="dry-run"
               onClick={onRunEvaluation}
               disabled={authorityOperation !== null}
             >

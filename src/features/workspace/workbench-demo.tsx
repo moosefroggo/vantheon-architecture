@@ -121,8 +121,10 @@ export function WorkbenchDemo() {
       const startY = source ? source.top + source.height / 2 : endY + 38
       const x = startX + (endX - startX) * aim
       const y = startY + (endY - startY) * aim
-      pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`
-      pointer.style.opacity = String(ease(progress / .034))
+      const press = move.to === composer || move.to === outcome ? 0 : ease((progress - move.end + .012) / .012)
+      const writing = ease((progress - .195) / .014) * (1 - ease((progress - .285) / .022))
+      pointer.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${1 - .12 * press})`
+      pointer.style.opacity = String(ease(progress / .034) * (1 - writing))
       if (target && aim >= .84 && move.to !== composer) {
         target.setAttribute("data-workbench-highlight", "")
         highlighted = target
@@ -140,7 +142,7 @@ export function WorkbenchDemo() {
   return (
     <div className="workbench-guided">
       <ChampionWorkspace workbenchReplay={workbenchReplayFrame(replay, progress)} />
-      <svg className="workbench-guide-cursor" viewBox="0 0 20 22" aria-hidden="true">
+      <svg ref={cursor} className="workbench-guide-cursor" viewBox="0 0 20 22" aria-hidden="true">
         <path d="M2.5 2 17 13.1l-6.6.6 2.7 5.5-2.8 1.3L7.6 15l-5.1 4z" fill="white" stroke="#181922" strokeWidth="1.4" strokeLinejoin="round" />
       </svg>
     </div>
